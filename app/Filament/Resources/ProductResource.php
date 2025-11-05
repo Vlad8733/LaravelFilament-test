@@ -5,35 +5,35 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
-use Filament\Resources\Table; // <-- правильно: Filament\Resources\Table
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
+    public static function form(Forms\Form $form): Forms\Form
     {
         return $form
             ->schema([
                 TextInput::make('name')
                     ->required()
+                    ->maxLength(255)
                     ->label('Product Name'),
-                
+
                 Textarea::make('description')
+                    ->maxLength(65535)
                     ->label('Description'),
 
                 TextInput::make('price')
                     ->numeric()
                     ->required()
+                    ->minValue(0)
                     ->label('Price'),
 
                 Select::make('category')
@@ -67,9 +67,7 @@ class ProductResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 

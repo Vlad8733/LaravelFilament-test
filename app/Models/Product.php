@@ -9,7 +9,6 @@ class Product extends Model
 {
     use HasFactory;
 
-    // Разрешаем массовое присвоение этих полей
     protected $fillable = [
         'name',
         'description',
