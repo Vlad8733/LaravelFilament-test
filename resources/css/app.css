@@ -1,3 +1,63 @@
+/* resources/css/app.css */
+
+/* Подключаем базовые стили Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Дополнительные пользовательские стили */
+@layer components {
+  .btn-primary {
+    @apply bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors duration-200;
+  }
+  
+  .btn-success {
+    @apply bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors duration-200;
+  }
+  
+  .btn-danger {
+    @apply bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition-colors duration-200;
+  }
+  
+  .card {
+    @apply bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300;
+  }
+  
+  .input-field {
+    @apply w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+  
+  .alert-success {
+    @apply p-4 bg-green-100 border border-green-400 rounded text-green-700 mb-6;
+  }
+  
+  .alert-error {
+    @apply p-4 bg-red-100 border border-red-400 rounded text-red-700 mb-6;
+  }
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-gray-100 min-h-screen;
+  }
+  
+  h1 {
+    @apply text-4xl font-bold text-gray-800;
+  }
+  
+  h2 {
+    @apply text-2xl font-semibold text-gray-800;
+  }
+  
+  h3 {
+    @apply text-lg font-semibold text-gray-800;
+  }
+}
+
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
