@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\WishlistController;
 
 // Главная
 Route::get('/', function () {
@@ -45,3 +46,12 @@ Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->
 
 // API для купонов
 Route::post('/api/coupons/validate', [CouponController::class, 'validate'])->name('coupons.validate');
+
+// Wishlist
+Route::prefix('wishlist')->name('wishlist.')->group(function () {
+    Route::get('/', [WishlistController::class, 'index'])->name('index');
+    Route::post('/add/{productId}', [WishlistController::class, 'add'])->name('add');
+    Route::delete('/remove/{productId}', [WishlistController::class, 'remove'])->name('remove');
+    Route::get('/count', [WishlistController::class, 'getCount'])->name('count');
+    Route::get('/items', [WishlistController::class, 'getItems'])->name('items');
+});

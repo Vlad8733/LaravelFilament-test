@@ -64,10 +64,21 @@
                     </div>
                 </div>
 
-                <!-- Cart & Actions -->
+                <!-- Cart, Wishlist & Actions -->
                 <div class="flex items-center space-x-4">
+                    <!-- Wishlist -->
+                    <a href="{{ route('wishlist.index') }}" class="relative p-2 text-gray-600 hover:text-gray-900">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <span x-show="wishlistCount > 0" 
+                              x-text="wishlistCount" 
+                              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"></span>
+                    </a>
+
+                    <!-- Cart -->
                     <a href="{{ route('cart.show') }}" class="relative p-2 text-gray-600 hover:text-gray-900">
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg>
                         <span x-show="cartCount > 0" 
                               x-text="cartCount" 
                               class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"></span>
@@ -277,6 +288,15 @@
                                         Out of Stock
                                     </div>
                                 @endif
+
+                                <!-- Wishlist Button -->
+                                <button @click="toggleWishlist({{ $product->id }})"
+                                        :class="wishlistItems.includes({{ $product->id }}) ? 'text-red-500 bg-white' : 'text-gray-400 bg-white hover:text-red-500'"
+                                        class="absolute top-2 right-2 w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-colors">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                    </svg>
+                                </button>
                             </div>
 
                             <!-- Product Info -->
@@ -334,7 +354,7 @@
                         <!-- List View -->
                         <div x-show="viewMode === 'list'" class="bg-white rounded-lg shadow-sm p-6 flex space-x-6">
                             <!-- Product Image -->
-                            <div class="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+                            <div class="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden relative">
                                 @if($product->getPrimaryImage())
                                     <img src="{{ asset('storage/' . $product->getPrimaryImage()->image_path) }}" 
                                          alt="{{ $product->name }}"
@@ -346,6 +366,15 @@
                                         </svg>
                                     </div>
                                 @endif
+
+                                <!-- Wishlist Button for List View -->
+                                <button @click="toggleWishlist({{ $product->id }})"
+                                        :class="wishlistItems.includes({{ $product->id }}) ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
+                                        class="absolute top-2 right-2 w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center transition-colors">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                    </svg>
+                                </button>
                             </div>
 
                             <!-- Product Info -->
@@ -432,11 +461,14 @@
             return {
                 viewMode: 'grid',
                 cartCount: 0,
+                wishlistCount: 0,
+                wishlistItems: [],
                 loading: false,
                 filterLoading: false,
                 notification: {
                     show: false,
-                    message: ''
+                    message: '',
+                    type: 'success'
                 },
                 filters: {
                     category: new URLSearchParams(window.location.search).get('category') || 'all',
@@ -449,6 +481,8 @@
 
                 init() {
                     this.updateCartCount();
+                    this.updateWishlistCount();
+                    this.loadWishlistItems();
                 },
 
                 async addToCart(productId) {
@@ -483,6 +517,41 @@
                     }
                 },
 
+                async toggleWishlist(productId) {
+                    try {
+                        const isInWishlist = this.wishlistItems.includes(productId);
+                        const url = isInWishlist ? `/wishlist/remove/${productId}` : `/wishlist/add/${productId}`;
+                        const method = isInWishlist ? 'DELETE' : 'POST';
+
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.wishlistCount = data.wishlistCount;
+                            
+                            if (isInWishlist) {
+                                this.wishlistItems = this.wishlistItems.filter(id => id !== productId);
+                            } else {
+                                this.wishlistItems.push(productId);
+                            }
+                            
+                            this.showNotification(data.message, 'success');
+                        } else {
+                            this.showNotification(data.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error toggling wishlist:', error);
+                        this.showNotification('Error updating wishlist', 'error');
+                    }
+                },
+
                 async updateCartCount() {
                     try {
                         const response = await fetch('/cart/count');
@@ -490,6 +559,26 @@
                         this.cartCount = data.count;
                     } catch (error) {
                         console.error('Error fetching cart count:', error);
+                    }
+                },
+
+                async updateWishlistCount() {
+                    try {
+                        const response = await fetch('/wishlist/count');
+                        const data = await response.json();
+                        this.wishlistCount = data.count;
+                    } catch (error) {
+                        console.error('Error fetching wishlist count:', error);
+                    }
+                },
+
+                async loadWishlistItems() {
+                    try {
+                        const response = await fetch('/wishlist/items');
+                        const data = await response.json();
+                        this.wishlistItems = data.items;
+                    } catch (error) {
+                        console.error('Error loading wishlist items:', error);
                     }
                 },
 
