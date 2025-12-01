@@ -491,6 +491,7 @@
                     try {
                         const response = await fetch(`/cart/add/${productId}`, {
                             method: 'POST',
+                            credentials: 'same-origin',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -525,6 +526,7 @@
 
                         const response = await fetch(url, {
                             method: method,
+                            credentials: 'same-origin',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                                 'Accept': 'application/json'
@@ -554,7 +556,7 @@
 
                 async updateCartCount() {
                     try {
-                        const response = await fetch('/cart/count');
+                        const response = await fetch('/cart/count', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
                         const data = await response.json();
                         this.cartCount = data.count;
                     } catch (error) {
@@ -564,7 +566,7 @@
 
                 async updateWishlistCount() {
                     try {
-                        const response = await fetch('/wishlist/count');
+                        const response = await fetch('/wishlist/count', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
                         const data = await response.json();
                         this.wishlistCount = data.count;
                     } catch (error) {
@@ -574,7 +576,7 @@
 
                 async loadWishlistItems() {
                     try {
-                        const response = await fetch('/wishlist/items');
+                        const response = await fetch('/wishlist/items', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
                         const data = await response.json();
                         this.wishlistItems = data.items;
                     } catch (error) {

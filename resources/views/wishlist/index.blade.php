@@ -146,8 +146,10 @@
                     try {
                         const response = await fetch(`/wishlist/remove/${productId}`, {
                             method: 'DELETE',
+                            credentials: 'same-origin',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
                             }
                         });
 
@@ -169,9 +171,11 @@
                     try {
                         const response = await fetch(`/cart/add/${productId}`, {
                             method: 'POST',
+                            credentials: 'same-origin',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
                             },
                             body: JSON.stringify({ quantity: 1 })
                         });
