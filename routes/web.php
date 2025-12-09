@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\SellerController;
 
 // Главная
 Route::get('/', function () {
@@ -54,4 +55,10 @@ Route::prefix('wishlist')->name('wishlist.')->group(function () {
     Route::delete('/remove/{productId}', [WishlistController::class, 'remove'])->name('remove');
     Route::get('/count', [WishlistController::class, 'getCount'])->name('count');
     Route::get('/items', [WishlistController::class, 'getItems'])->name('items');
+});
+
+// Продукты продавца
+Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/', [SellerController::class, 'index'])->name('dashboard');
+    Route::get('/products', [SellerController::class, 'products'])->name('products');
 });

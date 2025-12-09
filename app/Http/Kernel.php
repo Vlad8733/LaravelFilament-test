@@ -1,0 +1,13 @@
+<?php
+// ...existing code...
+class Kernel extends HttpKernel
+{
+    // ...existing code...
+
+    protected $routeMiddleware = [
+        // ...existing middleware ...
+        'seller' => \App\Http\Middleware\EnsureSeller::class,
+    ];
+
+    // ...existing code...
+}
