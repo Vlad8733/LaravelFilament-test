@@ -1,71 +1,287 @@
 /* resources/css/app.css */
 
-/* Подключаем базовые стили Tailwind */
+/* Tailwind core */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Дополнительные пользовательские стили */
-@layer components {
-  .btn-primary {
-    @apply bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors duration-200;
-  }
-  
-  .btn-secondary {
-    @apply bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition-colors duration-200;
-  }
-  
-  .btn-success {
-    @apply bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors duration-200;
-  }
-  
-  .btn-danger {
-    @apply bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition-colors duration-200;
-  }
-  
-  .card {
-    @apply bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300;
-  }
-  
-  .input-field {
-    @apply w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-  }
-  
-  .alert-success {
-    @apply p-4 bg-green-100 border border-green-400 rounded text-green-700 mb-6;
-  }
-  
-  .alert-error {
-    @apply p-4 bg-red-100 border border-red-400 rounded text-red-700 mb-6;
-  }
+/* Цвета и минимальные переопределения (точно как в register.blade.php) */
+:root{
+  --bg: #0b0b0b;
+  --card: #171717;
+  --border: #2a2a2a;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #f59e0b;
+  --error: #ef4444;
+
+  /* convenience */
+  --site-bg: #0b0b0b;
 }
 
+/* Только фон страницы и цвет текста — НИКАКОГО центрирования или размеров */
 @layer base {
-  body {
-    @apply font-sans bg-gray-100 min-h-screen;
+  /* Don't force a heavy gradient or use !important on html/body.
+     Keep body readable but allow page wrapper to have the fancier look. */
+  html, body {
+    background-color: var(--site-bg);
+    color: var(--text);
   }
-  
-  h1 {
-    @apply text-4xl font-bold text-gray-800;
-  }
-  
-  h2 {
-    @apply text-2xl font-semibold text-gray-800;
-  }
-  
-  h3 {
-    @apply text-lg font-semibold text-gray-800;
+
+  /* site-wrapper: не центрируем глобально, только базовый отступы */
+  .site-wrapper {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
+    background: transparent;
+    min-height: auto;
   }
 }
 
-@import 'tailwindcss';
+/* Небольшие безопасные переопределения цветов, НЕ меняющие layout */
+@layer components {
+  /* Only style project-specific components — avoid touching Tailwind utilities */
+  .card, .site-card {
+    background: linear-gradient(180deg, var(--card), #141414);
+    color: var(--text);
+    border-color: var(--border);
+  }
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+  input, textarea, select, .input-field {
+    background: #0f0f0f;
+    color: var(--text);
+    border-color: var(--border);
+  }
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  /* Buttons: use custom classes used in templates */
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-success {
+    background: #16a34a;
+    color: #fff;
+  }
+
+  /* small helper classes instead of overriding Tailwind text-* classes */
+  .muted {
+    color: var(--muted);
+  }
+
+  .shop-text {
+    color: var(--text);
+  }
+
+  /* small util used in index */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Auth / Register specific layout (scoped) */
+  .auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+    min-height: 100vh;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: linear-gradient(180deg, var(--card), #141414);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.6);
+    border: 1px solid var(--border);
+  }
+
+  .brand {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .brand h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .brand p {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+
+  input.input-field, textarea.input-field, select.input-field {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+  }
+
+  input.input-field:focus, textarea.input-field:focus, select.input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, .3);
+  }
+
+  .error {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--error);
+  }
+
+  .btn-primary {
+    width: 100%;
+    height: 44px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.05);
+  }
+
+  .footer {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .accent-link {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .accent-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Sidebar: ПОВЕДЕНИЕ ПО-УМОЛЧАНИЮ — мобильный: занимать всю ширину (w-full),
+     только на lg+ фиксировать ширину 16rem, без глобальных !important */
+  .site-filter {
+    width: 100%;
+    max-width: none;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 1024px) {
+    .site-filter {
+      flex: 0 0 16rem;
+      max-width: 16rem;
+      min-width: 12rem;
+    }
+  }
+
+  /* Nav avatar fallback (защищаем круглую форму и размер) */
+  .nav-avatar {
+    display: inline-block;
+    object-fit: cover;
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px; /* гарантирует круг */
+    vertical-align: middle;
+  }
+
+  /* Nav button: запретим растягиваться в flex-контейнерах */
+  .btn-nav {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: .45rem .9rem;
+    border-radius: .5rem;
+    max-width: 18rem;
+  }
+
+  /* Products layout */
+  .products-wrap { display: flex; gap: 2rem; align-items: flex-start; }
+  .filters-panel { width: 100%; box-sizing: border-box; }
+  @media (min-width: 1024px) {
+    .filters-panel { flex: 0 0 16rem; max-width: 16rem; min-width: 12rem; }
+  }
+  .products-main { flex: 1 1 0%; min-width: 0; }
+
+  /* Grid */
+  .products-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(1, 1fr); }
+  @media (min-width: 640px) { .products-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .products-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  /* Product card */
+  .product-card {
+    background: linear-gradient(180deg, var(--card), #141414);
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .product-image {
+    width: 100%;
+    height: 160px; /* fixed image height for consistent grid */
+    object-fit: cover;
+    display: block;
+    background: #0b0b0b;
+  }
+  .product-body { padding: .75rem; display:flex; flex-direction: column; gap:.5rem; flex:1 1 auto; }
+  .product-title { font-weight:600; color:var(--text); }
+  .product-desc { color:var(--muted); font-size:.9rem; }
+  .product-price { font-weight:700; color:#10b981; } /* green for price */
+  .product-actions { margin-top:auto; display:flex; gap:.5rem; align-items:center; }
+
+  .btn-primary { background: var(--accent); color: #000; padding:.6rem .9rem; border-radius: .5rem; display:inline-flex; align-items:center; justify-content:center; }
+  .btn-outline { background: transparent; border:1px solid rgba(255,255,255,.06); color:var(--text); padding:.5rem .9rem; border-radius:.5rem; }
+
+  /* Toolbar + counts (small box on right) */
+  .toolbar { display:flex; gap:1rem; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  .toolbar .meta-box { background:#fff; color:#111; padding:.75rem; border-radius:.5rem; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+
+  /* Navbar items safety */
+  .nav-fixed-button { flex: none; max-width: 14rem; white-space:nowrap; }
+  .nav-avatar { width:32px; height:32px; border-radius:9999px; object-fit:cover; display:inline-block; }
+
+  /* Toasts */
+  .toast { padding:.6rem 1rem; border-radius:.6rem; color:#fff; box-shadow:0 8px 24px rgba(0,0,0,.2); }
+
+  /* small responsive tweaks */
+  @media (max-width: 640px) {
+    .product-image { height: 180px; }
+    .filters-panel { margin-bottom: 1rem; }
+  }
+}
+
+/* small responsive safety — не меняет layout, только цвета remain */
+@media (max-width: 900px) {
+  html, body { background: var(--site-bg); }
 }

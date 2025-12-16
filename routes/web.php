@@ -8,10 +8,48 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\SellerController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\ProfileController;
 
 // Главная
-Route::get('/', function () {
-    return redirect()->route('products.index');
+Route::get('/', fn() => view('welcome'))->name('home');
+
+// Гостевые маршруты: регистрация / вход
+Route::middleware('guest')->group(function () {
+    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('register', [RegisteredUserController::class, 'store']);
+
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+});
+
+// Выход
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
+
+// Подтверждение пароля (auth)
+Route::middleware('auth')->group(function () {
+    Route::get('confirm-password', [ConfirmablePasswordController::class, 'showConfirmForm'])->name('password.confirm');
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'confirm']);
+});
+
+// Профиль пользователя (разделённые действия)
+Route::middleware('auth')->group(function () {
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+
+    // обновление аккаунта (name/email/password)
+    Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // обновление аватара отдельным запросом
+    Route::post('profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+
+    // удаление аккаунта
+    Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Продукты
@@ -35,7 +73,7 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/coupon/remove', [CartController::class, 'removeCoupon'])->name('coupon.remove');
 });
 
-// Checkout - ИСПРАВЛЕНО!
+// Checkout
 Route::prefix('checkout')->name('checkout.')->group(function () {
     Route::get('/', [CartController::class, 'checkout'])->name('show');
     Route::post('/', [CartController::class, 'placeOrder'])->name('place');
