@@ -1,3 +1,8 @@
+@extends('layouts.app')
+
+@section('title','Products - My Shop')
+
+@section('content')
 @foreach($products as $product)
 <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
     <h2 class="text-2xl font-semibold mb-2 text-gray-800">{{ $product->name }}</h2>
@@ -13,3 +18,4 @@
     </form>
 </div>
 @endforeach
+@endsection

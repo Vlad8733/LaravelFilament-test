@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@push('styles')
+    @vite('resources/css/profile/profileedit.css')
+@endpush
+
+@push('scripts')
+    @vite('resources/js/profile/profileedit.js')
+@endpush
+
 @section('content')
 <main class="py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,7 +31,6 @@
 
           <form method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data">
             @csrf
-
             <div>
               <label class="field-label">Change avatar</label>
               <input type="file" name="avatar" id="avatarInput" accept="image/*" class="input-field">
@@ -102,44 +109,4 @@
     </div>
   </div>
 </main>
-
-{{-- Page-specific JS --}}
-<script>
-(function(){
-  const avatarInput = document.getElementById('avatarInput');
-  const avatarPreview = document.getElementById('avatarPreview');
-
-  if (avatarInput) {
-    avatarInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        avatarPreview.innerHTML = '<img src="' + ev.target.result + '" alt="avatar">';
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  const themeToggle = document.getElementById('themeToggle');
-
-  function applyTheme(t) {
-    document.documentElement.classList.remove('theme-light','theme-dark');
-    document.documentElement.classList.add(t === 'dark' ? 'theme-dark' : 'theme-light');
-    localStorage.setItem('site_theme', t);
-  }
-
-  const stored = localStorage.getItem('site_theme');
-  if (stored) applyTheme(stored);
-
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const cur = localStorage.getItem('site_theme') || 'light';
-      const next = cur === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      themeToggle.textContent = 'Theme: ' + next;
-    });
-  }
-})();
-</script>
 @endsection

@@ -1,101 +1,18 @@
-<!DOCTYPE html>
-<html lang="en" x-data="wishlistPage()">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wishlist - My Shop</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
-<body class="bg-gray-50">
+@extends('layouts.app')
 
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="/" class="text-2xl font-bold text-blue-600">MyShop</a>
-                </div>
+@section('title','My Wishlist - My Shop')
 
-                <!-- Search -->
-                <div class="flex-1 max-w-lg mx-8">
-                    <div class="relative" x-data="searchBox()">
-                        <input type="text" 
-                               x-model="query" 
-                               @input="debounceSearch"
-                               @focus="showResults = true"
-                               @click.away="showResults = false"
-                               placeholder="Search products..." 
-                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        
-                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+@push('styles')
+    @vite('resources/css/wishlist/wishlistindex.css')
+@endpush
 
-                        <!-- Search Results -->
-                        <div x-show="showResults && results.length > 0" 
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 scale-95"
-                             x-transition:enter-end="opacity-100 scale-100"
-                             class="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto z-50">
-                            <template x-for="product in results" :key="product.id">
-                                <a :href="product.url" class="flex items-center p-3 hover:bg-gray-50 border-b border-gray-100 last:border-0">
-                                    <img x-show="product.image" 
-                                         :src="product.image" 
-                                         :alt="product.name"
-                                         class="w-12 h-12 object-cover rounded mr-3">
-                                    <div class="flex-1">
-                                        <div class="font-medium text-gray-900" x-text="product.name"></div>
-                                        <div class="text-green-600 font-semibold" x-text="`$${product.price}`"></div>
-                                    </div>
-                                </a>
-                            </template>
-                        </div>
-                    </div>
-                </div>
+@push('scripts')
+    @vite('resources/js/wishlist/wishlistindex.js')
+@endpush
 
-                <!-- Cart, Wishlist & Actions -->
-                <div class="flex items-center space-x-4">
-                    <!-- Wishlist -->
-                    <a href="{{ route('wishlist.index') }}" class="relative p-2 text-gray-600 hover:text-gray-900">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                        </svg>
-                        <span x-show="wishlistCount > 0" 
-                              x-text="wishlistCount" 
-                              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"></span>
-                    </a>
-
-                    <!-- Cart -->
-                    <a href="{{ route('cart.show') }}" class="relative p-2 text-gray-600 hover:text-gray-900">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg>
-                        <span x-show="cartCount > 0" 
-                              x-text="cartCount" 
-                              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"></span>
-                    </a>
-                    
-                    <a href="{{ route('checkout.show') }}" 
-                       class="bg-blue-600 text-white px-4 py-2 rounded-lg text-center font-medium hover:bg-blue-700 transition-colors flex-none max-w-xs whitespace-nowrap">
-                        Proceed to Checkout
-                    </a>
-
-                    @auth
-                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 p-2 text-gray-600 hover:text-gray-900 flex-none">
-                            <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim(auth()->user()->email))) . '?s=40&d=identicon' }}" 
-                                 alt="avatar" class="w-8 h-8 rounded-full object-cover nav-avatar border">
-                            <span class="hidden sm:inline text-sm">{{ auth()->user()->name }}</span>
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="text-sm text-blue-600 hover:underline">Sign in</a>
-                    @endauth
-                 </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+@section('content')
+<div x-data="wishlistPage()" class="wishlist-page">
+    <div class="container">
         <!-- Breadcrumbs -->
         <nav class="mb-8">
             <ol class="flex items-center space-x-2 text-sm">
@@ -106,70 +23,68 @@
         </nav>
 
         <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">My Wishlist</h1>
-            <span class="text-gray-500">{{ $wishlistItems->count() }} items</span>
+            <h1 class="text-3xl font-bold">My Wishlist</h1>
+            <span class="text-sm text-gray-400">{{ $wishlistItems->count() }} items</span>
         </div>
 
         @if($wishlistItems->count() > 0)
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="wishlist-grid">
                 @foreach($wishlistItems as $item)
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                        <div class="aspect-square bg-gray-200 relative">
+                    <div class="wishlist-card">
+                        <div class="thumb">
                             @if($item->product->images->first())
                                 <img src="{{ asset('storage/' . $item->product->images->first()->image_path) }}" 
-                                     alt="{{ $item->product->name }}"
-                                     class="w-full h-full object-cover">
+                                     alt="{{ $item->product->name }}">
                             @else
                                 <div class="w-full h-full flex items-center justify-center">
-                                    <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
+                                    <!-- placeholder svg -->
                                 </div>
                             @endif
-                            
-                            <button @click="removeFromWishlist({{ $item->product->id }})"
-                                    class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition-colors">
+
+                            <button type="button"
+                                    data-wishlist-remove="{{ $item->product->id }}"
+                                    @click.prevent="removeFromWishlist({{ $item->product->id }})"
+                                    class="remove-btn" aria-label="Remove from wishlist">
                                 <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </button>
                         </div>
-                        
+
                         <div class="p-4">
-                            <h3 class="font-semibold text-gray-900 mb-2">
-                                <a href="{{ route('products.show', $item->product) }}" class="hover:text-blue-600">
+                            <h3>
+                                <a href="{{ route('products.show', $item->product) }}" class="hover:text-blue-400">
                                     {{ $item->product->name }}
                                 </a>
                             </h3>
-                            
-                            <p class="text-sm text-gray-500 mb-3">{{ $item->product->category->name ?? 'Uncategorized' }}</p>
-                            
-                            <div class="flex items-center justify-between mb-3">
+
+                            <p class="text-sm">{{ $item->product->category->name ?? 'Uncategorized' }}</p>
+
+                            <div class="flex items-center justify-between my-3">
                                 @if($item->product->sale_price)
                                     <div class="flex items-center space-x-2">
-                                        <span class="text-lg font-bold text-green-600">${{ number_format($item->product->sale_price, 2) }}</span>
-                                        <span class="text-sm text-gray-500 line-through">${{ number_format($item->product->price, 2) }}</span>
+                                        <span class="text-lg font-bold text-green-400">${{ number_format($item->product->sale_price, 2) }}</span>
+                                        <span class="text-sm text-gray-400 line-through">${{ number_format($item->product->price, 2) }}</span>
                                     </div>
                                 @else
-                                    <span class="text-lg font-bold text-gray-900">${{ number_format($item->product->price, 2) }}</span>
+                                    <span class="text-lg font-bold text-gray-100">${{ number_format($item->product->price, 2) }}</span>
                                 @endif
-                                
+
                                 @if($item->product->stock_quantity > 0)
-                                    <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">In Stock</span>
+                                    <span class="badge-in">In Stock</span>
                                 @else
-                                    <span class="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">Out of Stock</span>
+                                    <span class="badge-out">Out of Stock</span>
                                 @endif
                             </div>
-                            
-                            <div class="flex space-x-2">
-                                <button @click="addToCart({{ $item->product->id }})"
-                                        :disabled="{{ $item->product->stock_quantity > 0 ? 'false' : 'true' }} || loading"
-                                        class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm">
+
+                            <div class="actions">
+                                <button type="button" @click.prevent="addToCart({{ $item->product->id }})"
+                                        :disabled="loading || {{ $item->product->stock_quantity > 0 ? 'false' : 'true' }}"
+                                        class="btn-add text-sm">
                                     Add to Cart
                                 </button>
-                                
-                                <a href="{{ route('products.show', $item->product) }}" 
-                                   class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+
+                                <a href="{{ route('products.show', $item->product) }}" class="btn-view">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -181,101 +96,38 @@
                 @endforeach
             </div>
         @else
-            <div class="bg-white rounded-lg shadow-sm p-12 text-center">
-                <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="wishlist-empty">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                 </svg>
-                <h2 class="text-xl font-medium text-gray-500 mb-4">Your wishlist is empty</h2>
+                <h2 class="text-xl font-medium text-gray-300 mb-4">Your wishlist is empty</h2>
                 <p class="text-gray-400 mb-6">Start adding products you love to keep track of them</p>
-                <a href="{{ route('products.index') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <a href="{{ route('products.index') }}" class="btn-add">
                     Browse Products
                 </a>
             </div>
         @endif
+
+        <!-- Unified notification (same behavior / animation as products index) -->
+        <div x-show="notification.show" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform translate-x-full"
+             x-transition:enter-end="opacity-100 transform translate-x-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform translate-x-0"
+             x-transition:leave-end="opacity-0 transform translate-x-full"
+             :class="notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
+             class="fixed top-20 right-4 z-50 text-white px-6 py-3 rounded-lg shadow-lg max-w-sm">
+            <div class="flex items-center">
+                <svg x-show="notification.type === 'success'" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <svg x-show="notification.type === 'error'" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span x-text="notification.message"></span>
+            </div>
+        </div>
     </div>
-
-    <!-- Toast Notifications -->
-    <div x-show="notification.show" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:leave="transition ease-in duration-200"
-         :class="notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
-         class="fixed top-4 right-4 z-50 text-white px-6 py-3 rounded-lg shadow-lg">
-        <span x-text="notification.message"></span>
-    </div>
-
-    <script>
-        function wishlistPage() {
-            return {
-                loading: false,
-                notification: {
-                    show: false,
-                    message: '',
-                    type: 'success'
-                },
-
-                async removeFromWishlist(productId) {
-                    try {
-                        const response = await fetch(`/wishlist/remove/${productId}`, {
-                            method: 'DELETE',
-                            credentials: 'same-origin',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            }
-                        });
-
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            this.showNotification(data.message, 'error');
-                        }
-                    } catch (error) {
-                        this.showNotification('Error removing from wishlist', 'error');
-                    }
-                },
-
-                async addToCart(productId) {
-                    this.loading = true;
-                    
-                    try {
-                        const response = await fetch(`/cart/add/${productId}`, {
-                            method: 'POST',
-                            credentials: 'same-origin',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ quantity: 1 })
-                        });
-
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            this.showNotification('Product added to cart!', 'success');
-                        } else {
-                            this.showNotification(data.message, 'error');
-                        }
-                    } catch (error) {
-                        this.showNotification('Error adding to cart', 'error');
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                showNotification(message, type = 'success') {
-                    this.notification.message = message;
-                    this.notification.type = type;
-                    this.notification.show = true;
-                    setTimeout(() => {
-                        this.notification.show = false;
-                    }, 3000);
-                }
-            }
-        }
-    </script>
-
-</body>
-</html>
+</div>
+@endsection

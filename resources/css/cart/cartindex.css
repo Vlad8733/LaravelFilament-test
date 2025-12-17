@@ -1,0 +1,127 @@
+:root {
+    --bg: #0b0b0b;
+    --card: #171717;
+    --border: #2a2a2a;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #f59e0b;
+    --danger: #ef4444;
+}
+
+/* Page background */
+body {
+    background: radial-gradient(ellipse at center, #111 0%, #000 70%);
+    color: var(--text);
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: var(--text);
+}
+
+/* Card base */
+.bg-white {
+    background: linear-gradient(180deg, #1a1a1a, #141414) !important;
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 80px rgba(0,0,0,.8);
+    color: var(--text);
+}
+
+/* Empty cart */
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.text-gray-900 {
+    color: var(--muted) !important;
+}
+
+/* Product image placeholder */
+.bg-gray-200 {
+    background: #0f0f0f !important;
+    border: 1px solid var(--border);
+}
+
+/* Quantity buttons */
+button.bg-gray-200 {
+    background: #0f0f0f !important;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+button.bg-gray-200:hover {
+    border-color: var(--accent);
+}
+
+/* Remove button */
+.text-red-500 {
+    color: var(--danger) !important;
+}
+
+.text-red-500:hover {
+    color: #ff6b6b !important;
+}
+
+/* Order summary divider */
+hr {
+    border-color: var(--border);
+}
+
+/* Coupon input */
+input[type="text"] {
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, .4);
+}
+
+/* Buttons */
+.bg-blue-600,
+.bg-gray-600 {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 600;
+    border-radius: 12px;
+}
+
+.bg-blue-600:hover,
+.bg-gray-600:hover {
+    filter: brightness(1.05);
+}
+
+/* Coupon applied box */
+.bg-green-50 {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border: 1px solid var(--accent);
+}
+
+.text-green-600,
+.text-green-700 {
+    color: var(--accent) !important;
+}
+
+/* Checkout button */
+a.bg-blue-600 {
+    text-align: center;
+}
+
+/* Icons */
+svg {
+    color: var(--muted);
+}
+
+/* Ensure coupon input can shrink inside flex and button doesn't grow */
+.flex.space-x-2 input,
+.flex.space-x-2 .flex-1 {
+    min-width: 0;
+}
+
+.flex.space-x-2 button {
+    flex: 0 0 auto;
+}
+

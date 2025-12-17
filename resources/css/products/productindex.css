@@ -1,0 +1,472 @@
+:root {
+    --bg: #0b0b0b;
+    --card: #171717;
+    --border: #2a2a2a;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #f59e0b;
+    --danger: #ef4444;
+}
+
+/* Page background */
+body {
+    background: radial-gradient(ellipse at center, #111 0%, #000 70%);
+    color: var(--text);
+}
+
+/* Headings */
+h1, h2, h3, h4 {
+    color: var(--text);
+}
+
+/* Cards */
+.bg-white {
+    background: linear-gradient(180deg, #1a1a1a, #141414) !important;
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 80px rgba(0,0,0,.8);
+    color: var(--text);
+}
+
+/* Sidebar, filters, and product lists */
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.text-gray-900 {
+    color: var(--muted) !important;
+}
+
+.bg-gray-200 {
+    background: #0f0f0f !important;
+    border: 1px solid var(--border);
+}
+
+/* Quantity buttons, input groups */
+button.bg-gray-200 {
+    background: #0f0f0f !important;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+button.bg-gray-200:hover {
+    border-color: var(--accent);
+}
+
+/* Remove / wishlist button */
+.text-red-500 {
+    color: var(--danger) !important;
+}
+
+.text-red-500:hover {
+    color: #ff6b6b !important;
+}
+
+/* Dividers */
+hr {
+    border-color: var(--border);
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, .4);
+}
+
+/* Buttons */
+.bg-blue-600,
+.bg-gray-600 {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 600;
+    border-radius: 12px;
+}
+
+.bg-blue-600:hover,
+.bg-gray-600:hover {
+    filter: brightness(1.05);
+}
+
+/* Success boxes / coupon applied */
+.bg-green-50 {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border: 1px solid var(--accent);
+}
+
+.text-green-600,
+.text-green-700 {
+    color: var(--accent) !important;
+}
+
+/* Product links */
+a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--accent);
+}
+
+/* Icons */
+svg {
+    color: var(--muted);
+}
+
+/* Flex helpers */
+.flex.space-x-2 input,
+.flex.space-x-2 .flex-1 {
+    min-width: 0;
+}
+
+.flex.space-x-2 button {
+    flex: 0 0 auto;
+}
+
+/* Product badges */
+.badge-sale,
+.badge-outofstock {
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+}
+
+/* Grid / List spacing */
+.grid > * {
+    transition: none;
+}
+
+/* Wishlist button */
+.wish {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06); /* более заметный фон */
+    color: rgba(230,238,246,0.98);      /* светлая иконка */
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 8px 20px rgba(2,6,23,0.55);
+    transition: background .12s ease, transform .08s ease, color .12s ease, box-shadow .12s ease;
+    z-index: 40;
+}
+
+.wish .wish-icon {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    transition: fill .12s ease, stroke .12s ease, transform .12s ease;
+}
+
+/* Active (in wishlist) — solid red heart */
+.wish.active {
+    background: rgba(239,68,68,0.14);
+    border-color: rgba(239,68,68,0.28);
+    color: #ef4444; /* цвет иконки/заливки */
+}
+
+.wish.active .wish-icon {
+    fill: currentColor;
+    stroke: none;
+}
+
+/* focus / pressed */
+.wish:active { transform: translateY(1px); }
+
+/* Make wish selector specific to product card so it won't override global buttons */
+.card .wish {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.85);
+    box-shadow: 0 6px 18px rgba(2,6,23,0.55);
+    transition: transform .12s cubic-bezier(.2,.9,.3,1), box-shadow .12s ease, background .12s ease;
+    cursor: pointer;
+    z-index: 40;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.card .wish:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(2,6,23,0.65);
+}
+
+.card .wish .wish-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    fill: transparent;
+    transition: stroke .12s ease, fill .18s ease, transform .18s cubic-bezier(.2,.9,.3,1);
+    transform-origin: center;
+}
+
+.card .wish.active {
+    background: radial-gradient( circle at 30% 20%, rgba(239,68,68,0.14), rgba(0,0,0,0.02) 40% );
+    border-color: rgba(239,68,68,0.28);
+    color: #ef4444;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 18px 38px rgba(239,68,68,0.08), 0 8px 30px rgba(2,6,23,0.6);
+}
+
+.card .wish.active .wish-icon {
+    fill: currentColor;
+    stroke: none;
+    transform: scale(1.02);
+}
+
+/* ===== Override wishlist button: strong, clear design =====
+   Scoped to .products-page .card .wish to avoid global conflicts.
+*/
+.products-page .card .wish {
+    width: 46px !important;
+    height: 46px !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    border-radius: 12px !important;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)) !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    color: rgba(255,255,255,0.9) !important;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.6) !important;
+    transition: transform .14s cubic-bezier(.2,.9,.3,1), box-shadow .14s ease, background .12s ease !important;
+    cursor: pointer !important;
+    z-index: 60 !important;
+    -webkit-tap-highlight-color: transparent !important;
+    opacity: 1 !important;
+}
+
+/* SVG inside button */
+.products-page .card .wish .wish-icon {
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
+    stroke: currentColor !important;
+    stroke-width: 1.4 !important;
+    fill: transparent !important;
+    transition: fill .14s ease, transform .16s cubic-bezier(.2,.9,.3,1) !important;
+    transform-origin: center !important;
+}
+
+/* Hover */
+.products-page .card .wish:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 16px 36px rgba(2,6,23,0.7) !important;
+}
+
+/* Active (in wishlist) — ярко-красная заливка сердца */
+.products-page .card .wish.active {
+    background: radial-gradient(circle at 30% 20%, rgba(239,68,68,0.16), rgba(0,0,0,0.02)) !important;
+    border-color: rgba(239,68,68,0.32) !important;
+    color: #ef4444 !important;
+    transform: translateY(-1px) scale(1.03) !important;
+    box-shadow: 0 20px 44px rgba(239,68,68,0.09), 0 10px 30px rgba(2,6,23,0.65) !important;
+}
+
+/* Fill svg when active */
+.products-page .card .wish.active .wish-icon {
+    fill: currentColor !important;
+    stroke: none !important;
+    animation: wish-pop .28s cubic-bezier(.2,.9,.3,1) !important;
+}
+
+/* Pop animation */
+@keyframes wish-pop {
+    0%   { transform: scale(.8); opacity: .6; }
+    60%  { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* smaller variant for compact list cards */
+.products-page .card.small .wish,
+.products-page .list-view .card .wish {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+}
+
+/* Apply Filters explicit style — will override accidental global rules */
+.apply-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .55rem .9rem !important;
+    border-radius: 10px !important;
+    background: linear-gradient(90deg,#f6b84b,#ff9f1c) !important;
+    color: #071017 !important;
+    font-weight: 700 !important;
+    border: none !important;
+    box-shadow: 0 8px 20px rgba(246,184,75,0.12) !important;
+    text-decoration: none !important;
+}
+
+/* Ensure Apply Filters is visible and not collapsed */
+.products-page .apply-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: .5rem !important;
+    padding: .75rem 1rem !important;
+    min-height: 44px !important;
+    line-height: 1 !important;
+    font-size: 0.95rem !important;
+    border-radius: 10px !important;
+    background: linear-gradient(90deg,#f6b84b,#ff9f1c) !important;
+    background-repeat: no-repeat !important;
+    color: #071017 !important;          /* contrast text on yellow */
+    font-weight: 700 !important;
+    border: none !important;
+    box-shadow: 0 8px 20px rgba(246,184,75,0.12) !important;
+    text-decoration: none !important;
+    width: 100% !important;
+    opacity: 1 !important;
+}
+
+/* Ensure inner spans are visible (x-show may toggle display) */
+.products-page .apply-btn > span {
+    display: inline-block !important;
+    color: #071017 !important;
+}
+
+/* Defensive: override possible interfering rules */
+.products-page .apply-btn,
+.products-page .apply-btn > span {
+    -webkit-text-fill-color: #071017 !important;
+    user-select: none !important;
+}
+
+/* Видимая, контрастная кнопка избранного (override) */
+.products-page .products-wish {
+    width: 44px !important;
+    height: 44px !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    border-radius: 10px !important;
+    background: #11161a !important;                /* тёмный фон, не прозрачный */
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    color: #ffffff !important;                     /* иконка белая по умолчанию */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6) !important;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease !important;
+    cursor: pointer !important;
+    z-index: 60 !important;
+}
+
+/* Контурное сердце по умолчанию (белое) */
+.products-page .products-wish .wish-icon {
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
+    fill: transparent !important;
+    stroke: currentColor !important;
+    stroke-width: 1.6 !important;
+    transition: fill .18s ease, transform .18s ease, stroke .12s ease !important;
+    transform-origin: center !important;
+}
+
+/* Hover — лёгкий подъём */
+.products-page .products-wish:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.7) !important;
+}
+
+/* Active — сердце заполняется красным, кнопка подсвечивается */
+.products-page .products-wish.active {
+    background: linear-gradient(90deg, rgba(239,68,68,0.14), rgba(255,159,28,0.04)) !important;
+    border-color: rgba(239,68,68,0.28) !important;
+    color: #ef4444 !important;                     /* fill будет красным */
+    transform: translateY(-1px) scale(1.03) !important;
+    box-shadow: 0 16px 40px rgba(239,68,68,0.08), 0 8px 28px rgba(0,0,0,0.6) !important;
+}
+
+/* Заполнение svg при active */
+.products-page .products-wish.active .wish-icon {
+    fill: currentColor !important;
+    stroke: none !important;
+    animation: wish-pop .28s cubic-bezier(.2,.9,.3,1) !important;
+}
+
+/* Поп-анимация */
+@keyframes wish-pop {
+    0% { transform: scale(.85); opacity: .6; }
+    60% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Доступность */
+.products-page .products-wish:focus {
+    outline: 3px solid rgba(239,68,68,0.12) !important;
+    outline-offset: 3px !important;
+}
+
+/* Fix: force solid visible button and red heart on active */
+.products-page .products-wish {
+    background: #11161a !important;    /* тёмный, непрозрачный фон */
+    border-color: rgba(255,255,255,0.06) !important;
+    color: #fff !important;
+}
+
+/* ensure default icon is white outline */
+.products-page .products-wish .wish-icon {
+    stroke: #fff !important;
+    fill: transparent !important;
+    transition: fill .18s ease, transform .18s ease, filter .18s ease !important;
+}
+
+/* when active — keep button background dark and paint the heart red */
+.products-page .products-wish.active {
+    background: #11161a !important;
+    border-color: rgba(239,68,68,0.5) !important;
+    color: #ef4444 !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 6px 18px rgba(239,68,68,0.06) !important;
+}
+
+/* fill the svg heart red on active (visible, non-transparent) */
+.products-page .products-wish.active .wish-icon {
+    fill: #ef4444 !important;     /* solid red heart */
+    stroke: none !important;
+    transform: scale(1.04) !important;
+    filter: drop-shadow(0 6px 14px rgba(239,68,68,0.15)) !important;
+}
+
+/* Warm red for Clear All Filters button */
+.products-page .clear-filters {
+    background: linear-gradient(90deg, #ff7a6b 0%, #ef4444 60%);
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.984);
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+
+.products-page .clear-filters:hover {
+    transform: translateY(-2px);
+    filter: brightness(.95);
+    box-shadow: 0 12px 30px rgba(239,68,68,0.16);
+}
+
+.products-page .clear-filters:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}

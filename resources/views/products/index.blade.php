@@ -2,6 +2,14 @@
 
 @section('title','Products - My Shop')
 
+@push('styles')
+    @vite('resources/css/products/productindex.css')
+@endpush
+
+@push('scripts')
+    @vite('resources/js/products/productindex.js')
+@endpush
+
 @section('content')
 <div x-data="shop()" x-init="init()" x-cloak>
     <!-- Notification -->
@@ -71,25 +79,20 @@
                     <!-- Price Range -->
                     <div class="mb-6">
                         <h4 class="font-medium text-gray-900 mb-3">Price Range</h4>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">Min Price: $<span x-text="filters.priceMin"></span></label>
-                                <input type="range" 
-                                       x-model="filters.priceMin" 
-                                       min="0" 
-                                       :max="filters.priceMax - 1"
-                                       step="10"
-                                       class="w-full">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">Max Price: $<span x-text="filters.priceMax"></span></label>
-                                <input type="range" 
-                                       x-model="filters.priceMax" 
-                                       :min="filters.priceMin + 1"
-                                       max="{{ $stats['price_range']['max'] ?? 1000 }}"
-                                       step="10"
-                                       class="w-full">
-                            </div>
+                        <div class="filter-row">
+                            <label class="block text-sm text-gray-300">
+                                Min Price: $
+                                <input type="number" x-model.number="filters.priceMin"
+                                       min="0" step="1" placeholder="e.g. 100"
+                                       class="ml-2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-white w-32">
+                            </label>
+
+                            <label class="block text-sm text-gray-300 ml-4">
+                                Max Price: $
+                                <input type="number" x-model.number="filters.priceMax"
+                                       min="0" step="1" placeholder="e.g. 2000"
+                                       class="ml-2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-white w-32">
+                            </label>
                         </div>
                     </div>
 
@@ -116,7 +119,7 @@
                             <span x-show="!filterLoading">Apply Filters</span>
                             <span x-show="filterLoading">Loading...</span>
                         </button>
-                        <button @click="clearFilters()" class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded hover:bg-gray-200 transition-colors">
+                        <button @click="clearFilters()" class="clear-filters w-full py-2 rounded">
                             Clear All Filters
                         </button>
                     </div>
@@ -330,10 +333,6 @@
 
                                     <!-- Actions -->
                                     <div class="flex items-center space-x-3">
-                                        <a href="{{ route('products.show', $product) }}" 
-                                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            View Details
-                                        </a>
                                         <button @click="addToCart({{ $product->id }})" 
                                                 :disabled="!{{ $product->isInStock() ? 'true' : 'false' }} || loading"
                                                 class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
@@ -366,217 +365,4 @@
             </main>
         </div>
     </div>
-
-    <script>
-        function shop() {
-            return {
-                viewMode: 'grid',
-                cartCount: 0,
-                wishlistCount: 0,
-                wishlistItems: [],
-                loading: false,
-                filterLoading: false,
-                notification: {
-                    show: false,
-                    message: '',
-                    type: 'success'
-                },
-                filters: {
-                    category: new URLSearchParams(window.location.search).get('category') || 'all',
-                    priceMin: parseInt(new URLSearchParams(window.location.search).get('price_min')) || {{ $stats['price_range']['min'] ?? 0 }},
-                    priceMax: parseInt(new URLSearchParams(window.location.search).get('price_max')) || {{ $stats['price_range']['max'] ?? 1000 }},
-                    inStock: Boolean(new URLSearchParams(window.location.search).get('in_stock')),
-                    onSale: Boolean(new URLSearchParams(window.location.search).get('on_sale')),
-                    sort: new URLSearchParams(window.location.search).get('sort') || ''
-                },
-
-                init() {
-                    this.updateCartCount();
-                    this.updateWishlistCount();
-                    this.loadWishlistItems();
-                },
-
-                async addToCart(productId) {
-                    this.loading = true;
-                    
-                    try {
-                        const response = await fetch(`/cart/add/${productId}`, {
-                            method: 'POST',
-                            credentials: 'same-origin',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                quantity: 1
-                            })
-                        });
-
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            this.cartCount = data.cartCount;
-                            this.showNotification(data.message, 'success');
-                        } else {
-                            this.showNotification(data.message, 'error');
-                        }
-                    } catch (error) {
-                        console.error('Error adding to cart:', error);
-                        this.showNotification('Error adding product to cart', 'error');
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async toggleWishlist(productId) {
-                    try {
-                        const isInWishlist = this.wishlistItems.includes(productId);
-                        const url = isInWishlist ? `/wishlist/remove/${productId}` : `/wishlist/add/${productId}`;
-                        const method = isInWishlist ? 'DELETE' : 'POST';
-
-                        const response = await fetch(url, {
-                            method: method,
-                            credentials: 'same-origin',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            }
-                        });
-
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            this.wishlistCount = data.wishlistCount;
-                            
-                            if (isInWishlist) {
-                                this.wishlistItems = this.wishlistItems.filter(id => id !== productId);
-                            } else {
-                                this.wishlistItems.push(productId);
-                            }
-                            
-                            this.showNotification(data.message, 'success');
-                        } else {
-                            this.showNotification(data.message, 'error');
-                        }
-                    } catch (error) {
-                        console.error('Error toggling wishlist:', error);
-                        this.showNotification('Error updating wishlist', 'error');
-                    }
-                },
-
-                async updateCartCount() {
-                    try {
-                        const response = await fetch('/cart/count', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
-                        const data = await response.json();
-                        this.cartCount = data.count;
-                    } catch (error) {
-                        console.error('Error fetching cart count:', error);
-                    }
-                },
-
-                async updateWishlistCount() {
-                    try {
-                        const response = await fetch('/wishlist/count', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
-                        const data = await response.json();
-                        this.wishlistCount = data.count;
-                    } catch (error) {
-                        console.error('Error fetching wishlist count:', error);
-                    }
-                },
-
-                async loadWishlistItems() {
-                    try {
-                        const response = await fetch('/wishlist/items', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
-                        const data = await response.json();
-                        this.wishlistItems = data.items;
-                    } catch (error) {
-                        console.error('Error loading wishlist items:', error);
-                    }
-                },
-
-                applyFilters() {
-                    if (this.filterLoading) return;
-                    this.filterLoading = true;
-                    
-                    const params = new URLSearchParams();
-                    
-                    if (this.filters.category !== 'all') {
-                        params.set('category', this.filters.category);
-                    }
-                    if (this.filters.sort) {
-                        params.set('sort', this.filters.sort);
-                    }
-                    if (this.filters.priceMin > {{ $stats['price_range']['min'] ?? 0 }}) {
-                        params.set('price_min', this.filters.priceMin);
-                    }
-                    if (this.filters.priceMax < {{ $stats['price_range']['max'] ?? 1000 }}) {
-                        params.set('price_max', this.filters.priceMax);
-                    }
-                    if (this.filters.inStock) {
-                        params.set('in_stock', '1');
-                    }
-                    if (this.filters.onSale) {
-                        params.set('on_sale', '1');
-                    }
-
-                    const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-                    window.location.href = url;
-                },
-
-                clearFilters() {
-                    this.filters = {
-                        category: 'all',
-                        priceMin: {{ $stats['price_range']['min'] ?? 0 }},
-                        priceMax: {{ $stats['price_range']['max'] ?? 1000 }},
-                        inStock: false,
-                        onSale: false,
-                        sort: ''
-                    };
-                    this.applyFilters();
-                },
-
-                showNotification(message, type = 'success') {
-                    this.notification.message = message;
-                    this.notification.type = type;
-                    this.notification.show = true;
-                    setTimeout(() => {
-                        this.notification.show = false;
-                    }, 3000);
-                }
-            }
-        }
-
-        function searchBox() {
-            return {
-                query: '',
-                results: [],
-                showResults: false,
-                searchTimeout: null,
-
-                debounceSearch() {
-                    clearTimeout(this.searchTimeout);
-                    this.searchTimeout = setTimeout(() => {
-                        this.performSearch();
-                    }, 300);
-                },
-
-                async performSearch() {
-                    if (this.query.length < 2) {
-                        this.results = [];
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(`/products/search?q=${encodeURIComponent(this.query)}`);
-                        this.results = await response.json();
-                    } catch (error) {
-                        console.error('Search error:', error);
-                        this.results = [];
-                    }
-                }
-            }
-        }
-    </script>
-</div>
 @endsection

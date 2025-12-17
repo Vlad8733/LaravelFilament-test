@@ -1,52 +1,29 @@
-<!DOCTYPE html>
-<html lang="en" x-data="productPage()">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $product->name }} - My Shop</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
-<body class="bg-gray-50">
+@extends('layouts.app')
 
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 mb-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('products.index') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                        Back to Products
-                    </a>
-                    <span class="text-gray-400">|</span>
-                    <span class="text-gray-600">{{ $product->category->name ?? 'Uncategorized' }}</span>
-                </div>
-                
-                <div class="flex gap-3">
-                    <a href="{{ route('cart.show') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        View Cart
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+@section('title', $product->name . ' - My Shop')
 
+@push('styles')
+    @vite('resources/css/products/show.css')
+@endpush
+
+@push('scripts')
+    @vite('resources/js/products/show.js')
+@endpush
+
+@section('content')
+<div x-data="productPage()" x-init="init({{ $product->stock_quantity }}, {{ $product->id }})" class="product-page">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Product Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
             <!-- Product Images -->
             <div class="space-y-4">
-                <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden">
-                    @if($product->images && $product->images->count() > 0)
-                        @foreach($product->images as $index => $image)
-                            <img x-show="selectedImage === {{ $index }}" 
-                                 src="{{ asset('storage/' . $image->image_path) }}" 
-                                 alt="{{ $image->alt_text ?? $product->name }}"
-                                 class="w-full h-full object-cover">
-                        @endforeach
+                @php $primary = ($product->images && $product->images->count() > 0) ? $product->images->first() : null; @endphp
+                <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden relative">
+                    @if($primary)
+                        <img id="main-product-image"
+                             src="{{ asset('storage/' . $primary->image_path) }}"
+                             alt="{{ $primary->alt_text ?? $product->name }}"
+                             class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full flex items-center justify-center">
                             <svg class="w-32 h-32 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,14 +33,15 @@
                     @endif
                 </div>
 
-                <!-- Thumbnail Images -->
+                <!-- Thumbnail Images (update main image via show.js) -->
                 @if($product->images && $product->images->count() > 1)
-                    <div class="flex space-x-2 overflow-x-auto">
+                    <div class="flex space-x-2 overflow-x-auto mt-2">
                         @foreach($product->images as $index => $image)
-                            <button @click="selectedImage = {{ $index }}"
-                                    class="flex-shrink-0 w-20 h-20 bg-gray-200 rounded-lg overflow-hidden border-2 hover:border-blue-300 transition-colors"
-                                    :class="selectedImage === {{ $index }} ? 'border-blue-500' : 'border-transparent'">
-                                <img src="{{ asset('storage/' . $image->image_path) }}" 
+                            <button type="button"
+                                    data-thumb-src="{{ asset('storage/' . $image->image_path) }}"
+                                    data-thumb-index="{{ $index }}"
+                                    class="thumb-btn flex-shrink-0 w-20 h-20 bg-gray-200 rounded-lg overflow-hidden border-2 hover:border-blue-300 transition-colors">
+                                <img src="{{ asset('storage/' . $image->image_path) }}"
                                      alt="{{ $image->alt_text ?? $product->name }}"
                                      class="w-full h-full object-cover">
                             </button>
@@ -144,22 +122,26 @@
                     <div class="flex items-center space-x-4">
                         <label class="text-sm font-medium text-gray-700">Quantity:</label>
                         <div class="flex items-center border rounded-lg">
-                            <button @click="quantity = Math.max(1, quantity - 1)" 
-                                    class="px-3 py-2 hover:bg-gray-100 transition-colors">-</button>
-                            <input type="number" x-model="quantity" min="1" :max="maxQuantity"
-                                   class="w-16 text-center border-none focus:ring-0">
-                            <button @click="quantity = Math.min(maxQuantity, quantity + 1)" 
-                                    class="px-3 py-2 hover:bg-gray-100 transition-colors">+</button>
+                            <button type="button" data-qty-action="decrement"
+                                    class="px-3 py-2 hover:bg-gray-100 transition-colors" aria-label="Decrease quantity">-</button>
+                            <input id="product-quantity" name="quantity" type="number" x-model.number="quantity"
+                                   min="1" :max="maxQuantity" value="1"
+                                   class="w-16 text-center border-none focus:ring-0 text-white" aria-label="Product quantity" />
+                            <button type="button" data-qty-action="increment"
+                                    class="px-3 py-2 hover:bg-gray-100 transition-colors" aria-label="Increase quantity">+</button>
                         </div>
                     </div>
 
-                    <button @click="addToCart()" 
+                    <button type="button"
+                            data-add-to-cart
+                            data-product-id="{{ $product->id }}"
+                            data-max="{{ $product->stock_quantity }}"
+                            @click="addToCart({{ $product->id }})"
                             :disabled="!canAddToCart || loading"
                             class="w-full bg-blue-600 text-white text-lg py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                        <span x-show="!loading">Add to Cart</span>
-                        <span x-show="loading">Adding...</span>
+                        Add to Cart
                     </button>
-                </div>
+                 </div>
             </div>
         </div>
 
@@ -236,85 +218,5 @@
 
     <!-- Toast Notifications -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
-
-    <script>
-        function productPage() {
-            return {
-                selectedImage: 0,
-                quantity: 1,
-                maxQuantity: {{ $product->stock_quantity }},
-                loading: false,
-
-                get canAddToCart() {
-                    return this.maxQuantity > 0 && this.quantity <= this.maxQuantity;
-                },
-
-                async addToCart() {
-                    if (!this.canAddToCart) return;
-                    
-                    this.loading = true;
-                    
-                    try {
-                        const response = await fetch(`/cart/add/{{ $product->id }}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                quantity: this.quantity
-                            })
-                        });
-
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            showToast('Product added to cart successfully!', 'success');
-                        } else {
-                            showToast(data.message || 'Error adding product to cart', 'error');
-                        }
-                    } catch (error) {
-                        console.error('Error adding to cart:', error);
-                        showToast('Error adding product to cart', 'error');
-                    } finally {
-                        this.loading = false;
-                    }
-                }
-            }
-        }
-
-        // Toast notification function
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-            
-            toast.innerHTML = `
-                <div class="${bgColor} text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full">
-                    ${message}
-                </div>
-            `;
-            
-            container.appendChild(toast);
-            
-            // Animate in
-            setTimeout(() => {
-                toast.firstElementChild.classList.remove('translate-x-full');
-            }, 10);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                toast.firstElementChild.classList.add('translate-x-full');
-                setTimeout(() => {
-                    if (container.contains(toast)) {
-                        container.removeChild(toast);
-                    }
-                }, 300);
-            }, 3000);
-        }
-    </script>
-
-</body>
-</html>
+</div>
+@endsection

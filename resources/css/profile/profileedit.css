@@ -1,0 +1,170 @@
+.profile-page {
+    --bg: #0b0b0b;
+    --card: #171717;
+    --border: #2a2a2a;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #f59e0b;
+    --danger: #ef4444;
+
+    background: radial-gradient(ellipse at center, #111 0%, #000 70%);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.profile-card {
+    background: linear-gradient(180deg, #1a1a1a, #141414);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 30px 80px rgba(0,0,0,.75);
+}
+
+.profile-card label.field-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+
+.profile-card input.input-field,
+.profile-card input[type="file"] {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #0f0f0f;
+    color: var(--text);
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.profile-card input.input-field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(245,158,11,0.35);
+}
+
+.profile-card .btn-primary {
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+    border-radius: 16px;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.profile-card .btn-primary:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+.profile-card .settings-card {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.6);
+}
+
+.profile-card hr {
+    border-color: var(--border);
+    margin: 2rem 0;
+}
+
+.profile-card .error {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.avatar-preview {
+    width: 144px;
+    height: 144px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    overflow: hidden;
+    margin: 0 auto;
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: var(--text);
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#themeToggle {
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+#themeToggle:hover {
+    filter: brightness(1.05);
+}
+
+.profile-page input[type="password"] {
+    background: #0f0f0f;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+}
+
+.profile-card button[type="submit"] {
+    cursor: pointer;
+}
+
+.profile-card .bg-red-600 {
+    background: #ef4444;
+    color: #fff;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.profile-card .bg-red-600:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+/* Prevent navbar username from turning dark-blue on hover */
+.main-nav .user-name,
+.nav-center .user-name,
+.nav-actions .user-name,
+.user-menu .user-name,
+.navbar .user-name {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.main-nav .user-name:hover,
+.nav-center .user-name:hover,
+.nav-actions .user-name:hover,
+.user-menu .user-name:hover,
+.navbar .user-name:hover {
+    color: inherit !important;
+}
+
+@media (max-width: 1024px) {
+    .profile-card {
+        flex-direction: column;
+    }
+    
+    .profile-card aside,
+    .profile-card section {
+        width: 100%;
+    }
+}

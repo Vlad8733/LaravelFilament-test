@@ -1,28 +1,17 @@
-<!DOCTYPE html>
-<html lang="en" x-data="checkout()">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - My Shop</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
-<body class="bg-gray-50">
+@extends('layouts.app')
 
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 mb-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex items-center justify-between">
-                <a href="{{ route('products.index') }}" class="text-2xl font-bold text-blue-600">MyShop</a>
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('products.index') }}" class="text-blue-600 hover:text-blue-800">Continue Shopping</a>
-                    <a href="{{ route('cart.show') }}" class="text-blue-600 hover:text-blue-800">Back to Cart</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+@section('title','Checkout - My Shop')
 
+@push('styles')
+    @vite('resources/css/checkout/checkoutindex.css')
+@endpush
+
+@push('scripts')
+    @vite('resources/js/checkout/checkoutindex.js')
+@endpush
+
+@section('content')
+<div x-data="checkout()" class="checkout-page">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
 
@@ -166,6 +155,5 @@
             }
         }
     </script>
-
-</body>
-</html>
+</div>
+@endsection

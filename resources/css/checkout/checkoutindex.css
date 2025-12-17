@@ -1,0 +1,129 @@
+:root {
+    --bg: #0b0b0b;
+    --card: #171717;
+    --border: #2a2a2a;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #f59e0b;
+    --success: #22c55e;
+    --danger: #ef4444;
+}
+
+/* Page background */
+body {
+    background: radial-gradient(ellipse at center, #111 0%, #000 70%);
+    color: var(--text);
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: var(--text) !important;
+}
+
+/* Cards */
+.bg-white {
+    background: linear-gradient(180deg, #1a1a1a, #141414) !important;
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 80px rgba(0,0,0,.8);
+    color: var(--text);
+}
+
+/* Text overrides */
+.text-gray-900,
+.text-gray-700,
+.text-gray-600,
+.text-gray-500 {
+    color: var(--muted) !important;
+}
+
+/* Dividers */
+.border-gray-100,
+.border-gray-200 {
+    border-color: var(--border) !important;
+}
+
+/* Product images */
+img {
+    border: 1px solid var(--border);
+    background: #0f0f0f;
+}
+
+/* Inputs & textarea */
+input,
+textarea {
+    background: #0f0f0f !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    color: var(--text) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--muted);
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, .4);
+}
+
+/* Radio buttons container */
+label.flex.items-center {
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+label.flex.items-center:hover {
+    border-color: var(--accent);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+/* Checked radio highlight */
+input[type="radio"]:checked + div {
+    color: var(--accent);
+}
+
+/* Errors */
+.text-red-500 {
+    color: var(--danger) !important;
+}
+
+/* Discount text */
+.text-green-600 {
+    color: var(--accent) !important;
+}
+
+/* Buttons */
+button {
+    border-radius: 12px !important;
+    font-weight: 600;
+}
+
+/* Place order button */
+.bg-green-600 {
+    background: var(--accent) !important;
+    color: #000 !important;
+}
+
+.bg-green-600:hover {
+    filter: brightness(1.05);
+}
+
+/* Empty cart button */
+.bg-blue-600 {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 600;
+}
+
+.bg-blue-600:hover {
+    filter: brightness(1.05);
+}
+
+/* Icons */
+svg {
+    color: var(--muted);
+}

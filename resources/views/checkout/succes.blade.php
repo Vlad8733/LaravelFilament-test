@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Success - My Shop</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CDN tailwind removed — using compiled public/css/app.css -->
 </head>
 <body class="bg-gray-50">
 
@@ -17,6 +17,11 @@
         </div>
     </nav>
 
+    @extends('layouts.app')
+
+    @section('title','Order Success - My Shop')
+
+    @section('content')
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white rounded-lg shadow-sm p-8 text-center">
             <div class="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6">
@@ -52,6 +57,7 @@
             </div>
         </div>
     </div>
+    @endsection
 
 </body>
 </html>

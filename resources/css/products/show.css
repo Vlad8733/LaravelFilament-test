@@ -1,0 +1,259 @@
+/* =========================================================
+   Product Show Page – Dark Premium Style
+   Scoped ONLY to .product-page
+   ========================================================= */
+
+.product-page {
+    --bg: #0b0b0b;
+    --card: #171717;
+    --border: #2a2a2a;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #f59e0b;
+    --danger: #ef4444;
+
+    background: radial-gradient(ellipse at center, #111 0%, #000 70%);
+    color: var(--text);
+    min-height: 100vh;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Push page content slightly down from the top */
+    padding-top: 48px; /* adjust value as needed (e.g. 32px / 48px / 64px) */
+}
+
+/* =========================================================
+   Headings
+   ========================================================= */
+
+.product-page h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+}
+
+.product-page h2,
+.product-page h3,
+.product-page h4 {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* =========================================================
+   Cards (bg-white override)
+   ========================================================= */
+
+.product-page .bg-white {
+    background: linear-gradient(180deg, #1a1a1a, #141414) !important;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.75);
+    color: var(--text);
+}
+
+/* =========================================================
+   Product Images
+   ========================================================= */
+
+.product-page .aspect-square {
+    background: #0f0f0f !important;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.product-page .aspect-square img {
+    transition: transform .45s ease;
+}
+
+.product-page .aspect-square:hover img {
+    transform: scale(1.04);
+}
+
+/* Thumbnails */
+.product-page .thumb-btn {
+    background: #0f0f0f !important;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    opacity: .65;
+    transition: all .2s ease;
+}
+
+.product-page .thumb-btn:hover {
+    opacity: 1;
+    border-color: var(--accent);
+}
+
+.product-page .thumb-btn.active {
+    opacity: 1;
+    border-color: var(--accent);
+}
+
+/* =========================================================
+   Rating
+   ========================================================= */
+
+.product-page svg.text-yellow-400 {
+    filter: drop-shadow(0 0 6px rgba(245,158,11,.35));
+}
+
+/* =========================================================
+   Price
+   ========================================================= */
+
+.product-page .text-3xl.font-bold {
+    color: var(--accent);
+    font-weight: 800;
+}
+
+.product-page .line-through {
+    color: var(--muted);
+}
+
+/* Discount badge */
+.product-page .bg-red-100 {
+    background: rgba(239,68,68,.15) !important;
+    color: #ff6b6b !important;
+    border: 1px solid rgba(239,68,68,.35);
+}
+
+/* =========================================================
+   Stock Status
+   ========================================================= */
+
+.product-page .bg-green-100 {
+    background: rgba(34,197,94,.12) !important;
+    color: #22c55e !important;
+    border: 1px solid rgba(34,197,94,.35);
+}
+
+.product-page .bg-red-100.text-red-800 {
+    background: rgba(239,68,68,.12) !important;
+    color: #ff6b6b !important;
+    border: 1px solid rgba(239,68,68,.35);
+}
+
+/* =========================================================
+   Description & Details
+   ========================================================= */
+
+.product-page p {
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+.product-page .prose {
+    color: var(--text);
+    line-height: 1.7;
+}
+
+.product-page .prose strong {
+    color: #fff;
+}
+
+.product-page .prose p {
+    margin-bottom: .75rem;
+}
+
+/* =========================================================
+   Quantity Selector
+   ========================================================= */
+
+.product-page .flex.items-center.border {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #0f0f0f;
+}
+
+.product-page [data-qty-action] {
+    background: transparent;
+    color: var(--text);
+    transition: background .15s ease;
+}
+
+.product-page [data-qty-action]:hover {
+    background: rgba(255,255,255,.05);
+}
+
+.product-page input[type="number"] {
+    background: transparent;
+    color: var(--text);
+    border: none;
+    text-align: center;
+}
+
+.product-page input[type="number"]:focus {
+    outline: none;
+}
+
+/* =========================================================
+   Add to Cart Button
+   ========================================================= */
+
+.product-page .bg-blue-600 {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 16px;
+    height: 56px;
+    box-shadow: 0 10px 30px rgba(245,158,11,.35);
+    transition: all .2s ease;
+}
+
+.product-page .bg-blue-600:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+.product-page .bg-blue-600:disabled {
+    opacity: .5;
+    box-shadow: none;
+}
+
+/* =========================================================
+   Reviews
+   ========================================================= */
+
+.product-page .border-b {
+    border-color: var(--border) !important;
+}
+
+.product-page .w-10.h-10.bg-gray-300 {
+    background: #222 !important;
+    color: var(--text);
+}
+
+/* =========================================================
+   Related Products
+   ========================================================= */
+
+.product-page .shadow-sm {
+    box-shadow: 0 10px 30px rgba(0,0,0,.6);
+}
+
+.product-page .shadow-sm:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 60px rgba(0,0,0,.8);
+    transition: all .25s ease;
+}
+
+/* =========================================================
+   Toast
+   ========================================================= */
+
+#toast-container {
+    z-index: 99999;
+}
+
+/* =========================================================
+   Images
+   ========================================================= */
+
+.product-page img {
+    display: block;
+    max-width: 100%;
+}
