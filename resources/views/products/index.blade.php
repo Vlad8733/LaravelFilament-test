@@ -12,25 +12,52 @@
 
 @section('content')
 <div x-data="shop()" x-init="init()" x-cloak>
-    <!-- Notification -->
-    <div x-show="notification.show" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-x-full"
-         x-transition:enter-end="opacity-100 transform translate-x-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 transform translate-x-0"
-         x-transition:leave-end="opacity-0 transform translate-x-full"
-         :class="notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
-         class="fixed top-20 right-4 z-50 text-white px-6 py-3 rounded-lg shadow-lg max-w-sm">
-        <div class="flex items-center">
-            <svg x-show="notification.type === 'success'" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-            </svg>
-            <svg x-show="notification.type === 'error'" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-            </svg>
-            <span x-text="notification.message"></span>
-        </div>
+    <!-- Toast Notifications Container -->
+    <div class="toast-container">
+        <template x-for="(notification, index) in notifications.slice().reverse()" :key="notification.id">
+            <div x-show="notification.show" 
+                 x-transition:enter="toast-enter"
+                 x-transition:leave="toast-leave"
+                 :class="{
+                     'success': notification.type === 'success',
+                     'error': notification.type === 'error',
+                     'info': notification.type === 'info'
+                 }"
+                 class="toast-notification">
+                
+                <!-- Icon -->
+                <div class="toast-icon">
+                    <!-- Success Icon -->
+                    <svg x-show="notification.type === 'success'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <!-- Error Icon -->
+                    <svg x-show="notification.type === 'error'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <!-- Info Icon -->
+                    <svg x-show="notification.type === 'info'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+
+                <!-- Content -->
+                <div class="toast-content">
+                    <div class="toast-product-name" x-text="notification.productName"></div>
+                    <div class="toast-message" x-text="notification.message"></div>
+                </div>
+
+                <!-- Close Button -->
+                <button @click="removeNotification(notification.id)" class="toast-close">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                <!-- Progress Bar -->
+                <div class="toast-progress"></div>
+            </div>
+        </template>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

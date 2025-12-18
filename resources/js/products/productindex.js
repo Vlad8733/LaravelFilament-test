@@ -33,7 +33,8 @@ function shopFactory() {
         wishlistItems: [],
         loading: false,
         filterLoading: false,
-        notification: { show: false, message: '', type: 'success' },
+        notifications: [], // Changed from single notification to array
+        notificationIdCounter: 0,
 
         // filters: priceMin/priceMax are nullable -> absence = no limit
         filters: {
@@ -78,14 +79,13 @@ function shopFactory() {
             }
         },
 
-        async toggleWishlist(productId) {
+        async toggleWishlist(productId, productName = 'Product') {
             const id = Number(productId);
             const already = this.isInWishlist(id);
 
             // optimistic UI
             if (!already) {
                 this.wishlistItems.push(id);
-                // increment global badge if store available
                 updateGlobalCount && updateGlobalCount('wishlist', 1);
             } else {
                 this.wishlistItems = this.wishlistItems.filter(x => x !== id);
@@ -110,18 +110,16 @@ function shopFactory() {
                     // revert on failure
                     if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
                     else this.wishlistItems.push(id);
-                    // revert global badge if we incremented
                     if (typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('global')) {
                         Alpine.store('global').wishlistCount = Math.max(0, Alpine.store('global').wishlistCount - (already ? 0 : 1));
                     }
-                    this.showNotification(json.message || 'Wishlist update failed', 'error');
+                    this.showNotification(json.message || 'Wishlist update failed', 'error', productName);
                 } else {
                     this.wishlistCount = json.wishlistCount ?? this.wishlistItems.length;
-                    // notify user about successful action
                     if (!already) {
-                        this.showNotification(json.message || 'Product added to wishlist', 'success');
+                        this.showNotification('was added to wishlist', 'success', productName);
                     } else {
-                        this.showNotification(json.message || 'Product removed from wishlist', 'success');
+                        this.showNotification('was removed from wishlist', 'info', productName);
                     }
                 }
             } catch (err) {
@@ -131,19 +129,48 @@ function shopFactory() {
                 if (typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('global')) {
                     Alpine.store('global').wishlistCount = Math.max(0, Alpine.store('global').wishlistCount - (already ? 0 : 1));
                 }
-                this.showNotification('Network error', 'error');
+                this.showNotification('Network error', 'error', productName);
                 console.error(err);
             }
         },
 
-        showNotification(message, type = 'success') {
-            this.notification.message = message;
-            this.notification.type = type;
-            this.notification.show = true;
-            setTimeout(() => this.notification.show = false, 3000);
+        showNotification(message, type = 'success', productName = '') {
+            const id = ++this.notificationIdCounter;
+            const notification = {
+                id,
+                message,
+                type,
+                productName,
+                show: true
+            };
+
+            // Add new notification to the END of array (it will appear at bottom)
+            this.notifications.push(notification);
+
+            // Limit to 5 notifications max - remove oldest (first in array)
+            if (this.notifications.length > 5) {
+                const oldestId = this.notifications[0].id;
+                this.removeNotification(oldestId);
+            }
+
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                this.removeNotification(id);
+            }, 4000);
         },
 
-        async addToCart(productId) {
+        removeNotification(id) {
+            const index = this.notifications.findIndex(n => n.id === id);
+            if (index !== -1) {
+                this.notifications[index].show = false;
+                // Remove from array after animation completes (increased to 500ms to match new animation)
+                setTimeout(() => {
+                    this.notifications = this.notifications.filter(n => n.id !== id);
+                }, 500);
+            }
+        },
+
+        async addToCart(productId, productName = 'Product') {
             this.loading = true;
             try {
                 const response = await fetch(`/cart/add/${productId}`, {
@@ -159,15 +186,14 @@ function shopFactory() {
                 const data = await response.json();
                 if (data.success) {
                     this.cartCount = data.cartCount;
-                    // update global notification badge (increment unread)
                     updateGlobalCount('cart', 1);
-                    this.showNotification(data.message, 'success');
+                    this.showNotification('was added to cart', 'success', productName);
                 } else {
-                    this.showNotification(data.message, 'error');
+                    this.showNotification(data.message, 'error', productName);
                 }
             } catch (error) {
                 console.error('Error adding to cart:', error);
-                this.showNotification('Error adding product to cart', 'error');
+                this.showNotification('Error adding to cart', 'error', productName);
             } finally {
                 this.loading = false;
             }
@@ -193,16 +219,13 @@ function shopFactory() {
             }
         },
 
-        // normalize numeric filters before applying
         normalizeFilters() {
-            // convert empty strings/undefined to null, coerce to numbers otherwise
             const pMin = this.filters.priceMin;
             const pMax = this.filters.priceMax;
 
             this.filters.priceMin = (pMin === '' || pMin === null || typeof pMin === 'undefined') ? null : Number(pMin);
             this.filters.priceMax = (pMax === '' || pMax === null || typeof pMax === 'undefined') ? null : Number(pMax);
 
-            // if both set and min > max, swap them
             if (this.filters.priceMin !== null && this.filters.priceMax !== null) {
                 if (Number(this.filters.priceMin) > Number(this.filters.priceMax)) {
                     const tmp = this.filters.priceMin;
@@ -217,15 +240,12 @@ function shopFactory() {
             this.filterLoading = true;
 
             try {
-                // normalize inputs first
                 this.normalizeFilters();
-
                 const params = new URLSearchParams();
 
                 if (this.filters.category && this.filters.category !== 'all') params.set('category', this.filters.category);
                 if (this.filters.sort) params.set('sort', this.filters.sort);
 
-                // only include numeric price params when explicitly set (not null)
                 if (this.filters.priceMin !== null && !Number.isNaN(Number(this.filters.priceMin))) {
                     params.set('price_min', Number(this.filters.priceMin));
                 }
@@ -237,9 +257,7 @@ function shopFactory() {
                 if (this.filters.onSale) params.set('on_sale', '1');
 
                 const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-                // navigate
                 window.location.href = url;
-                // if navigating in-place, close drawer UI
                 try { this.showFilters = false; } catch(e){}
             } catch (err) {
                 console.error('applyFilters error', err);
@@ -251,13 +269,12 @@ function shopFactory() {
         clearFilters() {
             this.filters = {
                 category: 'all',
-                priceMin: null,   // null = no limit
+                priceMin: null,
                 priceMax: null,
                 inStock: false,
                 onSale: false,
                 sort: ''
             };
-            // apply after reset
             this.applyFilters();
         }
     };
@@ -295,7 +312,7 @@ function searchBoxFactory() {
 }
 
 /**
- * Register with Alpine and expose globals so x-data="shop()" / x-data="searchBox()" work reliably
+ * Register with Alpine and expose globals
  */
 function registerProductComponents() {
     if (!window.Alpine) return;
@@ -303,7 +320,6 @@ function registerProductComponents() {
     Alpine.data('shop', shopFactory);
     Alpine.data('searchBox', searchBoxFactory);
 
-    // If Alpine already initialized, initialize existing nodes
     try {
         document.querySelectorAll('[x-data="shop()"]').forEach(el => {
             if (typeof Alpine.initTree === 'function') Alpine.initTree(el);
@@ -316,13 +332,11 @@ function registerProductComponents() {
     }
 }
 
-// register at appropriate time
 if (window.Alpine) {
     registerProductComponents();
 } else {
     document.addEventListener('alpine:init', registerProductComponents);
 }
 
-// expose factories globally so x-data="shop()" works regardless of timing
 window.shop = shopFactory;
 window.searchBox = searchBoxFactory;
