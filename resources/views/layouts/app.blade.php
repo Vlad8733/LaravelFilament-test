@@ -153,6 +153,26 @@
         @media (max-width: 768px) {
             .user-name { display: none; }
         }
+
+        /* Force-logo safe rules: конкретно для логотипа в шапке, чтобы его не ломали глобальные img-правила */
+        #site-nav .logo-img {
+            width: auto !important;
+            height: 40px !important;
+            max-width: none !important;
+            max-height: 40px !important;
+            object-fit: contain !important;
+            display: block !important;
+            background: transparent !important;
+            border: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Блокируем глобальные правила для img только внутри navbar */
+        #site-nav img {
+            max-width: none !important;
+            height: auto !important;
+        }
     </style>
 </head>
 <body>
