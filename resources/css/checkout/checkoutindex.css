@@ -127,3 +127,23 @@ button {
 svg {
     color: var(--muted);
 }
+
+/* Center page content and add top spacing (applies only on checkout page since файл подключён только там) */
+.checkout-page,
+.checkout-container,
+.checkout-content,
+main.checkout,
+main#checkout {
+    max-width: 1120px;
+    margin: 28px auto 48px;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+/* Fallback: if page uses a simple <main> wrapper */
+main {
+    max-width: 1120px;
+    margin: 28px auto 48px;
+    padding: 0 16px;
+    box-sizing: border-box;
+}

@@ -6,6 +6,9 @@
     --muted: #9ca3af;
     --accent: #f59e0b;
     --danger: #ef4444;
+    --content-max-w: 1120px;
+    --content-gap-top: 28px;
+    --content-side-pad: 16px;
 }
 
 /* Page background */
@@ -123,5 +126,54 @@ svg {
 
 .flex.space-x-2 button {
     flex: 0 0 auto;
+}
+
+/* Center page content and add top spacing (applies only on cart page since файл подключён только там) */
+.cart-page,
+.cart-container,
+.cart-content,
+main.cart,
+main#cart {
+    max-width: 1120px;
+    margin: 28px auto 48px;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+/* Strong centering override для страницы корзины */
+body .cart-page,
+body .cart-container,
+body .cart-content,
+body main.cart,
+body main#cart,
+body .shopping-cart,
+body #cart,
+body .cart-wrapper,
+body .page-cart {
+    max-width: 1120px !important;
+    margin: 28px auto 48px !important;
+    padding: 0 16px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+
+/* Фallback — если контент не имеет специфичных классов */
+body > .container,
+body > main,
+.container.cart,
+.container--cart {
+    max-width: 1120px !important;
+    margin: 28px auto 48px !important;
+    padding: 0 16px !important;
+    box-sizing: border-box !important;
+}
+
+body > *:not(#site-nav):not(header):not(footer) {
+    /* применяется только когда этот css подключён (т.е. на странице корзины) */
+    max-width: var(--content-max-w) !important;
+    margin: var(--content-gap-top) auto 48px !important;
+    padding: 0 var(--content-side-pad) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
 }
 
