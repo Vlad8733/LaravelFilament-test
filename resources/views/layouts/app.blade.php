@@ -212,22 +212,96 @@
             overflow: auto;
             z-index: 1200;
             padding: 8px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
+
         .search-result-item {
-            display:flex;
+            display: flex;
             gap: 0.75rem;
-            align-items:center;
-            padding: 8px;
+            align-items: center;
+            padding: 10px;
             border-radius: 8px;
             color: inherit;
             text-decoration: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
         }
-        .search-result-item.active { background: rgba(245,158,11,0.07); }
-        .sr-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; }
-        .sr-meta { display:flex; flex-direction:column; gap:2px; }
-        .sr-name { font-weight:600; }
-        .sr-price { color: #9ca3af; font-size:0.9rem; }
-        .sr-empty { padding:8px; color:#9ca3af; text-align:center; }
+
+        .search-result-item:hover,
+        .search-result-item.active { 
+            background: rgba(245,158,11,0.08); 
+        }
+
+        .sr-thumb { 
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            min-height: 56px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #0f0f0f;
+            border: 1px solid rgba(255,255,255,0.06);
+            display: block;
+        }
+
+        /* Fallback for missing images */
+        .sr-thumb-placeholder {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            min-height: 56px;
+            border-radius: 8px;
+            background: #0f0f0f;
+            border: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sr-thumb-placeholder svg {
+            width: 24px;
+            height: 24px;
+            color: rgba(255,255,255,0.2);
+        }
+
+        .sr-meta { 
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sr-name { 
+            font-weight: 600;
+            font-size: 0.9375rem;
+            line-height: 1.3;
+            color: #e5e7eb;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sr-price { 
+            color: var(--accent);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .sr-empty { 
+            padding: 16px;
+            color: #9ca3af;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        /* Loading state */
+        .sr-loading {
+            padding: 16px;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body>
