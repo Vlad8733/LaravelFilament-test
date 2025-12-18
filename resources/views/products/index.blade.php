@@ -50,26 +50,31 @@
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Sidebar Filters -->
-            <aside class="w-full lg:w-64 flex-shrink-0">
-                <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-                    
+            <!-- FILTER DRAWER (rendered as off-canvas, does NOT take layout space) -->
+            <div x-show="showFilters" x-cloak x-transition class="filters-backdrop" @click="showFilters = false"></div>
+            <aside x-show="showFilters" x-cloak x-transition:enter="transition transform duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+                   x-transition:leave="transition transform duration-180" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
+                   class="filters-drawer" @keydown.escape.window="showFilters = false" @click.stop>
+                <div class="p-4 h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Filters</h3>
+                        <button @click="showFilters = false" class="px-2 py-1 rounded bg-gray-800 text-white">Close</button>
+                    </div>
+
+                    <!-- BEGIN: same filter controls as before (categories/price/availability) -->
                     <!-- Categories -->
                     <div class="mb-6">
-                        <h4 class="font-medium text-gray-900 mb-3">Categories</h4>
+                        <h4 class="font-medium mb-3">Categories</h4>
                         <div class="space-y-2">
                             <label class="flex items-center">
                                 <input type="radio" name="category" value="all" x-model="filters.category" class="mr-2">
                                 <span class="text-sm">All Categories</span>
-                                <span class="ml-auto text-xs text-gray-500">({{ $stats['total_products'] ?? 0 }})</span>
                             </label>
                             @if(isset($categories))
                                 @foreach($categories as $category)
                                     <label class="flex items-center">
                                         <input type="radio" name="category" value="{{ $category->id }}" x-model="filters.category" class="mr-2">
                                         <span class="text-sm">{{ $category->name }}</span>
-                                        <span class="ml-auto text-xs text-gray-500">({{ $category->products_count ?? 0 }})</span>
                                     </label>
                                 @endforeach
                             @endif
@@ -78,50 +83,29 @@
 
                     <!-- Price Range -->
                     <div class="mb-6">
-                        <h4 class="font-medium text-gray-900 mb-3">Price Range</h4>
+                        <h4 class="font-medium mb-3">Price Range</h4>
                         <div class="filter-row">
-                            <label class="block text-sm text-gray-300">
-                                Min Price: $
-                                <input type="number" x-model.number="filters.priceMin"
-                                       min="0" step="1" placeholder="e.g. 100"
-                                       class="ml-2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-white w-32">
+                            <label class="block text-sm">
+                                Min: $
+                                <input type="number" x-model.number="filters.priceMin" min="0" step="1" placeholder="100" class="ml-2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-white w-32">
                             </label>
-
-                            <label class="block text-sm text-gray-300 ml-4">
-                                Max Price: $
-                                <input type="number" x-model.number="filters.priceMax"
-                                       min="0" step="1" placeholder="e.g. 2000"
-                                       class="ml-2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-white w-32">
+                            <label class="block text-sm ml-4">
+                                Max: $
+                                <input type="number" x-model.number="filters.priceMax" min="0" step="1" placeholder="2000" class="ml-2 px-2 py-1 rounded bg-gray-900 border border-gray-700 text-white w-32">
                             </label>
                         </div>
                     </div>
 
                     <!-- Availability -->
                     <div class="mb-6">
-                        <h4 class="font-medium text-gray-900 mb-3">Availability</h4>
-                        <div class="space-y-2">
-                            <label class="flex items-center">
-                                <input type="checkbox" x-model="filters.inStock" class="mr-2">
-                                <span class="text-sm">In Stock Only</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" x-model="filters.onSale" class="mr-2">
-                                <span class="text-sm">On Sale</span>
-                            </label>
-                        </div>
+                        <label class="flex items-center"><input type="checkbox" x-model="filters.inStock" class="mr-2"> In Stock Only</label>
+                        <label class="flex items-center mt-2"><input type="checkbox" x-model="filters.onSale" class="mr-2"> On Sale</label>
                     </div>
 
-                    <!-- Apply/Clear Buttons -->
-                    <div class="space-y-2">
-                        <button @click="applyFilters()" 
-                                :disabled="filterLoading"
-                                class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                            <span x-show="!filterLoading">Apply Filters</span>
-                            <span x-show="filterLoading">Loading...</span>
-                        </button>
-                        <button @click="clearFilters()" class="clear-filters w-full py-2 rounded">
-                            Clear All Filters
-                        </button>
+                    <div class="mt-auto space-y-2">
+                        <button @click="applyFilters(); showFilters=false" :disabled="filterLoading"
+                                class="w-full bg-blue-600 text-white py-2 rounded">Apply Filters</button>
+                        <button @click="clearFilters(); showFilters=false" class="w-full clear-filters py-2 rounded">Clear All Filters</button>
                     </div>
                 </div>
             </aside>
@@ -130,32 +114,17 @@
             <main class="flex-1">
                 <!-- Toolbar -->
                 <div class="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                    <!-- left side: filters and other controls -->
                     <div class="flex items-center space-x-4">
-                        <span class="text-sm text-gray-600">
-                            Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() }} products
-                        </span>
-                        
-                        <!-- View Toggle -->
-                        <div class="flex bg-gray-100 rounded-lg p-1">
-                            <button @click="viewMode = 'grid'" 
-                                    :class="viewMode === 'grid' ? 'bg-white shadow-sm' : ''"
-                                    class="p-2 rounded">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                                </svg>
-                            </button>
-                            <button @click="viewMode = 'list'" 
-                                    :class="viewMode === 'list' ? 'bg-white shadow-sm' : ''"
-                                    class="p-2 rounded">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                                </svg>
-                            </button>
-                        </div>
+                        <button @click="showFilters = !showFilters" class="p-2 rounded bg-gray-800 text-white flex items-center gap-2" title="Filters">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/></svg>
+                            <span class="hidden sm:inline text-sm">Filters</span>
+                        </button>
+                        <!-- keep other left controls here if needed -->
                     </div>
 
-                    <!-- Sort Options -->
-                    <div class="flex items-center space-x-4">
+                    <!-- right side: sort (pinned to the right by parent justify-between) -->
+                    <div class="flex items-center space-x-2">
                         <label class="text-sm text-gray-600">Sort by:</label>
                         <select x-model="filters.sort" @change="applyFilters()" class="border border-gray-300 rounded px-3 py-1 text-sm">
                             <option value="">Featured</option>
