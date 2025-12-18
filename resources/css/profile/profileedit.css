@@ -198,13 +198,160 @@
 }
 #account-switcher .add-account-btn:hover { transform: translateY(-3px); filter: brightness(.98); }
 
-@media (max-width: 1024px) {
-    .profile-card {
-        flex-direction: column;
-    }
-    
-    .profile-card aside,
-    .profile-card section {
-        width: 100%;
-    }
+/* Account switcher - vertical cards */
+.account-switcher-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.account-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: transform .08s ease, box-shadow .08s ease, background .08s ease;
+}
+
+.account-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255,255,255,0.035);
+}
+
+.account-card--active,
+.account-card[disabled] {
+    background: linear-gradient(90deg, #fff3e0, #fff0d6);
+    color: #071017;
+    border-color: rgba(245,158,11,0.18);
+    box-shadow: 0 8px 22px rgba(245,158,11,0.08);
+    cursor: default;
+    transform: none;
+}
+
+/* Improved active-account indicator */
+.account-card {
+    position: relative;
+    padding: 0.6rem 0.75rem;
+    padding-right: 3rem; /* reserve space for right-side indicator */
+    transition: transform .08s ease, box-shadow .08s ease, background .08s ease;
+}
+
+/* Active state: left accent bar + soft warm background + subtle glow + checkmark */
+.account-card--active {
+    background: linear-gradient(90deg, rgba(245,158,11,0.10), rgba(255,255,255,0.02));
+    border-color: rgba(245,158,11,0.20);
+    box-shadow: 0 10px 30px rgba(245,158,11,0.06);
+    color: #fff; /* ensure high contrast on dark bg */
+    cursor: default;
+    transform: none;
+}
+
+/* left accent bar */
+.account-card--active::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 10%;
+    bottom: 10%;
+    width: 4px;
+    border-radius: 4px;
+    background: var(--accent, #f59e0b);
+    box-shadow: 0 6px 18px rgba(245,158,11,0.12);
+}
+
+/* right-side checkmark badge */
+.account-card--active::after {
+    content: '✓';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--accent, #f59e0b);
+    color: #071017;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+/* Improve avatar highlight when active */
+.account-card--active .account-avatar {
+    box-shadow: 0 6px 18px rgba(245,158,11,0.08);
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Ensure disabled/active look consistent for keyboard users */
+.account-card[disabled], .account-card[aria-current="true"] {
+    pointer-events: none;
+}
+
+/* small tweak to keep names readable */
+.account-card--active .account-name { color: #fff; font-weight: 700; }
+.account-card--active .account-email { color: rgba(255,255,255,0.82); }
+
+/* keep hover subtle for non-active items */
+.account-card:not(.account-card--active):hover {
+    transform: translateY(-3px);
+    background: rgba(255,255,255,0.02);
+}
+
+/* --- AVATAR / LOGO FIXES --- */
+/* Общие защитные правила для изображений */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Явно фиксируем размеры аватаров и принудительно object-fit */
+.nav-avatar,
+.account-avatar,
+.profile-avatar,
+img.avatar,
+.account-card .account-avatar {
+  width: 56px !important;
+  height: 56px !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+  border-radius: 12px !important;
+  object-fit: cover !important;
+  display: inline-block !important;
+  overflow: hidden !important;
+  background: #0f0f0f;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+/* Меньший вариант для navbar */
+.nav-actions .nav-avatar,
+.nav-avatar--small {
+  width: 36px !important;
+  height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  border-radius: 999px !important;
+}
+
+/* Защита: если кто-то сбросил размеры через глобальные селекторы */
+#site-nav img, .nav-wrap img {
+  max-width: none !important;
+}
+
+/* Ограничение крупных логотипов/изображений в профиле (если используются в теле страницы) */
+.profile-hero img,
+.profile-banner img,
+.logo-large {
+  max-width: 420px !important;
+  height: auto !important;
 }

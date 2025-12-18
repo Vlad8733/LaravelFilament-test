@@ -107,22 +107,44 @@
 
           <div class="mt-6 card" id="account-switcher">
               <h3 class="font-semibold mb-3">Account Switcher</h3>
-              <div class="flex items-center gap-3 flex-wrap">
+
+              <div class="account-switcher-vertical">
                   @foreach($related as $acc)
-                      <button type="button"
-                              class="account-chip {{ $acc->id === $user->id ? 'account-chip--active' : '' }}"
-                              onclick="switchAccount({{ $acc->id }})"
-                              aria-pressed="{{ $acc->id === $user->id ? 'true' : 'false' }}"
-                              @if($acc->id === $user->id) disabled @endif
+                      <button
+                          type="button"
+                          class="account-card {{ $acc->id === $user->id ? 'account-card--active' : '' }}"
+                          onclick="switchAccount({{ $acc->id }})"
+                          aria-pressed="{{ $acc->id === $user->id ? 'true' : 'false' }}"
+                          aria-current="{{ $acc->id === $user->id ? 'true' : 'false' }}"
+                          @if($acc->id === $user->id) disabled @endif
                       >
-                          {{ $acc->name }}
+                          <img
+                              class="account-avatar"
+                              src="{{ $acc->avatar ? asset('storage/' . $acc->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($acc->email))) . '?s=56&d=identicon' }}"
+                              alt="avatar">
+
+                          <div class="account-info">
+                              <div class="account-name">{{ $acc->name }}</div>
+                              <div class="account-email">{{ $acc->email }}</div>
+                              @if($acc->id === $user->id)
+                                <span class="sr-only">Active account</span>
+                             @endif
+                          </div>
                       </button>
                   @endforeach
 
-                  @if($master->childrenCount() < 2)
-                      <a href="{{ route('profile.accounts.create-child') }}" class="add-account-btn">+</a>
-                  @endif
+                  <a href="{{ route('profile.accounts.create-child') }}" class="account-card add-account" title="Add account">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <rect x="1" y="1" width="22" height="22" rx="6" fill="rgba(255,255,255,0.03)"/>
+                          <path d="M12 7v10M7 12h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <div class="account-info">
+                          <div class="account-name">Create account</div>
+                          <div class="account-email">Link to main</div>
+                      </div>
+                  </a>
               </div>
+
               <p class="text-sm text-gray-400 mt-2">Switch between your linked accounts. Creating a new account from here links it to your main account.</p>
           </div>
 
