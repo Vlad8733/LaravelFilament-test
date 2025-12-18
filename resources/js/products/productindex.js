@@ -27,6 +27,7 @@ function updateGlobalCount(type, n = 1) {
 function shopFactory() {
     return {
         viewMode: 'grid',
+        showFilters: false,
         cartCount: 0,
         wishlistCount: 0,
         wishlistItems: [],
@@ -54,6 +55,12 @@ function shopFactory() {
             this.updateCartCount();
             this.updateWishlistCount();
             this.loadWishlistItems();
+            // close filters on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.showFilters) {
+                    this.showFilters = false;
+                }
+            });
         },
 
         isInWishlist(productId) {
@@ -232,6 +239,8 @@ function shopFactory() {
                 const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
                 // navigate
                 window.location.href = url;
+                // if navigating in-place, close drawer UI
+                try { this.showFilters = false; } catch(e){}
             } catch (err) {
                 console.error('applyFilters error', err);
                 this.showNotification('Failed to apply filters', 'error');
