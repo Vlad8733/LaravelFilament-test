@@ -12,6 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
 
     <script>
+        window.initialCartCount = {{ auth()->check() ? auth()->user()->cartItems()->sum('quantity') : 0 }};
+        window.initialWishlistCount = {{ auth()->check() ? auth()->user()->wishlistItems()->count() : 0 }};
+        window.initialNotificationsCount = {{ auth()->check() ? auth()->user()->unreadNotifications()->count() : 0 }};
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('searchBox', () => ({
                 query: '',
@@ -57,12 +61,49 @@
                 }
             }));
 
+            Alpine.data('notificationDropdown', () => ({
+                open: false,
+                notifications: [],
+                loading: false,
+                async fetchNotifications() {
+                    if (this.notifications.length > 0) return;
+                    this.loading = true;
+                    try {
+                        const response = await fetch('/notifications/unread');
+                        const data = await response.json();
+                        this.notifications = data.notifications;
+                        this.$store.global.notificationsCount = data.count;
+                    } catch (error) {
+                        console.error('Failed to fetch notifications:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async markAllAsRead() {
+                    try {
+                        await fetch('/notifications/mark-all-read', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                            }
+                        });
+                        this.notifications = [];
+                        this.$store.global.notificationsCount = 0;
+                    } catch (error) {
+                        console.error('Failed to mark as read:', error);
+                    }
+                }
+            }));
+
             Alpine.store('global', {
                 cartCount: Number(window.initialCartCount || 0),
                 wishlistCount: Number(window.initialWishlistCount || 0),
+                notificationsCount: Number(window.initialNotificationsCount || 0),
                 markViewed(type) {
                     if (type === 'cart') this.cartCount = 0;
                     if (type === 'wishlist') this.wishlistCount = 0;
+                    if (type === 'notifications') this.notificationsCount = 0;
                 }
             });
         });
@@ -338,6 +379,26 @@
 
             <!-- ACTIONS -->
             <div class="nav-actions">
+                @auth
+                    <!-- Notifications -->
+                    <div class="relative" x-data="notificationDropdown()" @click.away="open = false">
+                        <div class="nav-item-wrap" @click="open = !open; if(open) fetchNotifications()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            <span x-show="$store.global.notificationsCount > 0" class="badge-counter" x-text="$store.global.notificationsCount" x-cloak></span>
+                        </div>
+                    </div>
+
+                    <!-- Support Tickets Link -->
+                    <a href="{{ route('tickets.index') }}" class="nav-item-wrap" title="Support Tickets">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        </svg>
+                    </a>
+                @endauth
+
                 <a href="{{ route('wishlist.index') }}" class="nav-item-wrap" @click="$store.global.markViewed('wishlist')">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -373,10 +434,6 @@
         </div>
     </nav>
     @yield('content')
- 
- </body>
- 
- {{-- allow pages to push additional scripts --}}
- @stack('scripts')
- <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
- </html>
+    @stack('scripts')
+</body>
+</html>

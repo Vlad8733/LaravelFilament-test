@@ -1,6 +1,6 @@
-@extends('layouts.app')
+@extends("layouts.app")
 
-@section('title','Products - My Shop')
+@section('title', 'Products - My Shop')
 
 @push('styles')
     @vite('resources/css/products/productindex.css')
@@ -88,7 +88,6 @@
                         <button @click="showFilters = false" class="px-2 py-1 rounded bg-gray-800 text-white">Close</button>
                     </div>
 
-                    <!-- BEGIN: same filter controls as before (categories/price/availability) -->
                     <!-- Categories -->
                     <div class="mb-6">
                         <h4 class="font-medium mb-3">Categories</h4>
@@ -147,10 +146,9 @@
                             <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/></svg>
                             <span class="hidden sm:inline text-sm">Filters</span>
                         </button>
-                        <!-- keep other left controls here if needed -->
                     </div>
 
-                    <!-- right side: sort (pinned to the right by parent justify-between) -->
+                    <!-- right side: sort -->
                     <div class="flex items-center space-x-2">
                         <label class="text-sm text-gray-600">Sort by:</label>
                         <select x-model="filters.sort" @change="applyFilters()" class="border border-gray-300 rounded px-3 py-1 text-sm">
@@ -361,4 +359,5 @@
             </main>
         </div>
     </div>
+</div>
 @endsection

@@ -103,4 +103,38 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->id === $user->id || $this->parent_user_id === $user->id;
     }
+
+    /**
+     * Заявки пользователя
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    /**
+     * Заявки, назначенные на пользователя (если он админ)
+     */
+    public function assignedTickets()
+    {
+        return $this->hasMany(Ticket::class, 'assigned_to');
+    }
+
+    /**
+     * Сообщения в заявках
+     */
+    public function ticketMessages()
+    {
+        return $this->hasMany(TicketMessage::class);
+    }
+
+    public function cartItems()
+    {
+        return $this->hasMany(\App\Models\CartItem::class);
+    }
+
+    public function wishlistItems()
+    {
+        return $this->hasMany(\App\Models\WishlistItem::class);
+    }
 }

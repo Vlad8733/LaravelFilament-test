@@ -1,0 +1,297 @@
+@extends('layouts.app')
+
+@section('title', 'Ticket #' . $ticket->id)
+
+@push('styles')
+    @vite('resources/css/tickets/tickets.css')
+    @vite('resources/css/tickets/ticket-show.css')
+@endpush
+
+@section('content')
+<div class="ticket-show-page">
+    <div class="ticket-show-container">
+        <!-- Header -->
+        <div class="ticket-show-header">
+            <div class="ticket-header-top">
+                <div style="flex: 1;">
+                    <div class="ticket-show-id">Ticket #{{ $ticket->id }}</div>
+                    <h1 class="ticket-show-subject">{{ $ticket->subject }}</h1>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <span class="badge badge-status-{{ $ticket->status }}">
+                            {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                        </span>
+                        <span class="badge badge-priority-{{ $ticket->priority }}">
+                            {{ ucfirst($ticket->priority) }} Priority
+                        </span>
+                    </div>
+                    <div class="ticket-show-description">{{ $ticket->description }}</div>
+                </div>
+                <div class="ticket-header-actions">
+                    @if(!$ticket->isClosed())
+                        <form action="{{ route('tickets.close', $ticket) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn-action btn-action-close">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                Close Ticket
+                            </button>
+                        </form>
+                    @else
+                        <form action="{{ route('tickets.reopen', $ticket) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn-action btn-action-reopen">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                                    <path d="M21 3v5h-5"></path>
+                                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                                    <path d="M3 21v-5h5"></path>
+                                </svg>
+                                Reopen Ticket
+                            </button>
+                        </form>
+                    @endif
+                    <a href="{{ route('tickets.index') }}" class="btn-action btn-action-back">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Back to Tickets
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        @if(session('success'))
+            <div class="alert alert-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if($ticket->isClosed())
+            <div class="alert alert-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                This ticket is closed. Reopen it to continue the conversation.
+            </div>
+        @endif
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <!-- Messages Area -->
+            <div class="messages-area" id="messagesArea" data-messages-container>
+                @forelse($ticket->messages as $message)
+                    <div class="message-bubble {{ $message->is_admin_reply ? 'admin-message' : 'user-message' }}">
+                        <img 
+                            src="{{ $message->user->avatar ? asset('storage/'.$message->user->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($message->user->email))).'?s=80&d=identicon' }}" 
+                            alt="{{ $message->user->name }}" 
+                            class="message-avatar"
+                        >
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-author">{{ $message->user->name }}</span>
+                                @if($message->is_admin_reply)
+                                    <span class="message-badge message-badge-admin">Support Team</span>
+                                @endif
+                                <span class="message-time">{{ $message->created_at->diffForHumans() }}</span>
+                            </div>
+                            <div class="message-text">{{ $message->message }}</div>
+                            
+                            @if($message->attachments->count() > 0)
+                                <div class="message-attachments">
+                                    @foreach($message->attachments as $attachment)
+                                        <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank" class="attachment-item">
+                                            <svg class="attachment-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            <div class="attachment-info">
+                                                <div class="attachment-name">{{ $attachment->file_name }}</div>
+                                                <div class="attachment-size">{{ $attachment->human_readable_size }}</div>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        No messages yet. Start the conversation!
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Reply Form -->
+            @if(!$ticket->isClosed())
+                <form action="{{ route('tickets.reply', $ticket) }}" method="POST" enctype="multipart/form-data" class="reply-form" id="replyForm">
+                    @csrf
+                    <textarea 
+                        name="message" 
+                        class="reply-textarea" 
+                        placeholder="Type your reply here..."
+                        required
+                    ></textarea>
+                    
+                    <div class="reply-form-actions">
+                        <label for="attachmentInput" class="btn-attach">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                            </svg>
+                            Attach Files
+                            <input type="file" name="attachments[]" id="attachmentInput" multiple accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
+                        </label>
+                        
+                        <button type="submit" class="btn-send">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                            Send Reply
+                        </button>
+                    </div>
+                    
+                    <div id="attachmentsList" style="margin-top: 1rem;"></div>
+                </form>
+            @endif
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-scroll to bottom of messages
+    const messagesArea = document.getElementById('messagesArea');
+    if (messagesArea) {
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    // File attachment preview
+    const attachmentInput = document.getElementById('attachmentInput');
+    const attachmentsList = document.getElementById('attachmentsList');
+    
+    if (attachmentInput) {
+        attachmentInput.addEventListener('change', function() {
+            attachmentsList.innerHTML = '';
+            if (this.files.length > 0) {
+                attachmentsList.innerHTML = '<div style="font-size: 0.875rem; color: var(--text-secondary);">Selected files:</div>';
+                Array.from(this.files).forEach(file => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.style.cssText = 'padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 6px; margin-top: 0.5rem; font-size: 0.875rem;';
+                    fileDiv.textContent = file.name;
+                    attachmentsList.appendChild(fileDiv);
+                });
+            }
+        });
+    }
+});
+</script>
+@push('scripts')
+<script>
+console.log('Polling script loaded for ticket {{ $ticket->id }}');
+let lastMessageId = {{ $ticket->messages->last()?->id ?? 0 }};
+
+function checkNewMessages() {
+    console.log('Checking for new messages after ID:', lastMessageId);
+    
+    fetch('/support/{{ $ticket->id }}/check-new-messages?after=' + lastMessageId, {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(d => {
+        console.log('Received:', d);
+        
+        if (d.messages && d.messages.length > 0) {
+            const container = document.getElementById('messagesArea');
+            
+            if (!container) {
+                console.error('Messages container not found!');
+                return;
+            }
+            
+            d.messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message-bubble ' + (msg.is_admin_reply ? 'admin-message' : 'user-message');
+                
+                const avatarUrl = msg.user_avatar || `https://www.gravatar.com/avatar/${md5(msg.user_name.toLowerCase())}?s=80&d=identicon`;
+                
+                // Формируем HTML для вложений
+                let attachmentsHtml = '';
+                if (msg.attachments && msg.attachments.length > 0) {
+                    attachmentsHtml = '<div class="message-attachments">';
+                    msg.attachments.forEach(att => {
+                        attachmentsHtml += `
+                            <a href="${att.url}" target="_blank" class="attachment-item">
+                                <svg class="attachment-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                </svg>
+                                <div class="attachment-info">
+                                    <div class="attachment-name">${att.file_name}</div>
+                                    <div class="attachment-size">${att.file_size}</div>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    attachmentsHtml += '</div>';
+                }
+                
+                messageDiv.innerHTML = `
+                    <img src="${avatarUrl}" alt="${msg.user_name}" class="message-avatar">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">${msg.user_name}</span>
+                            ${msg.is_admin_reply ? '<span class="message-badge message-badge-admin">Support Team</span>' : ''}
+                            <span class="message-time">just now</span>
+                        </div>
+                        <div class="message-text">${msg.message}</div>
+                        ${attachmentsHtml}
+                    </div>
+                `;
+                
+                container.appendChild(messageDiv);
+                lastMessageId = msg.id;
+                
+                // Плавный скролл вниз
+                container.scrollTop = container.scrollHeight;
+            });
+            
+            playNotificationSound();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function playNotificationSound() {
+    try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUBD=');
+        audio.volume = 0.3;
+        audio.play().catch(() => {});
+    } catch(e) {}
+}
+
+function md5(str) {
+    return str;
+}
+
+setInterval(checkNewMessages, 3000);
+</script>
+@endpush
+@endsection
