@@ -8,6 +8,14 @@
     @vite('resources/js/profile/profileedit.js')
 @endpush
 
+@push('scripts')
+    @vite('resources/js/account/accounts.js')
+    <script>
+        window.__routes = window.__routes || {};
+        window.__routes.profileAccountsSwitch = "{{ route('profile.accounts.switch') }}";
+    </script>
+@endpush
+
 @section('content')
 <main class="py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,6 +91,40 @@
               <button class="btn-primary" type="submit">Save account</button>
             </div>
           </form>
+
+          <hr class="my-6 border-t" />
+
+          <!-- Account Switcher (added) -->
+          @php
+              $authUser = auth()->user();
+              if ($authUser->parent_user_id) {
+                  $master = \App\Models\User::with(['children' => function($q){ $q->orderBy('created_at','asc'); }])->find($authUser->parent_user_id);
+              } else {
+                  $master = \App\Models\User::with(['children' => function($q){ $q->orderBy('created_at','asc'); }])->find($authUser->id);
+              }
+              $related = collect([$master])->merge($master->children ?? collect());
+          @endphp
+
+          <div class="mt-6 card" id="account-switcher">
+              <h3 class="font-semibold mb-3">Account Switcher</h3>
+              <div class="flex items-center gap-3 flex-wrap">
+                  @foreach($related as $acc)
+                      <button type="button"
+                              class="account-chip {{ $acc->id === $user->id ? 'account-chip--active' : '' }}"
+                              onclick="switchAccount({{ $acc->id }})"
+                              aria-pressed="{{ $acc->id === $user->id ? 'true' : 'false' }}"
+                              @if($acc->id === $user->id) disabled @endif
+                      >
+                          {{ $acc->name }}
+                      </button>
+                  @endforeach
+
+                  @if($master->childrenCount() < 2)
+                      <a href="{{ route('profile.accounts.create-child') }}" class="add-account-btn">+</a>
+                  @endif
+              </div>
+              <p class="text-sm text-gray-400 mt-2">Switch between your linked accounts. Creating a new account from here links it to your main account.</p>
+          </div>
 
           <hr class="my-6 border-t" />
 

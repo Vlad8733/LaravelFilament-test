@@ -1,6 +1,6 @@
 /* Wishlist page styling (matches existing site look & feel) */
 .wishlist-page { 
-    --card-bg: #0f1720;
+    --card-bg: #000000;
     --muted: #9ca3af;
     background: radial-gradient(ellipse at center, #07080a 0%, #0b0d10 60%);
     color: #e6eef6;
@@ -21,7 +21,7 @@
 }
 
 .wishlist-page .bg-white {
-    background: linear-gradient(180deg,#0f1113,#0b0b0b) !important;
+    background: linear-gradient(180deg,#000000,#0b0b0b) !important;
     border: 1px solid rgb(255, 255, 255);
     color: #e6eef6;
 }

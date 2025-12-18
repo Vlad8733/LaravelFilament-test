@@ -35,8 +35,8 @@
                         @foreach($cart as $item)
                             <div class="flex justify-between items-center py-3 border-b border-gray-100">
                                 <div class="flex items-center space-x-3">
-                                    @if($item['image'])
-                                        <img src="{{ asset('storage/' . $item['image']) }}" 
+                                    @if(!empty($item['image']))
+                                        <img src="{{ $item['image'] }}" 
                                              alt="{{ $item['name'] }}"
                                              class="w-12 h-12 object-cover rounded">
                                     @endif

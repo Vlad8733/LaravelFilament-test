@@ -36,3 +36,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Simple switchAccount helper used on profile page and accounts page
+function switchAccount(id) {
+    const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+    const token = tokenMeta ? tokenMeta.getAttribute('content') : '';
+    fetch('/profile/accounts/switch', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ account_id: id })
+    })
+    .then(async resp => {
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+            console.error('switchAccount failed', resp.status, json);
+            alert(json.message || 'Switch failed (see console)');
+            return;
+        }
+        if (json.success) {
+            location.reload();
+        } else {
+            alert(json.message || 'Switch failed');
+            console.log(json);
+        }
+    })
+    .catch(err => {
+        console.error('switchAccount error', err);
+        alert('Network error');
+    });
+}
+
+// make global so inline onclick="switchAccount(...)" works
+window.switchAccount = switchAccount;

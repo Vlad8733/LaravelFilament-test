@@ -2,100 +2,70 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Wishlist;
 use App\Models\Product;
+use App\Models\WishlistItem;
 use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
+    // Show wishlist for current user
     public function index()
     {
-        $sessionId = session()->getId();
-        
-        $wishlistItems = Wishlist::with(['product.images', 'product.category'])
-            ->where('session_id', $sessionId)
-            ->get();
+        $userId = auth()->id();
+        $wishlistItems = WishlistItem::with(['product.images', 'product.category'])
+            ->where('user_id', $userId)
+            ->get()
+            ->map(function($wi) {
+                // keep same structure as previous Wishlist model expected in blade
+                $p = $wi->product;
+                return (object)[
+                    'id' => $wi->id,
+                    'product' => $p,
+                    'created_at' => $wi->created_at,
+                ];
+            });
 
         return view('wishlist.index', compact('wishlistItems'));
     }
 
+    // Add product to wishlist (DB)
     public function add(Request $request, $productId)
     {
+        $userId = auth()->id();
+        if (! $userId) return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+
         $product = Product::find($productId);
-        
-        if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found'
-            ], 404);
-        }
+        if (! $product) return response()->json(['success' => false, 'message' => 'Product not found'], 404);
 
-        $sessionId = session()->getId();
-        
-        $existingItem = Wishlist::where('session_id', $sessionId)
-            ->where('product_id', $productId)
-            ->first();
-            
-        if ($existingItem) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product already in wishlist'
-            ]);
-        }
-
-        Wishlist::create([
-            'session_id' => $sessionId,
+        WishlistItem::firstOrCreate([
+            'user_id' => $userId,
             'product_id' => $productId,
         ]);
 
-        $wishlistCount = Wishlist::where('session_id', $sessionId)->count();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Product added to wishlist!',
-            'wishlistCount' => $wishlistCount
-        ]);
+        return response()->json(['success' => true, 'message' => 'Added to wishlist']);
     }
 
+    // Remove product from wishlist (DB)
     public function remove(Request $request, $productId)
     {
-        $sessionId = session()->getId();
-        
-        $wishlistItem = Wishlist::where('session_id', $sessionId)
-            ->where('product_id', $productId)
-            ->first();
-            
-        if (!$wishlistItem) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found in wishlist'
-            ], 404);
-        }
-
-        $wishlistItem->delete();
-        
-        $wishlistCount = Wishlist::where('session_id', $sessionId)->count();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Product removed from wishlist',
-            'wishlistCount' => $wishlistCount
-        ]);
+        $userId = auth()->id();
+        WishlistItem::where('user_id', $userId)->where('product_id', $productId)->delete();
+        return response()->json(['success' => true, 'message' => 'Removed']);
     }
 
+    // Count for header/badge
     public function getCount()
     {
-        $sessionId = session()->getId();
-        $count = Wishlist::where('session_id', $sessionId)->count();
-        
+        $userId = auth()->id();
+        $count = $userId ? WishlistItem::where('user_id', $userId)->count() : 0;
         return response()->json(['count' => $count]);
     }
 
+    // Get product ids
     public function getItems()
     {
-        $sessionId = session()->getId();
-        $items = Wishlist::where('session_id', $sessionId)->pluck('product_id');
-        
+        $userId = auth()->id();
+        $items = $userId ? WishlistItem::where('user_id', $userId)->pluck('product_id') : collect([]);
         return response()->json(['items' => $items]);
     }
 }

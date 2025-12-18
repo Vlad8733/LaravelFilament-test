@@ -169,6 +169,21 @@
         a.user-name:hover {
             color: inherit !important;
         }
+
+        /* Ensure logo has no border/outline/shadow and renders as block */
+        .logo-link, .logo-link img.logo-img, .brand .logo-img {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            -webkit-box-shadow: none !important;
+            display: block !important; /* removes inline image whitespace */
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        /* If SVG stroke/pseudo-element is used */
+        .logo-link svg, .logo-link svg * { stroke: none !important; fill: none !important; }
+        .logo-link::before, .logo-link::after { display: none !important; content: none !important; }
     </style>
 </head>
 <body class="">
@@ -178,8 +193,8 @@
             <div class="nav-center">
                  <!-- Logo -->
                  <div class="flex items-center brand">
-                     <a href="{{ url('/products') }}" class="inline-block">
-                         <img src="{{ asset('storage/logo/logoShopLy.png') }}" alt="ShopLy" class="h-20 md:h-14 w-auto object-contain" loading="lazy">
+                     <a href="{{ url('/products') }}" class="inline-block logo-link">
+                         <img src="{{ asset('storage/logo/logoShopLy.png') }}" alt="ShopLy" class="h-20 md:h-14 w-auto object-contain logo-img" loading="lazy">
                      </a>
                  </div>
                 <!-- Search (moved closer to logo) -->

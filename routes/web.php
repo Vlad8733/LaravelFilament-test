@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AccountController;
 
 // Главная
 Route::get('/', fn() => view('welcome'))->name('home');
@@ -50,6 +51,12 @@ Route::middleware('auth')->group(function () {
 
     // удаление аккаунта
     Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Переключение аккаунтов
+    Route::post('/profile/accounts/switch', [AccountController::class, 'switchAccount'])->name('profile.accounts.switch');
+
+    Route::get('/profile/accounts/create-child', [AccountController::class, 'createChild'])->name('profile.accounts.create-child');
+    Route::post('/profile/accounts/store-child', [AccountController::class, 'storeChild'])->name('profile.accounts.store-child');
 });
 
 // Продукты
