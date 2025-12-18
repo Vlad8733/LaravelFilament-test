@@ -1,47 +1,54 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-    /**
-     * Global product search for autocompletion / instant results.
-     * Accepts query param names: query, search, q
-     */
-    public function index(Request $request)
+    public function search(Request $request)
     {
-        $q = trim((string) $request->query('query', $request->query('search', $request->query('q', ''))));
+        $query = $request->input('query', '');
 
-        // minimum length to avoid heavy queries / spam
-        if (strlen($q) < 2) {
+        if (strlen($query) < 2) {
             return response()->json([]);
         }
 
-        try {
-            // basic fulltext-like matching over name / description / long_description
-            $items = Product::query()
-                ->where('name', 'LIKE', "%{$q}%")
-                ->orWhere('description', 'LIKE', "%{$q}%")
-                ->limit(8)
-                ->get(['id','name','slug','price','image'])
-                ->map(function ($p) {
-                    return [
-                        'id'    => $p->id,
-                        'name'  => $p->name,
-                        'slug'  => $p->slug,
-                        'price' => $p->price,
-                        // попытка получить URL изображения (адаптируй, если у вас другое поле/рел)
-                        'image' => $p->image ? asset('storage/' . $p->image) : null,
-                        'url'   => route('products.show', $p->id),
-                    ];
-                })->values();
+        $products = Product::with(['images', 'category'])
+            ->where('name', 'like', '%' . $query . '%')
+            ->orWhere('description', 'like', '%' . $query . '%')
+            ->limit(10)
+            ->get();
 
-            return response()->json($items);
-        } catch (\Throwable $e) {
-            \Log::error('SearchController error: '.$e->getMessage());
-            return response()->json([]);
-        }
+        $results = $products->map(function ($product) {
+            $image = null;
+            
+            // Get first image if exists
+            if ($product->images && $product->images->count() > 0) {
+                $firstImage = $product->images->first();
+                if ($firstImage && $firstImage->image_path) {
+                    // Ensure proper path format
+                    $imagePath = $firstImage->image_path;
+                    
+                    // Remove 'public/' prefix if present (storage handles this)
+                    if (strpos($imagePath, 'public/') === 0) {
+                        $imagePath = substr($imagePath, 7);
+                    }
+                    
+                    $image = asset('storage/' . $imagePath);
+                }
+            }
+
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->sale_price ?? $product->price,
+                'image' => $image,
+                'url' => route('products.show', $product->id)
+            ];
+        });
+
+        return response()->json($results);
     }
 }
