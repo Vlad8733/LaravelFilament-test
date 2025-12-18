@@ -17,25 +17,49 @@
                 query: '',
                 results: [],
                 showResults: false,
+                selectedIndex: -1,
                 debounceTimeout: null,
                 debounceSearch() {
                     clearTimeout(this.debounceTimeout);
-                    this.debounceTimeout = setTimeout(() => this.search(), 300);
+                    this.debounceTimeout = setTimeout(() => this.search(), 250);
                 },
                 search() {
                     if (!this.query || this.query.length < 2) {
                         this.results = [];
+                        this.showResults = false;
+                        this.selectedIndex = -1;
                         return;
                     }
-                    fetch('/search?query=' + encodeURIComponent(this.query))
-                        .then(res => res.json())
-                        .then(data => this.results = Array.isArray(data) ? data : []);
+                    fetch('/search?query=' + encodeURIComponent(this.query), { headers: { 'Accept': 'application/json' } })
+                        .then(res => {
+                            if (!res.ok) throw new Error('network');
+                            return res.json();
+                        })
+                        .then(data => {
+                            this.results = Array.isArray(data) ? data : [];
+                            this.showResults = this.results.length > 0;
+                            this.selectedIndex = this.results.length ? 0 : -1;
+                        })
+                        .catch(() => { this.results = []; this.showResults = false; this.selectedIndex = -1; });
+                },
+                next() {
+                    if (!this.showResults) return;
+                    this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                },
+                prev() {
+                    if (!this.showResults) return;
+                    this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                },
+                select() {
+                    if (this.selectedIndex >= 0 && this.results[this.selectedIndex]) {
+                        window.location = this.results[this.selectedIndex].url;
+                    }
                 }
             }));
 
             Alpine.store('global', {
-                cartCount: 0,
-                wishlistCount: 0,
+                cartCount: Number(window.initialCartCount || 0),
+                wishlistCount: Number(window.initialWishlistCount || 0),
                 markViewed(type) {
                     if (type === 'cart') this.cartCount = 0;
                     if (type === 'wishlist') this.wishlistCount = 0;
@@ -173,6 +197,37 @@
             max-width: none !important;
             height: auto !important;
         }
+
+        /* search dropdown */
+        .search-results {
+            position: absolute;
+            top: calc(var(--nav-h) + 8px);
+            left: 0;
+            right: 0;
+            margin-top: 6px;
+            background: linear-gradient(180deg,#0f1113,#0b0b0b);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 10px;
+            max-height: 56vh;
+            overflow: auto;
+            z-index: 1200;
+            padding: 8px;
+        }
+        .search-result-item {
+            display:flex;
+            gap: 0.75rem;
+            align-items:center;
+            padding: 8px;
+            border-radius: 8px;
+            color: inherit;
+            text-decoration: none;
+        }
+        .search-result-item.active { background: rgba(245,158,11,0.07); }
+        .sr-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; }
+        .sr-meta { display:flex; flex-direction:column; gap:2px; }
+        .sr-name { font-weight:600; }
+        .sr-price { color: #9ca3af; font-size:0.9rem; }
+        .sr-empty { padding:8px; color:#9ca3af; text-align:center; }
     </style>
 </head>
 <body>
@@ -185,12 +240,26 @@
             </a>
 
             <!-- SEARCH -->
-            <div class="relative" x-data="searchBox()">
+            <div class="relative" x-data="searchBox()" @click.away="showResults=false">
                 <svg class="icon-left w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <input class="search-input" placeholder="Search products…" x-model="query" @input="debounceSearch">
+                <input class="search-input" placeholder="Search products…" x-model="query" @input="debounceSearch" @keydown.arrow-down.prevent="next()" @keydown.arrow-up.prevent="prev()" @keydown.enter.prevent="select()">
+
+                <!-- results panel -->
+                <div x-show="showResults" x-cloak class="search-results" x-transition>
+                    <template x-for="(item, idx) in results" :key="item.id">
+                        <a :href="item.url" class="search-result-item" :class="{'active': idx === selectedIndex}" @mouseenter="selectedIndex = idx" @click.prevent="window.location = item.url">
+                            <img x-show="item.image" :src="item.image" alt="" class="sr-thumb">
+                            <div class="sr-meta">
+                                <div class="sr-name" x-text="item.name"></div>
+                                <div class="sr-price" x-text="item.price ? ('$' + item.price) : ''"></div>
+                            </div>
+                        </a>
+                    </template>
+                    <div x-show="results.length === 0" class="sr-empty">No results</div>
+                </div>
             </div>
 
             <!-- ACTIONS -->

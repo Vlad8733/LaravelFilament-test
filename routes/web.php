@@ -14,6 +14,9 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\SearchController;
+
+Route::get('/search', [SearchController::class, 'index'])->name('search.global');
 
 // Главная
 Route::get('/', fn() => view('welcome'))->name('home');
@@ -106,4 +109,10 @@ Route::prefix('wishlist')->name('wishlist.')->group(function () {
 Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(function () {
     Route::get('/', [SellerController::class, 'index'])->name('dashboard');
     Route::get('/products', [SellerController::class, 'products'])->name('products');
+});
+
+Route::get('/search', function (Request $request) {
+    return response()->json([
+        ['id'=>1,'name'=>'Test product','price'=>0,'slug'=>'test-product','image'=>null,'url'=>'/products/test-product']
+    ]);
 });
