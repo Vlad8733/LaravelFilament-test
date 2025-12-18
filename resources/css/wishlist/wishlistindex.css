@@ -1,3 +1,48 @@
+/* Force exact Cart background & card visuals for Wishlist */
+:root {
+  --bg: #0b0b0b;
+  --card: #171717;
+  --border: #2a2a2a;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #f59e0b;
+}
+
+/* exact cart background */
+html,
+body {
+    background: radial-gradient(ellipse at center, #111 0%, #000 70%);
+    color: var(--text);
+}
+
+/* remove any local wishlist background so body bg shows through */
+.wishlist-page,
+.wishlist-page *::before,
+.wishlist-page *::after {
+  background: transparent !important;
+}
+
+/* ensure container is transparent and centered like cart */
+.wishlist-page .container,
+.wishlist-page .content,
+.wishlist-page main {
+  background: transparent !important;
+  max-width: 1120px !important;
+  margin: 28px auto 48px !important;
+  padding: 0 16px !important;
+  box-sizing: border-box !important;
+}
+
+/* make .bg-white match cart cards (prevents bright borders/boxes) */
+.wishlist-page .bg-white,
+.wishlist-page .wishlist-card,
+.bg-white {
+  background: linear-gradient(180deg,#1a1a1a,#141414) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 30px 80px rgba(0,0,0,.8) !important;
+  color: var(--text) !important;
+}
+
 /* Wishlist page styling (matches existing site look & feel) */
 .wishlist-page { 
     --card-bg: #0f1720;
@@ -132,3 +177,4 @@
 .navbar .user-name:hover {
     color: inherit !important;
 }
+
