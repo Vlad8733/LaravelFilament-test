@@ -107,7 +107,7 @@
                                  <div class="flex space-x-2">
                                      <input type="text" x-model="couponCode" 
                                             class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Enter coupon code">
+                                            placeholder="XXXX-XXXX">
                                      <button @click="applyCoupon()" 
                                              class="flex-none bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
                                          Apply
