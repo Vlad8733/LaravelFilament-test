@@ -202,7 +202,7 @@
 .account-switcher-vertical {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
     margin-top: 0.5rem;
 }
 
@@ -210,100 +210,220 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.6rem 0.75rem;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.03);
+    padding: 0.75rem 1rem;
+    padding-right: 3rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.04);
     cursor: pointer;
     width: 100%;
     text-align: left;
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 }
 
 .account-card:hover {
-    transform: translateY(-3px);
-    background: rgba(255,255,255,0.035);
+    background: rgba(255, 255, 255, 0.025);
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
 }
 
+/* Active account - subtle elegant highlight */
 .account-card--active,
 .account-card[disabled] {
-    background: linear-gradient(90deg, #fff3e0, #fff0d6);
-    color: #071017;
-    border-color: rgba(245,158,11,0.18);
-    box-shadow: 0 8px 22px rgba(245,158,11,0.08);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.03));
+    border: 1.5px solid rgba(245, 158, 11, 0.25);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.04), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
     cursor: default;
     transform: none;
 }
 
-/* Improved active-account indicator */
-.account-card {
-    position: relative;
-    padding: 0.6rem 0.75rem;
-    padding-right: 3rem; /* reserve space for right-side indicator */
-    transition: transform .08s ease, box-shadow .08s ease, background .08s ease;
-}
-
-/* Active state: left accent bar + soft warm background + subtle glow + checkmark */
-.account-card--active {
-    background: linear-gradient(90deg, rgba(245,158,11,0.10), rgba(255,255,255,0.02));
-    border-color: rgba(245,158,11,0.20);
-    box-shadow: 0 10px 30px rgba(245,158,11,0.06);
-    color: #fff; /* ensure high contrast on dark bg */
-    cursor: default;
+.account-card--active:hover {
     transform: none;
 }
 
-/* left accent bar */
+/* Subtle left accent bar - thinner and more elegant */
 .account-card--active::before {
     content: '';
     position: absolute;
-    left: 8px;
-    top: 10%;
-    bottom: 10%;
-    width: 4px;
-    border-radius: 4px;
-    background: var(--accent, #f59e0b);
-    box-shadow: 0 6px 18px rgba(245,158,11,0.12);
+    left: 6px;
+    top: 20%;
+    bottom: 20%;
+    width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--accent, #f59e0b), rgba(245, 158, 11, 0.6));
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
 }
 
-/* right-side checkmark badge */
+/* Elegant checkmark badge - smaller and more refined */
 .account-card--active::after {
     content: '✓';
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    background: var(--accent, #f59e0b);
-    color: #071017;
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
+    background: linear-gradient(135deg, #f59e0b, #f59e0b);
+    color: #0a0a0a;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
     text-align: center;
-    border-radius: 999px;
+    border-radius: 6px;
     font-weight: 700;
-    font-size: 14px;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+    font-size: 12px;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
 }
 
-/* Improve avatar highlight when active */
+/* Avatar styling */
+.account-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
+    border-radius: 10px !important;
+    object-fit: cover !important;
+    background: #0f0f0f;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.15s ease;
+}
+
+.account-card:hover .account-avatar {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
 .account-card--active .account-avatar {
-    box-shadow: 0 6px 18px rgba(245,158,11,0.08);
-    border: 1px solid rgba(255,255,255,0.04);
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);
 }
 
-/* Ensure disabled/active look consistent for keyboard users */
-.account-card[disabled], .account-card[aria-current="true"] {
+/* Text styling - improved hierarchy */
+.account-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.account-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.15rem;
+    line-height: 1.3;
+    transition: color 0.15s ease;
+}
+
+.account-email {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.3;
+    transition: color 0.15s ease;
+}
+
+/* Active account text - subtle enhancement without being overwhelming */
+.account-card--active .account-name {
+    color: #fff;
+    font-weight: 600;
+}
+
+.account-card--active .account-email {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* Hover effects for non-active cards */
+.account-card:not(.account-card--active):hover .account-name {
+    color: #fff;
+}
+
+.account-card:not(.account-card--active):hover .account-email {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+/* Add account card - special styling */
+.account-card.add-account {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+}
+
+.account-card.add-account:hover {
+    background: rgba(245, 158, 11, 0.04);
+    border-color: rgba(245, 158, 11, 0.3);
+    transform: translateY(-1px);
+}
+
+.account-card.add-account svg {
+    width: 48px;
+    height: 48px;
+    color: var(--accent);
+    opacity: 0.8;
+    transition: all 0.15s ease;
+}
+
+.account-card.add-account:hover svg {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.account-card.add-account .account-name {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.account-card.add-account .account-email {
+    color: rgba(245, 158, 11, 0.7);
+    font-size: 0.75rem;
+}
+
+/* Ensure disabled state matches active */
+.account-card[disabled], 
+.account-card[aria-current="true"] {
     pointer-events: none;
 }
 
-/* small tweak to keep names readable */
-.account-card--active .account-name { color: #fff; font-weight: 700; }
-.account-card--active .account-email { color: rgba(255,255,255,0.82); }
+/* Screen reader only text */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
 
-/* keep hover subtle for non-active items */
-.account-card:not(.account-card--active):hover {
-    transform: translateY(-3px);
-    background: rgba(255,255,255,0.02);
+/* Account switcher container styling */
+#account-switcher {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+
+#account-switcher h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+}
+
+#account-switcher p {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 0.75rem;
+}
+
+/* Smooth transitions for all interactive elements */
+.account-card * {
+    transition: inherit;
+}
+
+/* Focus states for accessibility */
+.account-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 /* --- AVATAR / LOGO FIXES --- */
