@@ -23,7 +23,7 @@
         </nav>
 
         <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-bold">My Wishlist</h1>
+            <h1 class="text-3xl font-bold">Your Wishlist</h1>
             <span class="text-sm text-gray-400">{{ $wishlistItems->count() }} items</span>
         </div>
 
