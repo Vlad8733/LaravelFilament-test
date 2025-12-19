@@ -8,7 +8,7 @@ function updateGlobalCount(type, n = 1) {
                 Alpine.store('global').increment(type, n);
             }
         } catch (e) {
-            console.warn('Could not update global count', e);
+            // silent
         }
     };
 
@@ -21,12 +21,18 @@ function updateGlobalCount(type, n = 1) {
     }
 }
 
-// Factory that returns component state & methods (with notifications array)
-function wishlistFactory() {
+/**
+ * wishlistPage factory - ТОЧНО КАК В PRODUCTS
+ */
+function wishlistPageFactory() {
     return {
         loading: false,
         notifications: [],
         notificationIdCounter: 0,
+
+        init() {
+            console.log('Wishlist page initialized');
+        },
 
         showNotification(message, type = 'success', productName = '') {
             const id = ++this.notificationIdCounter;
@@ -38,16 +44,13 @@ function wishlistFactory() {
                 show: true
             };
 
-            // Add new notification to the END of array
             this.notifications.push(notification);
 
-            // Limit to 5 notifications max - remove oldest
             if (this.notifications.length > 5) {
                 const oldestId = this.notifications[0].id;
                 this.removeNotification(oldestId);
             }
 
-            // Auto-remove after 4 seconds
             setTimeout(() => {
                 this.removeNotification(id);
             }, 4000);
@@ -57,7 +60,6 @@ function wishlistFactory() {
             const index = this.notifications.findIndex(n => n.id === id);
             if (index !== -1) {
                 this.notifications[index].show = false;
-                // Remove from array after animation completes
                 setTimeout(() => {
                     this.notifications = this.notifications.filter(n => n.id !== id);
                 }, 500);
@@ -65,50 +67,71 @@ function wishlistFactory() {
         },
 
         async removeFromWishlist(productId, productName = 'Product') {
-            this.loading = true;
             try {
-                const resp = await fetch(`/wishlist/remove/${productId}`, {
+                const response = await fetch(`/wishlist/remove/${productId}`, {
                     method: 'DELETE',
                     credentials: 'same-origin',
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'Accept': 'application/json'
                     }
                 });
-                const data = await resp.json();
+
+                const data = await response.json();
                 
-                if (data && data.success) {
+                if (data.success) {
                     this.showNotification('was removed from wishlist', 'info', productName);
-                    
-                    // Update global count
                     updateGlobalCount('wishlist', -1);
                     
-                    // remove card from DOM if present
-                    const btn = document.querySelector('[data-wishlist-remove="' + productId + '"]');
-                    if (btn) {
-                        const card = btn.closest('.wishlist-card');
-                        if (card) {
-                            // Fade out before removing
-                            card.style.transition = 'opacity 0.3s ease';
-                            card.style.opacity = '0';
-                            setTimeout(() => card.remove(), 300);
-                        }
+                    // Находим карточку товара и удаляем её с анимацией ВЛЕВО
+                    const card = document.querySelector(`[data-product-id="${productId}"]`);
+                    if (card) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateX(-100px)'; // Изменено с 100px на -100px
+                        card.style.transition = 'all 0.3s ease';
+                        
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // Проверяем остались ли товары
+                            const remaining = document.querySelectorAll('[data-product-id]').length;
+                            if (remaining === 0) {
+                                // Показываем empty state без перезагрузки
+                                const container = document.querySelector('.wishlist-grid');
+                                if (container) {
+                                    container.innerHTML = `
+                                        <div class="col-span-full text-center py-16">
+                                            <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                            </svg>
+                                            <h3 class="text-xl font-medium text-gray-500 mb-2">Your wishlist is empty</h3>
+                                            <p class="text-gray-400 mb-6">Start adding products you love!</p>
+                                            <a href="/products" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                                                Browse Products
+                                            </a>
+                                        </div>
+                                    `;
+                                }
+                            }
+                        }, 300);
                     }
                 } else {
-                    this.showNotification(data.message || 'Failed to remove from wishlist', 'error', productName);
+                    this.showNotification(data.message || 'Failed to remove item', 'error', productName);
                 }
-            } catch (err) {
-                console.error('removeFromWishlist error', err);
+            } catch (error) {
+                console.error('Remove error:', error);
                 this.showNotification('Network error', 'error', productName);
-            } finally {
-                this.loading = false;
             }
         },
 
         async addToCart(productId, productName = 'Product') {
+            if (this.loading) return;
+            
             this.loading = true;
+
             try {
-                const resp = await fetch(`/cart/add/${productId}`, {
+                const response = await fetch(`/cart/add/${productId}`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {
@@ -118,19 +141,18 @@ function wishlistFactory() {
                     },
                     body: JSON.stringify({ quantity: 1 })
                 });
-                const data = await resp.json();
+
+                const data = await response.json();
                 
-                if (data && data.success) {
+                if (data.success) {
                     this.showNotification('was added to cart', 'success', productName);
-                    
-                    // Update global count
                     updateGlobalCount('cart', 1);
                 } else {
                     this.showNotification(data.message || 'Failed to add to cart', 'error', productName);
                 }
-            } catch (err) {
-                console.error('addToCart error', err);
-                this.showNotification('Network error', 'error', productName);
+            } catch (error) {
+                console.error('Add to cart error:', error);
+                this.showNotification('Error adding to cart', 'error', productName);
             } finally {
                 this.loading = false;
             }
@@ -138,78 +160,29 @@ function wishlistFactory() {
     };
 }
 
-// expose global factory
-window.wishlistPage = function() {
-    return wishlistFactory();
-};
+/**
+ * Register with Alpine and expose globals - ТОЧНО КАК В PRODUCTS
+ */
+function registerWishlistComponents() {
+    if (!window.Alpine) return;
 
-// Register with Alpine when it initializes
-if (window.Alpine) {
-    Alpine.data('wishlistPage', wishlistFactory);
-} else {
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('wishlistPage', wishlistFactory);
-    });
+    Alpine.data('wishlistPage', wishlistPageFactory);
+
+    try {
+        document.querySelectorAll('[x-data="wishlistPage()"]').forEach(el => {
+            if (typeof Alpine.initTree === 'function') Alpine.initTree(el);
+        });
+    } catch (e) {
+        console.warn('Alpine initTree failed', e);
+    }
 }
 
-// --- Global fallback functions (for non-Alpine contexts) ---
-window.removeFromWishlist = window.removeFromWishlist || async function(productId, productName = 'Product') {
-    try {
-        const resp = await fetch(`/wishlist/remove/${productId}`, {
-            method: 'DELETE',
-            credentials: 'same-origin',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
-            }
-        });
-        const data = await resp.json();
-        if (data && data.success) {
-            const btn = document.querySelector('[data-wishlist-remove="' + productId + '"]');
-            if (btn) {
-                const card = btn.closest('.wishlist-card');
-                if (card) {
-                    card.style.transition = 'opacity 0.3s ease';
-                    card.style.opacity = '0';
-                    setTimeout(() => card.remove(), 300);
-                }
-            }
-            updateGlobalCount('wishlist', -1);
-            return true;
-        }
-        return false;
-    } catch (err) {
-        console.error('removeFromWishlist fallback error', err);
-        return false;
-    }
-};
+if (window.Alpine) {
+    registerWishlistComponents();
+} else {
+    document.addEventListener('alpine:init', registerWishlistComponents);
+}
 
-window.addToCart = window.addToCart || async function(productId, productName = 'Product') {
-    try {
-        const resp = await fetch(`/cart/add/${productId}`, {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ quantity: 1 })
-        });
-        const data = await resp.json();
-        if (data && data.success) {
-            updateGlobalCount('cart', 1);
-            return true;
-        }
-        return false;
-    } catch (err) {
-        console.error('addToCart fallback error', err);
-        return false;
-    }
-};
+window.wishlistPage = wishlistPageFactory;
 
-// Debug information
 console.log('Wishlist JS loaded');
-document.addEventListener('alpine:init', () => {
-    console.log('Alpine initialized for wishlist');
-});

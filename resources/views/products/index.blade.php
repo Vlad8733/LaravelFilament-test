@@ -190,19 +190,20 @@
                                     </div>
                                 @endif
 
-                                <!-- Stock Badge -->
+                                <!-- Stock Badge - сдвигаем влево -->
                                 @if(!$product->isInStock())
-                                    <div class="absolute top-2 right-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                    <div class="absolute top-2 left-12 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">
                                         Out of Stock
                                     </div>
                                 @endif
 
                                 <!-- Wishlist Button -->
-                                <button @click="toggleWishlist({{ $product->id }})"
-                                        :class="wishlistItems.includes({{ $product->id }}) ? 'text-red-500 bg-white' : 'text-gray-400 bg-white hover:text-red-500'"
-                                        class="absolute top-2 right-2 w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-colors">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                        :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
+                                        class="products-wish absolute top-2 right-2"
+                                        type="button">
+                                    <svg class="wish-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                     </svg>
                                 </button>
                             </div>
@@ -276,11 +277,12 @@
                                 @endif
 
                                 <!-- Wishlist Button for List View -->
-                                <button @click="toggleWishlist({{ $product->id }})"
-                                        :class="wishlistItems.includes({{ $product->id }}) ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
-                                        class="absolute top-2 right-2 w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center transition-colors">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                        :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
+                                        class="products-wish absolute top-2 right-2"
+                                        type="button">
+                                    <svg class="wish-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                     </svg>
                                 </button>
                             </div>

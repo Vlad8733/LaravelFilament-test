@@ -33,10 +33,9 @@ function shopFactory() {
         wishlistItems: [],
         loading: false,
         filterLoading: false,
-        notifications: [], // Changed from single notification to array
+        notifications: [],
         notificationIdCounter: 0,
 
-        // filters: priceMin/priceMax are nullable -> absence = no limit
         filters: {
             category: new URLSearchParams(window.location.search).get('category') || 'all',
             priceMin: (() => {
@@ -56,7 +55,6 @@ function shopFactory() {
             this.updateCartCount();
             this.updateWishlistCount();
             this.loadWishlistItems();
-            // close filters on ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && this.showFilters) {
                     this.showFilters = false;
@@ -64,16 +62,25 @@ function shopFactory() {
             });
         },
 
+        // НОВЫЙ МЕТОД - проверка через indexOf для совместимости
         isInWishlist(productId) {
-            return this.wishlistItems.indexOf(productId) !== -1;
+            const id = Number(productId);
+            return this.wishlistItems.some(item => Number(item) === id);
         },
 
         async loadWishlistItems() {
             try {
-                const res = await fetch('/wishlist/items', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                const res = await fetch('/wishlist/items', { 
+                    credentials: 'same-origin', 
+                    headers: { 'Accept': 'application/json' } 
+                });
                 const data = await res.json();
-                this.wishlistItems = Array.isArray(data.items) ? data.items.map(i => Number(i)) : [];
+                // Преобразуем все в числа
+                this.wishlistItems = Array.isArray(data.items) 
+                    ? data.items.map(i => Number(i)) 
+                    : [];
                 this.wishlistCount = data.count ?? this.wishlistItems.length;
+                console.log('Wishlist loaded:', this.wishlistItems);
             } catch (e) {
                 console.warn('Failed loading wishlist items', e);
             }
@@ -83,12 +90,12 @@ function shopFactory() {
             const id = Number(productId);
             const already = this.isInWishlist(id);
 
-            // optimistic UI
+            // Оптимистичное обновление UI
             if (!already) {
                 this.wishlistItems.push(id);
                 updateGlobalCount && updateGlobalCount('wishlist', 1);
             } else {
-                this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+                this.wishlistItems = this.wishlistItems.filter(x => Number(x) !== id);
             }
 
             try {
@@ -107,8 +114,8 @@ function shopFactory() {
                 const json = await resp.json();
 
                 if (!json.success) {
-                    // revert on failure
-                    if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+                    // Откат при ошибке
+                    if (!already) this.wishlistItems = this.wishlistItems.filter(x => Number(x) !== id);
                     else this.wishlistItems.push(id);
                     if (typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('global')) {
                         Alpine.store('global').wishlistCount = Math.max(0, Alpine.store('global').wishlistCount - (already ? 0 : 1));
@@ -123,8 +130,8 @@ function shopFactory() {
                     }
                 }
             } catch (err) {
-                // revert on error
-                if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+                // Откат при ошибке
+                if (!already) this.wishlistItems = this.wishlistItems.filter(x => Number(x) !== id);
                 else this.wishlistItems.push(id);
                 if (typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('global')) {
                     Alpine.store('global').wishlistCount = Math.max(0, Alpine.store('global').wishlistCount - (already ? 0 : 1));
@@ -144,16 +151,13 @@ function shopFactory() {
                 show: true
             };
 
-            // Add new notification to the END of array (it will appear at bottom)
             this.notifications.push(notification);
 
-            // Limit to 5 notifications max - remove oldest (first in array)
             if (this.notifications.length > 5) {
                 const oldestId = this.notifications[0].id;
                 this.removeNotification(oldestId);
             }
 
-            // Auto-remove after 4 seconds
             setTimeout(() => {
                 this.removeNotification(id);
             }, 4000);
@@ -163,7 +167,6 @@ function shopFactory() {
             const index = this.notifications.findIndex(n => n.id === id);
             if (index !== -1) {
                 this.notifications[index].show = false;
-                // Remove from array after animation completes (increased to 500ms to match new animation)
                 setTimeout(() => {
                     this.notifications = this.notifications.filter(n => n.id !== id);
                 }, 500);

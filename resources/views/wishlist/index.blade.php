@@ -78,7 +78,7 @@
         @if($wishlistItems->count() > 0)
             <div class="wishlist-grid">
                 @foreach($wishlistItems as $item)
-                    <div class="wishlist-card">
+                    <div class="wishlist-card" data-product-id="{{ $item->product->id }}">
                         <div class="thumb">
                             @if($item->product->images->first())
                                 <img src="{{ asset('storage/' . $item->product->images->first()->image_path) }}" 
@@ -130,16 +130,13 @@
                             <div class="actions">
                                 <button type="button" 
                                         @click.prevent="addToCart({{ $item->product->id }}, '{{ addslashes($item->product->name) }}')"
-                                        :disabled="loading || {{ $item->product->stock_quantity <= 0 ? 'true' : 'false' }}"
+                                        :disabled="loading"
                                         class="btn-add text-sm">
-                                    <span x-show="loading" x-cloak>Adding...</span>
-                                    <span x-show="!loading" x-cloak>
-                                        @if($item->product->stock_quantity > 0)
-                                            Add to Cart
-                                        @else
-                                            Out of Stock
-                                        @endif
-                                    </span>
+                                    @if($item->product->stock_quantity > 0)
+                                        Add to Cart
+                                    @else
+                                        Out of Stock
+                                    @endif
                                 </button>
 
                                 <a href="{{ route('products.show', $item->product) }}" class="btn-view">

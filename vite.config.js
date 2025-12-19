@@ -1,13 +1,25 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+                'resources/css/cart/cartindex.css',
+                'resources/js/cart/cartindex.js',
+                'resources/css/products/productindex.css',
+                'resources/js/products/productindex.js',
+                'resources/css/products/productshow.css',
+                'resources/js/products/productshow.js',
+                'resources/css/wishlist/wishlistindex.css',
+                'resources/js/wishlist/wishlistindex.js',
+                'resources/css/profile/profileedit.css',
+                'resources/js/profile/profileedit.js',
+                'resources/js/account/accounts.js',
+            ],
             refresh: true,
         }),
-        tailwindcss(),
     ],
 });
