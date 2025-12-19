@@ -11,8 +11,9 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'product_name',
-        'product_price',
         'quantity',
+        'price',           // старое поле
+        'product_price',   // ДОБАВЬТЕ если его нет
         'total',
     ];
 

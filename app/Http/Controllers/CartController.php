@@ -133,7 +133,9 @@ class CartController extends Controller
             return redirect()->route('login');
         }
 
-        $cartItems = $this->dbCartItemsForUser($userId);
+        $cartItems = Cart::with('product.images')
+            ->where('user_id', $userId)
+            ->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.show')->with('error', 'Your cart is empty');
@@ -145,8 +147,10 @@ class CartController extends Controller
 
         $discount = 0;
         $total = $subtotal - $discount;
+        
+        $cartCount = $cartItems->sum('quantity');
 
-        return view('checkout.index', compact('cartItems', 'subtotal', 'discount', 'total'));
+        return view('checkout.index', compact('cartItems', 'subtotal', 'discount', 'total', 'cartCount'));
     }
 
     // Place order
@@ -201,6 +205,9 @@ class CartController extends Controller
                 'payment_status' => 'completed',
             ]);
 
+            // ДОБАВЬ ЭТУ СТРОКУ:
+            session(['last_order_id' => $order->id]);
+
             // Создаём items заказа
             foreach ($cartItems as $item) {
                 OrderItem::create([
@@ -208,7 +215,7 @@ class CartController extends Controller
                     'product_id' => $item->product_id,
                     'product_name' => $item->product->name,
                     'quantity' => $item->quantity,
-                    'price' => $item->product->price,
+                    'product_price' => $item->product->price,  // Оставьте только эту
                     'total' => $item->product->price * $item->quantity,
                 ]);
             }
@@ -230,47 +237,47 @@ class CartController extends Controller
 
             // Сохраняем ID заказа в сессию
             session(['recent_order_id' => $order->id]);
+            session(['last_order_id' => $order->id]);
 
             // Очищаем корзину
             Cart::where('user_id', $userId)->delete();
 
-            return redirect()->route('checkout.success', $order->id);
+            // ДОЛЖНО БЫТЬ ТАК:
+            return response()->json([
+                'success' => true,
+                'message' => 'Order placed successfully',
+                'redirect' => route('checkout.success', $order->id)
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Order placement failed: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'An error occurred: ' . $e->getMessage());
+            \Log::error('Order placement error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Failed to place order: ' . $e->getMessage()
+            ], 500);
         }
     }
 
     // Success page
     public function success($orderId)
     {
-        try {
-            $order = Order::with(['items.product.images', 'status'])
-                ->findOrFail($orderId);
-            
-            // Проверяем доступ
-            if (auth()->check()) {
-                if (auth()->user()->email !== $order->customer_email) {
-                    abort(403, 'Access denied');
-                }
-            } else {
-                $recentOrderId = session('recent_order_id');
-                if (!$recentOrderId || $recentOrderId != $orderId) {
-                    return redirect()->route('orders.verify', $orderId);
-                }
+        $order = Order::with(['items.product', 'status'])->findOrFail($orderId);
+        
+        // Проверка владельца заказа (работает для гостей и авторизованных)
+        if (auth()->check()) {
+            // Если авторизован - проверяем email
+            if ($order->customer_email !== auth()->user()->email) {
+                abort(403, 'Access Denied - You don\'t have permission');
             }
-            
-            return view('checkout.success', compact('order'));
-            
-        } catch (\Exception $e) {
-            Log::error('Order success page error: ' . $e->getMessage());
-            return redirect()->route('home')->with('error', 'Order not found');
+        } else {
+            // Для гостей - проверяем через сессию или токен
+            $sessionOrderId = session('last_order_id');
+            if ($sessionOrderId != $orderId) {
+                abort(403, 'Access Denied - You don\'t have permission');
+            }
         }
+
+        return view('checkout.success', compact('order'));
     }
 
     // Verify order email
@@ -297,5 +304,17 @@ class CartController extends Controller
         session(['recent_order_id' => $orderId]);
         
         return redirect()->route('checkout.success', $orderId);
+    }
+
+    public function getCartCount()
+    {
+        $userId = auth()->id();
+        if (!$userId) {
+            return response()->json(['count' => 0]);
+        }
+
+        $count = Cart::where('user_id', $userId)->sum('quantity');
+
+        return response()->json(['count' => $count]);
     }
 }
