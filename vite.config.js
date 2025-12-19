@@ -22,6 +22,7 @@ export default defineConfig({
                 'resources/js/checkout/checkoutindex.js',
                 'resources/css/checkout/success.css',
                 'resources/js/checkout/success.js',
+                'resources/css/orders/tracking.css',
             ],
             refresh: true,
         }),

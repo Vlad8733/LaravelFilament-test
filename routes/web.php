@@ -94,6 +94,13 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
     Route::get('/success/{order}', [CartController::class, 'success'])->name('success');
 });
 
+// Order verification
+Route::get('/checkout/verify/{orderId}', [CartController::class, 'verifyOrder'])
+    ->name('orders.verify');
+    
+Route::post('/checkout/verify/{orderId}', [CartController::class, 'verifyOrderPost'])
+    ->name('orders.verify.post');
+
 // Отзывы
 Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
@@ -157,3 +164,14 @@ Route::get('/search', function (Request $request) {
         ['id'=>1,'name'=>'Test product','price'=>0,'slug'=>'test-product','image'=>null,'url'=>'/products/test-product']
     ]);
 });
+
+// Order tracking routes
+Route::get('/track-order', function () {
+    return view('orders.tracking-search');
+})->name('orders.tracking.search');
+
+Route::post('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'search'])
+    ->name('orders.tracking.search.post');
+
+Route::get('/track-order/{orderNumber}', [App\Http\Controllers\OrderTrackingController::class, 'show'])
+    ->name('orders.track');

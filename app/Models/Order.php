@@ -25,6 +25,8 @@ class Order extends Model
         'order_status',
         'coupon_code',
         'notes',
+        'order_status_id',
+        'tracking_number',
     ];
 
     protected $casts = [
@@ -57,6 +59,43 @@ class Order extends Model
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class, 'coupon_code', 'code');
+    }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(OrderStatus::class, 'order_status_id');
+    }
+
+    public function statusHistory(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class)->orderBy('changed_at', 'desc');
+    }
+
+    public function updateStatus($statusId, $notes = null, $changedBy = null)
+    {
+        $oldStatusId = $this->order_status_id;
+        
+        $this->update(['order_status_id' => $statusId]);
+        
+        OrderStatusHistory::create([
+            'order_id' => $this->id,
+            'order_status_id' => $statusId,
+            'changed_by' => $changedBy ?? auth()->id(),
+            'notes' => $notes,
+            'changed_at' => now(),
+        ]);
+        
+        // Отправка email уведомления (опционально)
+        if ($oldStatusId !== $statusId) {
+            try {
+                \Illuminate\Support\Facades\Notification::route('mail', $this->customer_email)
+                    ->notify(new \App\Notifications\OrderStatusChanged($this));
+            } catch (\Exception $e) {
+                \Log::warning('Failed to send order status notification: ' . $e->getMessage());
+            }
+        }
+        
+        return $this;
     }
 
     public function getStatusColorAttribute()

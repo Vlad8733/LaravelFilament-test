@@ -1,0 +1,203 @@
+:root {
+    --bg: #071017;
+    --card-bg: #1a1a1a;
+    --border: #2a2a2a;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #f59e0b;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* Cards with unified design */
+.tracking-card {
+    background: linear-gradient(145deg, #1a1a1a, #141414);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.tracking-card-small {
+    background: linear-gradient(145deg, #1a1a1a, #141414);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Timeline styles */
+.timeline {
+    position: relative;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), #3b82f6);
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 60px;
+    padding-bottom: 40px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: 12px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 3px solid;
+    z-index: 1;
+}
+
+.timeline-dot.active {
+    width: 24px;
+    height: 24px;
+    left: 9px;
+    box-shadow: 0 0 20px currentColor;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1); 
+        opacity: 1; 
+    }
+    50% { 
+        transform: scale(1.1); 
+        opacity: 0.8; 
+    }
+}
+
+/* Status badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* Tracking number box */
+.tracking-number-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tracking-number-box .label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+
+.tracking-number-box .value {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.copy-btn {
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--accent);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.copy-btn:hover {
+    background: rgba(245, 158, 11, 0.2);
+    transform: scale(1.05);
+}
+
+/* Item card */
+.item-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.item-card:hover {
+    background: rgba(245, 158, 11, 0.05);
+    border-color: var(--accent);
+}
+
+.item-thumb {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+}
+
+.item-thumb-placeholder {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    border-radius: 10px;
+    background: #0f0f0f;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Back link */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-bottom: 24px;
+}
+
+.back-link:hover {
+    color: #fb923c;
+    transform: translateX(-4px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .tracking-card {
+        padding: 24px;
+    }
+    
+    .tracking-card-small {
+        padding: 20px;
+    }
+}

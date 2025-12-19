@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
-use App\Models\CartItem;
-use App\Models\Coupon;
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderStatus;
+use App\Models\OrderStatusHistory;
+use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
     protected function dbCartItemsForUser($userId)
     {
-        // eager-load relations used in views
-        return CartItem::with(['product', 'product.images', 'product.category'])
+        // Изменили CartItem на Cart
+        return Cart::with(['product', 'product.images', 'product.category'])
             ->where('user_id', $userId)
             ->get();
     }
@@ -26,308 +25,277 @@ class CartController extends Controller
     public function add(Request $request, $productId)
     {
         $userId = auth()->id();
-        if (! $userId) return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
 
         $qty = max(1, (int) $request->input('quantity', 1));
-        $product = Product::find($productId);
-        if (! $product) return response()->json(['success' => false, 'message' => 'Product not found'], 404);
 
-        $item = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
-        if ($item) {
-            $newQty = $item->quantity + $qty;
-            if (property_exists($product, 'stock_quantity') && $product->stock_quantity !== null) {
-                $newQty = min($newQty, $product->stock_quantity);
-            }
-            $item->quantity = $newQty;
-            $item->save();
+        $product = Product::findOrFail($productId);
+
+        $cartItem = Cart::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->first();
+
+        if ($cartItem) {
+            $cartItem->quantity += $qty;
+            $cartItem->save();
         } else {
-            CartItem::create([
+            Cart::create([
                 'user_id' => $userId,
                 'product_id' => $productId,
-                'quantity' => min($qty, $product->stock_quantity ?? $qty),
+                'quantity' => $qty,
+                'session_id' => session()->getId(),
             ]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Added to cart']);
-    }
-
-    // Update quantity (DB)
-    public function updateQuantity(Request $request, $productId)
-    {
-        $userId = auth()->id();
-        $product = Product::find($productId);
-        if (! $product) {
-            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
-        }
-
-        $quantity = max(1, (int) $request->input('quantity', 1));
-        if ($product->stock_quantity !== null && $quantity > $product->stock_quantity) {
-            return response()->json(['success' => false, 'message' => 'Not enough stock available'], 400);
-        }
-
-        $item = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
-        if (! $item) {
-            return response()->json(['success' => false, 'message' => 'Product not found in cart'], 404);
-        }
-
-        $item->quantity = $quantity;
-        $item->save();
-
-        // build cart summary
-        $items = $this->dbCartItemsForUser($userId);
-        $cartCount = $items->sum('quantity');
-        $cartTotal = $items->sum(fn($it) => ($it->product->price ?? 0) * $it->quantity);
+        $count = Cart::where('user_id', $userId)->sum('quantity');
 
         return response()->json([
             'success' => true,
-            'message' => 'Cart updated successfully!',
-            'cartCount' => $cartCount,
-            'cartTotal' => $cartTotal,
+            'message' => 'Product added to cart',
+            'cartCount' => $count,
         ]);
     }
 
-    // Remove item (DB)
-    public function remove($productId)
+    // Update cart item quantity
+    public function update(Request $request, $itemId)
     {
         $userId = auth()->id();
-        CartItem::where('user_id', $userId)->where('product_id', $productId)->delete();
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
 
-        $items = $this->dbCartItemsForUser($userId);
-        $cartCount = $items->sum('quantity');
-        $cartTotal = $items->sum(fn($it) => ($it->product->price ?? 0) * $it->quantity);
+        $qty = max(1, (int) $request->input('quantity', 1));
+
+        $cartItem = Cart::where('id', $itemId)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
+        $cartItem->quantity = $qty;
+        $cartItem->save();
+
+        $subtotal = $cartItem->product->price * $qty;
+        $total = Cart::where('user_id', $userId)->get()->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
 
         return response()->json([
             'success' => true,
-            'message' => 'Product removed from cart',
-            'cartCount' => $cartCount,
-            'cartTotal' => $cartTotal
+            'subtotal' => $subtotal,
+            'total' => $total,
         ]);
     }
 
-    // Count (DB)
-    public function getCartCount()
+    // Remove item from cart
+    public function remove($itemId)
     {
         $userId = auth()->id();
-        $count = $userId ? CartItem::where('user_id', $userId)->sum('quantity') : 0;
-        return response()->json(['count' => $count]);
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        Cart::where('id', $itemId)
+            ->where('user_id', $userId)
+            ->delete();
+
+        $count = Cart::where('user_id', $userId)->sum('quantity');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Item removed',
+            'cartCount' => $count,
+        ]);
     }
 
-    // Show cart page (DB -> view expects same structure as before)
-    // helper: robust image URL resolver
-    private function resolveImageUrl(mixed $img): ?string
-    {
-        if (! $img) {
-            return null;
-        }
-
-        if (is_object($img)) {
-            $possible = $img->image_path ?? $img->path ?? $img->file ?? $img->filename ?? $img->name ?? $img->url ?? $img->src ?? $img->image ?? null;
-        } elseif (is_array($img)) {
-            $possible = $img['image_path'] ?? $img['path'] ?? $img['file'] ?? $img['filename'] ?? $img['name'] ?? $img['url'] ?? $img['src'] ?? $img['image'] ?? null;
-        } else {
-            $possible = (string) $img;
-        }
-
-        if (empty($possible)) {
-            return null;
-        }
-
-        // If already absolute URL -> return as is
-        if (\Illuminate\Support\Str::startsWith($possible, ['http://','https://'])) {
-            return $possible;
-        }
-
-        // If path starts with leading slash -> strip it for asset()
-        $possible = ltrim($possible, '/');
-
-        // If DB stores bare filename, ensure it's under products/
-        if (! \Illuminate\Support\Str::contains($possible, '/')) {
-            $possible = 'products/' . $possible;
-        }
-
-        // Prefer public storage file existence check (optional)
-        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($possible)) {
-            // return relative URL via asset helper (will match current host/port)
-            return asset('storage/' . $possible);
-        }
-
-        // Fallback to asset path (still relative to current host)
-        return asset('storage/' . $possible);
-    }
-
+    // Show cart page
     public function show()
     {
         $userId = auth()->id();
-        $items = $this->dbCartItemsForUser($userId);
+        if (!$userId) {
+            return redirect()->route('login');
+        }
 
-        $cart = $items->map(function($it){
-            $p = $it->product;
-            $image = null;
-            $images = [];
+        $cartItems = $this->dbCartItemsForUser($userId);
 
-            if ($p) {
-                if (isset($p->images) && $p->images instanceof \Illuminate\Support\Collection && $p->images->isNotEmpty()) {
-                    $images = $p->images->map(function($img){
-                        return $this->resolveImageUrl($img);
-                    })->filter()->values()->toArray();
+        $total = $cartItems->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
 
-                    $image = $images[0] ?? null;
-                }
-
-                if (! $image) {
-                    $image = $this->resolveImageUrl($p->image ?? $p->thumbnail ?? null);
-                }
-            }
-
-            return [
-                'id' => $p->id ?? null,
-                'price' => $p->price ?? 0,
-                'quantity' => $it->quantity,
-                'name' => $p->name ?? '',
-                'description' => $p->description ?? null,
-                'sku' => $p->sku ?? null,
-                'product' => $p,
-                'image' => $image,   // full URL or null
-                'images' => $images, // array of full URLs
-            ];
-        })->toArray();
-
-        $coupon = session()->get('coupon', null);
-        $cartTotal = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
-        $discount = 0;
-        if ($coupon && is_array($coupon)) { /* ... */ }
-        $finalTotal = max(0, $cartTotal - $discount);
-
-        return view('cart.index', compact('cart', 'coupon', 'cartTotal', 'discount', 'finalTotal'));
+        return view('cart.show', compact('cartItems', 'total'));
     }
 
-    // Checkout uses DB cart items
+    // Show checkout page
     public function checkout()
     {
         $userId = auth()->id();
-        $items = $this->dbCartItemsForUser($userId);
-        if ($items->isEmpty()) {
-            return redirect()->route('products.index')->with('error', 'Your cart is empty');
+        if (!$userId) {
+            return redirect()->route('login');
         }
 
-        $cart = $items->map(function ($it) {
-            $p = $it->product;
-            $image = null;
-            $images = [];
+        $cartItems = $this->dbCartItemsForUser($userId);
 
-            if ($p) {
-                if (isset($p->images) && $p->images instanceof \Illuminate\Support\Collection && $p->images->isNotEmpty()) {
-                    $images = $p->images->map(function($img){
-                        return $this->resolveImageUrl($img);
-                    })->filter()->values()->toArray();
-                    $image = $images[0] ?? null;
-                }
-
-                if (! $image) {
-                    $image = $this->resolveImageUrl($p->image ?? $p->thumbnail ?? null);
-                }
-            }
-
-            return [
-                'id' => $p->id ?? null,
-                'price' => $p->price ?? 0,
-                'quantity' => $it->quantity ?? 1,
-                'name' => $p->name ?? '',
-                'description' => $p->description ?? null,
-                'sku' => $p->sku ?? null,
-                'product' => $p,
-                'image' => $image,
-                'images' => $images,
-            ];
-        })->toArray();
-
-        $cartTotal = array_sum(array_map(fn($item) => ($item['price'] ?? 0) * ($item['quantity'] ?? 1), $cart));
-        $discount = 0;
-        $coupon = session()->get('coupon', null);
-        if ($coupon && is_array($coupon)) { /* coupon logic */ }
-        $finalTotal = max(0, $cartTotal - $discount);
-
-        return view('checkout.index', compact('cart', 'coupon', 'cartTotal', 'discount', 'finalTotal'));
-    }
-
-    // Place order — create order from DB cart items and clear them
-    public function placeOrder(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'address' => 'required|string',
-            'payment_method' => 'required|in:fake,stripe,paypal',
-        ]);
-
-        $cart = CartItem::with('product.images')
-            ->where('user_id', auth()->id())
-            ->get();
-
-        if ($cart->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.show')->with('error', 'Your cart is empty');
         }
 
-        // Calculate totals
-        $cartTotal = $cart->sum(function ($item) {
+        $subtotal = $cartItems->sum(function ($item) {
             return $item->product->price * $item->quantity;
         });
 
         $discount = 0;
-        $finalTotal = max(0, $cartTotal - $discount);
+        $total = $subtotal - $discount;
 
-        // Create order
-        $order = Order::create([
-            'order_number' => 'ORD-' . strtoupper(uniqid()),
-            'customer_name' => $request->name,
-            'customer_email' => $request->email,
-            'shipping_address' => $request->address,
-            'total' => $finalTotal,
-            'subtotal' => $cartTotal,
-            'discount' => $discount,
-            'coupon_code' => null,
-            'payment_method' => $request->payment_method,
-            'status' => 'pending',
-            'notes' => $request->notes ?? null,
-        ]);
-
-        // Create order items
-        foreach ($cart as $cartItem) {
-            $order->items()->create([
-                'product_id' => $cartItem->product_id,
-                'product_name' => $cartItem->product->name,
-                'quantity' => $cartItem->quantity,
-                'product_price' => $cartItem->product->price,
-                'total' => $cartItem->product->price * $cartItem->quantity, // ДОБАВЛЕНО
-            ]);
-        }
-
-        // Process fake payment
-        if ($request->payment_method === 'fake') {
-            $order->update([
-                'status' => 'paid',
-                'payment_status' => 'completed',
-            ]);
-        }
-
-        // Clear cart
-        CartItem::where('user_id', auth()->id())->delete();
-
-        return redirect()->route('checkout.success', $order->id)
-            ->with('success', 'Order placed successfully!');
+        return view('checkout.index', compact('cartItems', 'subtotal', 'discount', 'total'));
     }
 
-    // coupon methods left unchanged (they operate on session)
-    public function applyCoupon(Request $request) { /* ...existing code... */ }
-    public function removeCoupon() { session()->forget('coupon'); return response()->json(['success'=>true,'message'=>'Coupon removed successfully!']); }
-
-    public function success(Order $order)
+    // Place order
+    public function placeOrder(Request $request)
     {
-        // Проверяем что заказ принадлежит текущему пользователю
-        if ($order->customer_email !== auth()->user()->email) {
-            abort(403);
-        }
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'address' => 'required|string',
+                'payment_method' => 'required|in:fake',
+            ]);
 
-        return view('checkout.success', compact('order'));
+            $userId = auth()->id();
+            if (!$userId) {
+                return redirect()->route('login');
+            }
+
+            // Получаем корзину
+            $cartItems = Cart::with('product')
+                ->where('user_id', $userId)
+                ->get();
+
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('cart.show')
+                    ->with('error', 'Your cart is empty');
+            }
+
+            // Подсчёт суммы
+            $cartTotal = $cartItems->sum(function ($item) {
+                return $item->product->price * $item->quantity;
+            });
+
+            $discount = 0;
+            $finalTotal = $cartTotal - $discount;
+
+            // Получаем статус Pending
+            $pendingStatus = OrderStatus::where('slug', 'pending')->first();
+
+            // Создаём заказ
+            $order = Order::create([
+                'order_number' => 'ORD-' . strtoupper(uniqid()),
+                'order_status_id' => $pendingStatus ? $pendingStatus->id : null,
+                'customer_name' => $request->name,
+                'customer_email' => $request->email,
+                'shipping_address' => $request->address,
+                'notes' => $request->notes,
+                'subtotal' => $cartTotal,
+                'discount_amount' => $discount,
+                'total' => $finalTotal,
+                'payment_method' => 'fake',
+                'payment_status' => 'completed',
+            ]);
+
+            // Создаём items заказа
+            foreach ($cartItems as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name,
+                    'quantity' => $item->quantity,
+                    'price' => $item->product->price,
+                    'total' => $item->product->price * $item->quantity,
+                ]);
+            }
+
+            // Добавляем запись в историю статусов
+            if ($pendingStatus) {
+                try {
+                    OrderStatusHistory::create([
+                        'order_id' => $order->id,
+                        'order_status_id' => $pendingStatus->id,
+                        'changed_by' => $userId,
+                        'notes' => 'Order placed successfully',
+                        'changed_at' => now(),
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Could not create order history: ' . $e->getMessage());
+                }
+            }
+
+            // Сохраняем ID заказа в сессию
+            session(['recent_order_id' => $order->id]);
+
+            // Очищаем корзину
+            Cart::where('user_id', $userId)->delete();
+
+            return redirect()->route('checkout.success', $order->id);
+
+        } catch (\Exception $e) {
+            Log::error('Order placement failed: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    // Success page
+    public function success($orderId)
+    {
+        try {
+            $order = Order::with(['items.product.images', 'status'])
+                ->findOrFail($orderId);
+            
+            // Проверяем доступ
+            if (auth()->check()) {
+                if (auth()->user()->email !== $order->customer_email) {
+                    abort(403, 'Access denied');
+                }
+            } else {
+                $recentOrderId = session('recent_order_id');
+                if (!$recentOrderId || $recentOrderId != $orderId) {
+                    return redirect()->route('orders.verify', $orderId);
+                }
+            }
+            
+            return view('checkout.success', compact('order'));
+            
+        } catch (\Exception $e) {
+            Log::error('Order success page error: ' . $e->getMessage());
+            return redirect()->route('home')->with('error', 'Order not found');
+        }
+    }
+
+    // Verify order email
+    public function verifyOrder($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        return view('checkout.verify-order', compact('order'));
+    }
+
+    public function verifyOrderPost(Request $request, $orderId)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+        
+        $order = Order::findOrFail($orderId);
+        
+        if ($order->customer_email !== $request->email) {
+            return back()->withErrors([
+                'email' => 'Email does not match order email address.'
+            ]);
+        }
+        
+        session(['recent_order_id' => $orderId]);
+        
+        return redirect()->route('checkout.success', $orderId);
     }
 }
