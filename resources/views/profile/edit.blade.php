@@ -54,7 +54,7 @@
           @if($user->hasRole('admin'))
           <div class="mt-4 settings-card">
             <div class="mb-2 font-bold">Admin Panel</div>
-            <a href="/admin" class="btn-admin">
+            <a href="/admin" target="_blank" class="btn-admin">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
                 <polyline points="2 17 12 22 22 17"></polyline>
