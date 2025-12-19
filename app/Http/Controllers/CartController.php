@@ -257,23 +257,23 @@ class CartController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'address' => 'required|string',
-            'payment_method' => 'required|string|in:fake,stripe,paypal',
+            'payment_method' => 'required|in:fake,stripe,paypal',
         ]);
 
-        $userId = auth()->id();
-        $items = $this->dbCartItemsForUser($userId);
-        if ($items->isEmpty()) return redirect()->route('products.index')->with('error', 'Your cart is empty');
+        $cart = CartItem::with('product.images')
+            ->where('user_id', auth()->id())
+            ->get();
 
-        $cartArray = $items->map(function($it){
-            $p = $it->product;
-            return ['id'=>$p->id,'quantity'=>$it->quantity,'price'=>$p->price ?? 0];
-        })->toArray();
+        if ($cart->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+        }
 
-        $cartTotal = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cartArray));
+        // Calculate totals
+        $cartTotal = $cart->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+
         $discount = 0;
-        $coupon = session()->get('coupon');
-        if ($coupon) { /* validate and calc discount as before */ }
-
         $finalTotal = max(0, $cartTotal - $discount);
 
         // Create order
@@ -281,36 +281,53 @@ class CartController extends Controller
             'order_number' => 'ORD-' . strtoupper(uniqid()),
             'customer_name' => $request->name,
             'customer_email' => $request->email,
-            'customer_address' => $request->address,
+            'shipping_address' => $request->address,
             'total' => $finalTotal,
             'subtotal' => $cartTotal,
             'discount' => $discount,
-            'coupon_code' => $coupon['code'] ?? null,
+            'coupon_code' => null,
             'payment_method' => $request->payment_method,
             'status' => 'pending',
-            'notes' => $request->notes,
+            'notes' => $request->notes ?? null,
         ]);
 
-        foreach ($cartArray as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-                'total' => $item['price'] * $item['quantity'],
+        // Create order items
+        foreach ($cart as $cartItem) {
+            $order->items()->create([
+                'product_id' => $cartItem->product_id,
+                'product_name' => $cartItem->product->name,
+                'quantity' => $cartItem->quantity,
+                'product_price' => $cartItem->product->price,
+                'total' => $cartItem->product->price * $cartItem->quantity, // ДОБАВЛЕНО
             ]);
-
-            Product::where('id', $item['id'])->decrement('stock_quantity', $item['quantity']);
         }
 
-        // Clear DB cart items and coupon session
-        CartItem::where('user_id', $userId)->delete();
-        session()->forget(['coupon']);
+        // Process fake payment
+        if ($request->payment_method === 'fake') {
+            $order->update([
+                'status' => 'paid',
+                'payment_status' => 'completed',
+            ]);
+        }
 
-        return redirect()->route('checkout.success', $order)->with('success', 'Order placed successfully!');
+        // Clear cart
+        CartItem::where('user_id', auth()->id())->delete();
+
+        return redirect()->route('checkout.success', $order->id)
+            ->with('success', 'Order placed successfully!');
     }
 
     // coupon methods left unchanged (they operate on session)
     public function applyCoupon(Request $request) { /* ...existing code... */ }
     public function removeCoupon() { session()->forget('coupon'); return response()->json(['success'=>true,'message'=>'Coupon removed successfully!']); }
+
+    public function success(Order $order)
+    {
+        // Проверяем что заказ принадлежит текущему пользователю
+        if ($order->customer_email !== auth()->user()->email) {
+            abort(403);
+        }
+
+        return view('checkout.success', compact('order'));
+    }
 }
