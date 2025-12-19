@@ -82,7 +82,7 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::post('/add/{productId}', [CartController::class, 'add'])->name('add');
     Route::patch('/update/{productId}', [CartController::class, 'updateQuantity'])->name('update');
     Route::delete('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
-    Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
+    Route::get('/count', [CartController::class, 'getCartCount'])->name('cart.count');
     Route::post('/coupon/apply', [CartController::class, 'applyCoupon'])->name('coupon.apply');
     Route::delete('/coupon/remove', [CartController::class, 'removeCoupon'])->name('coupon.remove');
 });
