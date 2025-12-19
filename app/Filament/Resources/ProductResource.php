@@ -177,11 +177,16 @@ class ProductResource extends Resource
                     ->label('Image')
                     ->getStateUsing(function (Product $record) {
                         $primaryImage = $record->getPrimaryImage();
-                        return $primaryImage ? $primaryImage->image_path : null;
+                        if (!$primaryImage || !$primaryImage->image_path) {
+                            return null;
+                        }
+                        // Возвращаем полный URL
+                        return asset('storage/' . $primaryImage->image_path);
                     })
                     ->size(60)
-                    ->circular(),
-                
+                    ->circular()
+                    ->extraImgAttributes(['loading' => 'lazy']),
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Name')
                     ->searchable()

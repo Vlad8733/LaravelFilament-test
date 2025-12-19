@@ -36,7 +36,9 @@ Route::middleware('guest')->group(function () {
 });
 
 // Выход
-Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
 
 // Подтверждение пароля (auth)
 Route::middleware('auth')->group(function () {
