@@ -50,6 +50,21 @@
             </div>
           </form>
 
+          <!-- Admin Panel Button -->
+          @if($user->hasRole('admin'))
+          <div class="mt-4 settings-card">
+            <div class="mb-2 font-bold">Admin Panel</div>
+            <a href="/admin" class="btn-admin">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+              Open Admin Panel
+            </a>
+          </div>
+          @endif
+
           <div class="mt-4 settings-card">
             <div class="mb-2 font-bold">Theme</div>
             <div class="flex gap-2 items-center">
@@ -63,7 +78,7 @@
             <div class="mb-2 font-bold">Session</div>
             <form method="POST" action="{{ route('logout') }}">
               @csrf
-              <button type="submit" class="btn-logout w-full">
+              <button type="submit" class="btn-logout">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                   <polyline points="16 17 21 12 16 7"></polyline>
@@ -81,7 +96,19 @@
             @csrf
 
             <div>
-              <label class="field-label">Name</label>
+              <label class="field-label">
+                Name
+                @if($user->hasRole('admin'))
+                  <span class="admin-crown" data-tooltip="Admin">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 1L15.5 8.5L23 9.5L17.5 15L19 23L12 19L5 23L6.5 15L1 9.5L8.5 8.5L12 1Z" stroke="currentColor" stroke-width="1.5"/>
+                      <circle cx="12" cy="10" r="1.5"/>
+                      <circle cx="7" cy="12" r="1.5"/>
+                      <circle cx="17" cy="12" r="1.5"/>
+                    </svg>
+                  </span>
+                @endif
+              </label>
               <input type="text" name="name" value="{{ old('name',$user->name) }}" class="input-field" required>
               @error('name') <div class="error">{{ $message }}</div> @enderror
             </div>
@@ -140,7 +167,19 @@
                               alt="avatar">
 
                           <div class="account-info">
-                              <div class="account-name">{{ $acc->name }}</div>
+                              <div class="account-name">
+                                {{ $acc->name }}
+                                @if($acc->hasRole('admin'))
+                                  <span class="admin-crown-inline" data-tooltip="Admin">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                      <path d="M12 1L15.5 8.5L23 9.5L17.5 15L19 23L12 19L5 23L6.5 15L1 9.5L8.5 8.5L12 1Z" stroke="currentColor" stroke-width="1.5"/>
+                                      <circle cx="12" cy="10" r="1.5"/>
+                                      <circle cx="7" cy="12" r="1.5"/>
+                                      <circle cx="17" cy="12" r="1.5"/>
+                                    </svg>
+                                  </span>
+                                @endif
+                              </div>
                               <div class="account-email">{{ $acc->email }}</div>
                               @if($acc->id === $user->id)
                                 <span class="sr-only">Active account</span>

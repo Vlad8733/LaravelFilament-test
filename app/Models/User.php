@@ -3,14 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
-    use Notifiable;
+    use Notifiable, HasFactory;
 
     protected $fillable = [
         'name',
@@ -18,7 +21,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'avatar',
         'is_seller',
-        'parent_user_id', // allow filling parent when needed
+        'parent_user_id',
         'username',
     ];
 
@@ -27,10 +30,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'is_seller' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
     public function isSeller(): bool
     {
@@ -136,5 +142,28 @@ class User extends Authenticatable implements MustVerifyEmail
     public function wishlistItems()
     {
         return $this->hasMany(\App\Models\WishlistItem::class);
+    }
+
+    /**
+     * Determine if user can access Filament admin panel
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return in_array($this->email, [
+            'vladislavperviy0702@gmail.com', // ваш email
+        ]);
+    }
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole(string $role): bool
+    {
+        if ($role === 'admin') {
+            return in_array($this->email, [
+                'vladislavperviy0702@gmail.com', // ваш email
+            ]);
+        }
+        return false;
     }
 }
