@@ -46,43 +46,31 @@ Route::middleware('auth')->group(function () {
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'confirm']);
 });
 
-// Профиль пользователя (разделённые действия)
+// Профиль пользователя
 Route::middleware('auth')->group(function () {
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
-
-    // обновление аккаунта (name/email/password)
     Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    // обновление аватара отдельным запросом
     Route::post('profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
-
-    // удаление аккаунта
     Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Переключение аккаунтов
-    Route::post('/profile/accounts/switch', [AccountController::class, 'switchAccount'])->name('profile.accounts.switch');
-
-    Route::get('/profile/accounts/create-child', [AccountController::class, 'createChild'])->name('profile.accounts.create-child');
     Route::post('/profile/accounts/store-child', [AccountController::class, 'storeChild'])->name('profile.accounts.store-child');
 });
 
 // Продукты
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::prefix('products')->name('products.')->group(function () {
-    Route::get('/', [ProductController::class, 'index'])->name('index');
-    Route::get('/search', [ProductController::class, 'search'])->name('search');
     Route::get('/{product:slug}', [ProductController::class, 'show'])->name('show');
 });
 
 // Категории
 Route::get('/category/{category:slug}', [ProductController::class, 'category'])->name('category.show');
 
-// Корзина
+// Корзина - ВСЕ маршруты в одном месте
 Route::prefix('cart')->name('cart.')->group(function () {
-    Route::get('/', [CartController::class, 'show'])->name('show');
+    Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add/{productId}', [CartController::class, 'add'])->name('add');
-    Route::patch('/update/{productId}', [CartController::class, 'updateQuantity'])->name('update');
-    Route::delete('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
-    Route::get('/count', [CartController::class, 'getCartCount'])->name('cart.count');
+    Route::patch('/update/{itemId}', [CartController::class, 'update'])->name('update');
+    Route::delete('/remove/{itemId}', [CartController::class, 'remove'])->name('remove');
+    Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
     Route::post('/coupon/apply', [CartController::class, 'applyCoupon'])->name('coupon.apply');
     Route::delete('/coupon/remove', [CartController::class, 'removeCoupon'])->name('coupon.remove');
 });
@@ -95,11 +83,8 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
 });
 
 // Order verification
-Route::get('/checkout/verify/{orderId}', [CartController::class, 'verifyOrder'])
-    ->name('orders.verify');
-    
-Route::post('/checkout/verify/{orderId}', [CartController::class, 'verifyOrderPost'])
-    ->name('orders.verify.post');
+Route::get('/checkout/verify/{orderId}', [CartController::class, 'verifyOrder'])->name('checkout.verify');
+Route::post('/checkout/verify/{orderId}', [CartController::class, 'verifyOrderPost'])->name('checkout.verify.post');
 
 // Отзывы
 Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
@@ -110,59 +95,26 @@ Route::post('/api/coupons/validate', [CouponController::class, 'validateCoupon']
 // Wishlist
 Route::prefix('wishlist')->name('wishlist.')->group(function () {
     Route::get('/', [WishlistController::class, 'index'])->name('index');
+    Route::get('/items', [WishlistController::class, 'getItems'])->name('items');
+    Route::get('/count', [WishlistController::class, 'getCount'])->name('count');
     Route::post('/add/{productId}', [WishlistController::class, 'add'])->name('add');
     Route::delete('/remove/{productId}', [WishlistController::class, 'remove'])->name('remove');
-    Route::get('/count', [WishlistController::class, 'getCount'])->name('count');
-    Route::get('/items', [WishlistController::class, 'getItems'])->name('items');
 });
 
 // Продукты продавца
 Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(function () {
-    Route::get('/', [SellerController::class, 'index'])->name('dashboard');
     Route::get('/products', [SellerController::class, 'products'])->name('products');
 });
 
 // Support Tickets Routes
 Route::middleware(['auth'])->prefix('support')->name('tickets.')->group(function () {
     Route::get('/', [TicketController::class, 'index'])->name('index');
-    Route::get('/create', [TicketController::class, 'create'])->name('create');
-    Route::post('/', [TicketController::class, 'store'])->name('store');
-    
-    // ВАЖНО: специфичные маршруты ПЕРЕД динамическими {ticket}
-    Route::get('/{ticket}/check-new-messages', [TicketController::class, 'checkNewMessages'])->name('check-messages');
-    Route::post('/{ticket}/reply', [TicketController::class, 'reply'])->name('reply');
-    Route::post('/{ticket}/close', [TicketController::class, 'close'])->name('close');
-    Route::post('/{ticket}/reopen', [TicketController::class, 'reopen'])->name('reopen');
-    
-    // Общий маршрут {ticket} в конце
     Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
 });
 
 // Notifications Routes
 Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->group(function () {
-    Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('index');
-    Route::get('/unread', [App\Http\Controllers\NotificationController::class, 'unread'])->name('unread');
-    Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
-    Route::post('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
     Route::delete('/', [App\Http\Controllers\NotificationController::class, 'destroyAll'])->name('destroy-all');
-});
-
-// Admin API для проверки новых сообщений
-Route::middleware(['auth'])->prefix('admin/tickets')->group(function () {
-    Route::get('/{ticket}/check-messages', [App\Http\Controllers\TicketController::class, 'checkNewMessages'])
-        ->name('admin.tickets.check-messages');
-});
-
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/admin/tickets/{ticketId}/chat', AdminTicketChat::class)
-//         ->name('admin.tickets.chat');
-// });
-
-Route::get('/search', function (Request $request) {
-    return response()->json([
-        ['id'=>1,'name'=>'Test product','price'=>0,'slug'=>'test-product','image'=>null,'url'=>'/products/test-product']
-    ]);
 });
 
 // Order tracking routes
@@ -170,8 +122,5 @@ Route::get('/track-order', function () {
     return view('orders.tracking-search');
 })->name('orders.tracking.search');
 
-Route::post('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'search'])
-    ->name('orders.tracking.search.post');
-
-Route::get('/track-order/{orderNumber}', [App\Http\Controllers\OrderTrackingController::class, 'show'])
-    ->name('orders.track');
+Route::post('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'search'])->name('orders.tracking.search.post');
+Route::get('/track-order/{orderNumber}', [App\Http\Controllers\OrderTrackingController::class, 'show'])->name('orders.tracking.show');

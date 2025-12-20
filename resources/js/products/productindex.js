@@ -1,10 +1,149 @@
-/**
- * Helper: update global Alpine store counts safely (immediate or deferred)
- */
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('shop', () => ({
+        viewMode: 'grid',
+        showFilters: false,
+        cartCount: 0,
+        wishlistCount: 0,
+        wishlistItems: [],
+        loading: false,
+        filterLoading: false,
+        notifications: [],
+        notificationIdCounter: 0,
+        filters: {
+            category: new URLSearchParams(window.location.search).get('category') || 'all',
+            priceMin: (() => { const v = new URLSearchParams(window.location.search).get('price_min'); return v !== null ? Number(v) : null; })(),
+            priceMax: (() => { const v = new URLSearchParams(window.location.search).get('price_max'); return v !== null ? Number(v) : null; })(),
+            inStock: Boolean(new URLSearchParams(window.location.search).get('in_stock')),
+            onSale: Boolean(new URLSearchParams(window.location.search).get('on_sale')),
+            sort: new URLSearchParams(window.location.search).get('sort') || ''
+        },
+
+        init() {
+            this.updateCartCount();
+            this.updateWishlistCount();
+            this.loadWishlistItems();
+        },
+
+        isInWishlist(productId) {
+            return this.wishlistItems.includes(Number(productId));
+        },
+
+        async loadWishlistItems() {
+            try {
+                const res = await fetch('/wishlist/items', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                this.wishlistItems = Array.isArray(data.items) ? data.items.map(i => Number(i)) : [];
+                this.wishlistCount = data.count ?? this.wishlistItems.length;
+            } catch (e) { console.warn('Failed loading wishlist', e); }
+        },
+
+        async toggleWishlist(productId, productName = 'Product') {
+            const id = Number(productId);
+            const already = this.isInWishlist(id);
+            if (!already) this.wishlistItems.push(id);
+            else this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+
+            try {
+                const url = already ? `/wishlist/remove/${id}` : `/wishlist/add/${id}`;
+                const resp = await fetch(url, {
+                    method: already ? 'DELETE' : 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+                });
+                const json = await resp.json();
+                if (json.success) {
+                    this.wishlistCount = json.wishlistCount ?? this.wishlistItems.length;
+                    this.showNotification(already ? 'removed from wishlist' : 'added to wishlist', 'success', productName);
+                } else {
+                    if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+                    else this.wishlistItems.push(id);
+                    this.showNotification(json.message || 'Failed', 'error', productName);
+                }
+            } catch (err) {
+                if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+                else this.wishlistItems.push(id);
+                this.showNotification('Network error', 'error', productName);
+            }
+        },
+
+        showNotification(message, type = 'success', productName = '') {
+            const id = ++this.notificationIdCounter;
+            this.notifications.push({ id, message, type, productName, show: true });
+            if (this.notifications.length > 5) this.removeNotification(this.notifications[0].id);
+            setTimeout(() => this.removeNotification(id), 4000);
+        },
+
+        removeNotification(id) {
+            const idx = this.notifications.findIndex(n => n.id === id);
+            if (idx !== -1) {
+                this.notifications[idx].show = false;
+                setTimeout(() => { this.notifications = this.notifications.filter(n => n.id !== id); }, 500);
+            }
+        },
+
+        async addToCart(productId, productName = 'Product') {
+            this.loading = true;
+            try {
+                const response = await fetch(`/cart/add/${productId}`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                    body: JSON.stringify({ quantity: 1 })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    this.cartCount = data.cartCount;
+                    this.showNotification('added to cart', 'success', productName);
+                } else {
+                    this.showNotification(data.message || 'Failed', 'error', productName);
+                }
+            } catch (error) {
+                this.showNotification('Error adding to cart', 'error', productName);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async updateCartCount() {
+            try {
+                const res = await fetch('/cart/count', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                this.cartCount = data.count;
+            } catch (e) { console.error(e); }
+        },
+
+        async updateWishlistCount() {
+            try {
+                const res = await fetch('/wishlist/count', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                this.wishlistCount = data.count;
+            } catch (e) { console.error(e); }
+        },
+
+        applyFilters() {
+            if (this.filterLoading) return;
+            this.filterLoading = true;
+            const params = new URLSearchParams();
+            if (this.filters.category && this.filters.category !== 'all') params.set('category', this.filters.category);
+            if (this.filters.sort) params.set('sort', this.filters.sort);
+            if (this.filters.priceMin !== null) params.set('price_min', this.filters.priceMin);
+            if (this.filters.priceMax !== null) params.set('price_max', this.filters.priceMax);
+            if (this.filters.inStock) params.set('in_stock', '1');
+            if (this.filters.onSale) params.set('on_sale', '1');
+            window.location.href = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        },
+
+        clearFilters() {
+            this.filters = { category: 'all', priceMin: null, priceMax: null, inStock: false, onSale: false, sort: '' };
+            this.applyFilters();
+        }
+    }));
+});
 function updateGlobalCount(type, n = 1) {
     const apply = () => {
         try {
-            if (Alpine && Alpine.store && Alpine.store('global')) {
+            if (window.Alpine && Alpine.store && Alpine.store('global')) {
                 Alpine.store('global').increment(type, n);
             }
         } catch (e) {
@@ -62,7 +201,6 @@ function shopFactory() {
             });
         },
 
-        // НОВЫЙ МЕТОД - проверка через indexOf для совместимости
         isInWishlist(productId) {
             const id = Number(productId);
             return this.wishlistItems.some(item => Number(item) === id);
@@ -75,12 +213,10 @@ function shopFactory() {
                     headers: { 'Accept': 'application/json' } 
                 });
                 const data = await res.json();
-                // Преобразуем все в числа
                 this.wishlistItems = Array.isArray(data.items) 
                     ? data.items.map(i => Number(i)) 
                     : [];
                 this.wishlistCount = data.count ?? this.wishlistItems.length;
-                console.log('Wishlist loaded:', this.wishlistItems);
             } catch (e) {
                 console.warn('Failed loading wishlist items', e);
             }
@@ -90,10 +226,9 @@ function shopFactory() {
             const id = Number(productId);
             const already = this.isInWishlist(id);
 
-            // Оптимистичное обновление UI
             if (!already) {
                 this.wishlistItems.push(id);
-                updateGlobalCount && updateGlobalCount('wishlist', 1);
+                updateGlobalCount('wishlist', 1);
             } else {
                 this.wishlistItems = this.wishlistItems.filter(x => Number(x) !== id);
             }
@@ -114,12 +249,8 @@ function shopFactory() {
                 const json = await resp.json();
 
                 if (!json.success) {
-                    // Откат при ошибке
                     if (!already) this.wishlistItems = this.wishlistItems.filter(x => Number(x) !== id);
                     else this.wishlistItems.push(id);
-                    if (typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('global')) {
-                        Alpine.store('global').wishlistCount = Math.max(0, Alpine.store('global').wishlistCount - (already ? 0 : 1));
-                    }
                     this.showNotification(json.message || 'Wishlist update failed', 'error', productName);
                 } else {
                     this.wishlistCount = json.wishlistCount ?? this.wishlistItems.length;
@@ -130,12 +261,8 @@ function shopFactory() {
                     }
                 }
             } catch (err) {
-                // Откат при ошибке
                 if (!already) this.wishlistItems = this.wishlistItems.filter(x => Number(x) !== id);
                 else this.wishlistItems.push(id);
-                if (typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('global')) {
-                    Alpine.store('global').wishlistCount = Math.max(0, Alpine.store('global').wishlistCount - (already ? 0 : 1));
-                }
                 this.showNotification('Network error', 'error', productName);
                 console.error(err);
             }
@@ -143,24 +270,14 @@ function shopFactory() {
 
         showNotification(message, type = 'success', productName = '') {
             const id = ++this.notificationIdCounter;
-            const notification = {
-                id,
-                message,
-                type,
-                productName,
-                show: true
-            };
-
+            const notification = { id, message, type, productName, show: true };
             this.notifications.push(notification);
 
             if (this.notifications.length > 5) {
-                const oldestId = this.notifications[0].id;
-                this.removeNotification(oldestId);
+                this.removeNotification(this.notifications[0].id);
             }
 
-            setTimeout(() => {
-                this.removeNotification(id);
-            }, 4000);
+            setTimeout(() => this.removeNotification(id), 4000);
         },
 
         removeNotification(id) {
@@ -192,7 +309,7 @@ function shopFactory() {
                     updateGlobalCount('cart', 1);
                     this.showNotification('was added to cart', 'success', productName);
                 } else {
-                    this.showNotification(data.message, 'error', productName);
+                    this.showNotification(data.message || 'Failed to add to cart', 'error', productName);
                 }
             } catch (error) {
                 console.error('Error adding to cart:', error);
@@ -225,15 +342,12 @@ function shopFactory() {
         normalizeFilters() {
             const pMin = this.filters.priceMin;
             const pMax = this.filters.priceMax;
-
-            this.filters.priceMin = (pMin === '' || pMin === null || typeof pMin === 'undefined') ? null : Number(pMin);
-            this.filters.priceMax = (pMax === '' || pMax === null || typeof pMax === 'undefined') ? null : Number(pMax);
+            this.filters.priceMin = (pMin === '' || pMin === null) ? null : Number(pMin);
+            this.filters.priceMax = (pMax === '' || pMax === null) ? null : Number(pMax);
 
             if (this.filters.priceMin !== null && this.filters.priceMax !== null) {
-                if (Number(this.filters.priceMin) > Number(this.filters.priceMax)) {
-                    const tmp = this.filters.priceMin;
-                    this.filters.priceMin = this.filters.priceMax;
-                    this.filters.priceMax = tmp;
+                if (this.filters.priceMin > this.filters.priceMax) {
+                    [this.filters.priceMin, this.filters.priceMax] = [this.filters.priceMax, this.filters.priceMin];
                 }
             }
         },
@@ -242,104 +356,32 @@ function shopFactory() {
             if (this.filterLoading) return;
             this.filterLoading = true;
 
-            try {
-                this.normalizeFilters();
-                const params = new URLSearchParams();
+            this.normalizeFilters();
+            const params = new URLSearchParams();
 
-                if (this.filters.category && this.filters.category !== 'all') params.set('category', this.filters.category);
-                if (this.filters.sort) params.set('sort', this.filters.sort);
+            if (this.filters.category && this.filters.category !== 'all') params.set('category', this.filters.category);
+            if (this.filters.sort) params.set('sort', this.filters.sort);
+            if (this.filters.priceMin !== null) params.set('price_min', this.filters.priceMin);
+            if (this.filters.priceMax !== null) params.set('price_max', this.filters.priceMax);
+            if (this.filters.inStock) params.set('in_stock', '1');
+            if (this.filters.onSale) params.set('on_sale', '1');
 
-                if (this.filters.priceMin !== null && !Number.isNaN(Number(this.filters.priceMin))) {
-                    params.set('price_min', Number(this.filters.priceMin));
-                }
-                if (this.filters.priceMax !== null && !Number.isNaN(Number(this.filters.priceMax))) {
-                    params.set('price_max', Number(this.filters.priceMax));
-                }
-
-                if (this.filters.inStock) params.set('in_stock', '1');
-                if (this.filters.onSale) params.set('on_sale', '1');
-
-                const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-                window.location.href = url;
-                try { this.showFilters = false; } catch(e){}
-            } catch (err) {
-                console.error('applyFilters error', err);
-                this.showNotification('Failed to apply filters', 'error');
-                this.filterLoading = false;
-            }
+            window.location.href = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
         },
 
         clearFilters() {
-            this.filters = {
-                category: 'all',
-                priceMin: null,
-                priceMax: null,
-                inStock: false,
-                onSale: false,
-                sort: ''
-            };
+            this.filters = { category: 'all', priceMin: null, priceMax: null, inStock: false, onSale: false, sort: '' };
             this.applyFilters();
         }
     };
 }
 
-/**
- * searchBox factory (used as x-data="searchBox()")
- */
-function searchBoxFactory() {
-    return {
-        query: '',
-        results: [],
-        showResults: false,
-        searchTimeout: null,
-
-        debounceSearch() {
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => this.performSearch(), 300);
-        },
-
-        async performSearch() {
-            if (!this.query || this.query.length < 2) {
-                this.results = [];
-                return;
-            }
-            try {
-                const response = await fetch(`/products/search?q=${encodeURIComponent(this.query)}`);
-                this.results = await response.json();
-            } catch (error) {
-                console.error('Search error:', error);
-                this.results = [];
-            }
-        }
-    };
-}
-
-/**
- * Register with Alpine and expose globals
- */
-function registerProductComponents() {
-    if (!window.Alpine) return;
-
-    Alpine.data('shop', shopFactory);
-    Alpine.data('searchBox', searchBoxFactory);
-
-    try {
-        document.querySelectorAll('[x-data="shop()"]').forEach(el => {
-            if (typeof Alpine.initTree === 'function') Alpine.initTree(el);
-        });
-        document.querySelectorAll('[x-data="searchBox()"]').forEach(el => {
-            if (typeof Alpine.initTree === 'function') Alpine.initTree(el);
-        });
-    } catch (e) {
-        console.warn('Alpine initTree failed', e);
-    }
-}
-
-if (window.Alpine) {
-    registerProductComponents();
-} else {
-    document.addEventListener('alpine:init', registerProductComponents);
-}
-
+// Expose globally
 window.shop = shopFactory;
-window.searchBox = searchBoxFactory;
+
+// Register with Alpine
+document.addEventListener('alpine:init', () => {
+    Alpine.data('shop', shopFactory);
+});
+
+console.log('Products JS loaded, shop registered');
