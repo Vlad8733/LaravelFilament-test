@@ -136,3 +136,12 @@ Route::get('/track-order', function () {
 
 Route::post('/track-order', [App\Http\Controllers\OrderTrackingController::class, 'search'])->name('orders.tracking.search.post');
 Route::get('/track-order/{orderNumber}', [App\Http\Controllers\OrderTrackingController::class, 'show'])->name('orders.tracking.show');
+
+// Refund Routes
+Route::middleware(['auth'])->prefix('refunds')->name('refunds.')->group(function () {
+    Route::get('/', [App\Http\Controllers\RefundController::class, 'index'])->name('index');
+    Route::get('/request/{order}', [App\Http\Controllers\RefundController::class, 'create'])->name('create');
+    Route::post('/request/{order}', [App\Http\Controllers\RefundController::class, 'store'])->name('store');
+    Route::get('/{refund}', [App\Http\Controllers\RefundController::class, 'show'])->name('show');
+    Route::post('/{refund}/cancel', [App\Http\Controllers\RefundController::class, 'cancel'])->name('cancel');
+});

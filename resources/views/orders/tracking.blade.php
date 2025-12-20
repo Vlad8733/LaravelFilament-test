@@ -21,6 +21,18 @@
         <p class="text-gray-400">Order #{{ $order->order_number }}</p>
     </div>
 
+    @if(session('error'))
+        <div class="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('info'))
+        <div class="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-3 rounded-lg mb-6">
+            {{ session('info') }}
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Timeline -->
         <div class="lg:col-span-2 space-y-8">
@@ -56,7 +68,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                         </svg>
-                    </button>3
+                    </button>
                 </div>
                 @endif
             </div>
@@ -99,6 +111,70 @@
 
         <!-- Sidebar -->
         <div class="space-y-6">
+            <!-- Refund Request Card -->
+            @auth
+                @php
+                    $existingRefund = $order->refundRequest;
+                    $canRequestRefund = in_array($order->status->slug ?? '', ['delivered', 'completed', 'shipped']);
+                @endphp
+                
+                @if($existingRefund)
+                    <div class="tracking-card-small border-2" style="border-color: 
+                        @if($existingRefund->status === 'pending') #eab308
+                        @elseif($existingRefund->status === 'approved') #3b82f6
+                        @elseif($existingRefund->status === 'rejected') #ef4444
+                        @elseif($existingRefund->status === 'completed') #22c55e
+                        @endif">
+                        <div class="flex items-center gap-3 mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: 
+                                @if($existingRefund->status === 'pending') #eab308
+                                @elseif($existingRefund->status === 'approved') #3b82f6
+                                @elseif($existingRefund->status === 'rejected') #ef4444
+                                @elseif($existingRefund->status === 'completed') #22c55e
+                                @endif">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
+                            </svg>
+                            <h3 class="text-lg font-bold">Refund Request</h3>
+                        </div>
+                        <div class="space-y-2 text-sm mb-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Status:</span>
+                                <span class="font-medium px-2 py-0.5 rounded text-xs
+                                    @if($existingRefund->status === 'pending') bg-yellow-500/20 text-yellow-400
+                                    @elseif($existingRefund->status === 'approved') bg-blue-500/20 text-blue-400
+                                    @elseif($existingRefund->status === 'rejected') bg-red-500/20 text-red-400
+                                    @elseif($existingRefund->status === 'completed') bg-green-500/20 text-green-400
+                                    @endif">
+                                    {{ $existingRefund->status_label }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Amount:</span>
+                                <span class="font-bold text-orange-400">${{ number_format($existingRefund->amount, 2) }}</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('refunds.show', $existingRefund) }}" 
+                           class="block w-full py-2 px-4 bg-zinc-700 hover:bg-zinc-600 text-white text-center rounded-lg transition-colors text-sm font-medium">
+                            View Details
+                        </a>
+                    </div>
+                @elseif($canRequestRefund)
+                    <div class="tracking-card-small">
+                        <div class="flex items-center gap-3 mb-3">
+                            <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
+                            </svg>
+                            <h3 class="text-lg font-bold">Need a Refund?</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">If you're not satisfied with your order, you can request a refund.</p>
+                        <a href="{{ route('refunds.create', $order) }}" 
+                           class="block w-full py-2 px-4 bg-orange-500 hover:bg-orange-400 text-black text-center rounded-lg transition-colors text-sm font-medium">
+                            Request Refund
+                        </a>
+                    </div>
+                @endif
+            @endauth
+
             <!-- Order Details -->
             <div class="tracking-card-small">
                 <h3 class="text-lg font-bold mb-4">Order Details</h3>
