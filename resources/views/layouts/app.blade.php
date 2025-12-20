@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <title>@yield('title', 'ShopLy')</title>
+
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     @stack('styles')
@@ -65,20 +67,54 @@
                 open: false,
                 notifications: [],
                 loading: false,
+                loaded: false,
+                
+                toggle() {
+                    this.open = !this.open;
+                    if (this.open && !this.loaded) {
+                        this.fetchNotifications();
+                    }
+                },
+                
                 async fetchNotifications() {
-                    if (this.notifications.length > 0) return;
+                    if (this.loading) return;
                     this.loading = true;
                     try {
-                        const response = await fetch('/notifications/unread');
-                        const data = await response.json();
-                        this.notifications = data.notifications;
-                        this.$store.global.notificationsCount = data.count;
+                        const response = await fetch('/notifications/unread', {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.notifications = data.notifications || [];
+                            Alpine.store('global').notificationsCount = data.count || 0;
+                            this.loaded = true;
+                        }
                     } catch (error) {
                         console.error('Failed to fetch notifications:', error);
                     } finally {
                         this.loading = false;
                     }
                 },
+                
+                async markAsRead(id) {
+                    try {
+                        await fetch('/notifications/' + id + '/read', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                            }
+                        });
+                        this.notifications = this.notifications.filter(n => n.id !== id);
+                        const store = Alpine.store('global');
+                        if (store.notificationsCount > 0) {
+                            store.notificationsCount--;
+                        }
+                    } catch (error) {
+                        console.error('Failed to mark as read:', error);
+                    }
+                },
+                
                 async markAllAsRead() {
                     try {
                         await fetch('/notifications/mark-all-read', {
@@ -89,10 +125,35 @@
                             }
                         });
                         this.notifications = [];
-                        this.$store.global.notificationsCount = 0;
+                        Alpine.store('global').notificationsCount = 0;
                     } catch (error) {
                         console.error('Failed to mark as read:', error);
                     }
+                },
+                
+                getNotificationUrl(notification) {
+                    const data = notification.data || {};
+                    if (data.ticket_id) {
+                        return '/support/' + data.ticket_id;
+                    }
+                    if (data.order_id) {
+                        return '/track-order/' + data.order_id;
+                    }
+                    if (data.url) {
+                        return data.url;
+                    }
+                    return '#';
+                },
+                
+                getNotificationIcon(notification) {
+                    const type = notification.type || '';
+                    if (type.includes('Ticket')) {
+                        return 'ticket';
+                    }
+                    if (type.includes('Order')) {
+                        return 'order';
+                    }
+                    return 'default';
                 }
             }));
 
@@ -104,8 +165,52 @@
                     if (type === 'cart') this.cartCount = 0;
                     if (type === 'wishlist') this.wishlistCount = 0;
                     if (type === 'notifications') this.notificationsCount = 0;
+                },
+                setCartCount(count) {
+                    this.cartCount = Number(count);
+                },
+                setWishlistCount(count) {
+                    this.wishlistCount = Number(count);
+                },
+                setNotificationsCount(count) {
+                    this.notificationsCount = Number(count);
+                },
+                incrementWishlist() {
+                    this.wishlistCount++;
+                },
+                decrementWishlist() {
+                    if (this.wishlistCount > 0) this.wishlistCount--;
+                },
+                incrementCart() {
+                    this.cartCount++;
+                },
+                decrementCart() {
+                    if (this.cartCount > 0) this.cartCount--;
                 }
             });
+
+            // Auto-refresh notifications every 10 seconds
+            setInterval(async () => {
+                try {
+                    const response = await fetch('/notifications/unread', {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const newCount = data.count || 0;
+                        const currentCount = Alpine.store('global').notificationsCount;
+                        
+                        if (newCount > currentCount) {
+                            // Плавная анимация для нового уведомления
+                            Alpine.store('global').setNotificationsCount(newCount);
+                        } else {
+                            Alpine.store('global').setNotificationsCount(newCount);
+                        }
+                    }
+                } catch (error) {
+                    // Silently fail
+                }
+            }, 10000);
 
             Alpine.data('checkout', () => ({
                 customerName: '',
@@ -190,6 +295,30 @@
                 }
             }));
         });
+        
+        window.updateWishlistCount = function(count) {
+            if (typeof Alpine !== 'undefined' && Alpine.store('global')) {
+                Alpine.store('global').setWishlistCount(count);
+            }
+        };
+        
+        window.incrementWishlistCount = function() {
+            if (typeof Alpine !== 'undefined' && Alpine.store('global')) {
+                Alpine.store('global').incrementWishlist();
+            }
+        };
+        
+        window.decrementWishlistCount = function() {
+            if (typeof Alpine !== 'undefined' && Alpine.store('global')) {
+                Alpine.store('global').decrementWishlist();
+            }
+        };
+        
+        window.updateCartCount = function(count) {
+            if (typeof Alpine !== 'undefined' && Alpine.store('global')) {
+                Alpine.store('global').setCartCount(count);
+            }
+        };
     </script>
 
     <style>
@@ -199,10 +328,10 @@
             --nav-bg: linear-gradient(180deg,#1a1a1a,#141414);
             --accent: #f59e0b;
         }
+        
+        [x-cloak] { display: none !important; }
 
-        html {
-            overflow-y: scroll;
-        }
+        html { overflow-y: scroll; }
 
         body {
             margin: 0;
@@ -211,7 +340,6 @@
             color: #e5e7eb;
         }
 
-        /* NAVBAR */
         #site-nav {
             position: fixed;
             top: 0;
@@ -234,14 +362,8 @@
             gap: 16px;
         }
 
-        /* LOGO */
-        .logo-img {
-            height: 40px;
-            width: auto;
-            display: block;
-        }
+        .logo-img { height: 40px; width: auto; display: block; }
 
-        /* SEARCH */
         .search-input {
             width: 100%;
             height: 40px;
@@ -260,7 +382,6 @@
             color: rgba(255,255,255,.4);
         }
 
-        /* ACTIONS */
         .nav-actions {
             display: flex;
             align-items: center;
@@ -274,7 +395,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            color: #9f9e9e;
+            transition: color 0.2s ease;
         }
+        
+        .nav-item-wrap:hover { color: var(--accent); }
 
         .badge-counter {
             position: absolute;
@@ -282,13 +408,14 @@
             right: -6px;
             background: #ef4444;
             color: #fff;
-            width: 18px;
+            min-width: 18px;
             height: 18px;
             font-size: 11px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 0 4px;
         }
 
         .nav-avatar {
@@ -297,38 +424,33 @@
             border-radius: 999px;
             object-fit: cover;
         }
-
-        @media (max-width: 768px) {
-            .user-name { display: none; }
+        
+        .user-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #e5e7eb;
+        }
+        
+        .user-name {
+            font-size: 0.875rem;
+            font-weight: 500;
         }
 
-        /* Force-logo safe rules: конкретно для логотипа в шапке, чтобы его не ломали глобальные img-правила */
+        @media (max-width: 768px) { .user-name { display: none; } }
+
         #site-nav .logo-img {
             width: auto !important;
             height: 40px !important;
             max-width: none !important;
-            max-height: 40px !important;
-            object-fit: contain !important;
-            display: block !important;
-            background: transparent !important;
-            border: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
         }
 
-        /* Блокируем глобальные правила для img только внутри navbar */
-        #site-nav img {
-            max-width: none !important;
-            height: auto !important;
-        }
-
-        /* search dropdown */
         .search-results {
             position: absolute;
-            top: calc(var(--nav-h) + 8px);
+            top: calc(100% + 8px);
             left: 0;
             right: 0;
-            margin-top: 6px;
             background: linear-gradient(180deg,#0f1113,#0b0b0b);
             border: 1px solid rgba(255,255,255,0.04);
             border-radius: 10px;
@@ -348,107 +470,117 @@
             color: inherit;
             text-decoration: none;
             transition: all 0.15s ease;
-            cursor: pointer;
         }
 
         .search-result-item:hover,
-        .search-result-item.active { 
-            background: rgba(245,158,11,0.08); 
-        }
+        .search-result-item.active { background: rgba(245,158,11,0.08); }
 
         .sr-thumb { 
             width: 56px;
             height: 56px;
-            min-width: 56px;
-            min-height: 56px;
             object-fit: cover;
             border-radius: 8px;
             background: #0f0f0f;
-            border: 1px solid rgba(255,255,255,0.06);
-            display: block;
         }
 
-        /* Fallback for missing images */
-        .sr-thumb-placeholder {
-            width: 56px;
-            height: 56px;
-            min-width: 56px;
-            min-height: 56px;
-            border-radius: 8px;
-            background: #0f0f0f;
-            border: 1px solid rgba(255,255,255,0.06);
+        .sr-meta { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .sr-name { font-weight: 600; font-size: 0.9375rem; color: #e5e7eb; }
+        .sr-price { color: var(--accent); font-size: 0.875rem; font-weight: 600; }
+        .sr-empty { padding: 16px; color: #9ca3af; text-align: center; }
+
+        .notification-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 380px;
+            max-height: 480px;
+            background: linear-gradient(180deg, #1a1a1a, #141414);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+            z-index: 1100;
+        }
+        
+        .notification-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        
+        .notification-dropdown-title { font-weight: 600; font-size: 1rem; color: #e5e7eb; }
+        .notification-dropdown-action { font-size: 0.8125rem; color: var(--accent); cursor: pointer; }
+        .notification-dropdown-list { max-height: 400px; overflow-y: auto; }
+        .notification-dropdown-loading { padding: 40px 20px; text-align: center; color: #9ca3af; }
+        .notification-dropdown-empty { padding: 40px 20px; text-align: center; color: #6b7280; }
+        
+        .notification-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            cursor: pointer;
+            transition: background 0.15s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .notification-item:hover { background: rgba(255,255,255,0.03); }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
-
-        .sr-thumb-placeholder svg {
-            width: 24px;
-            height: 24px;
-            color: rgba(255,255,255,0.2);
-        }
-
-        .sr-meta { 
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .sr-name { 
+        
+        .notification-icon.ticket { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+        .notification-icon.order { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .notification-icon.default { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+        
+        .notification-content { flex: 1; min-width: 0; }
+        .notification-message { font-size: 0.9rem; color: #e5e7eb; line-height: 1.4; margin-bottom: 4px; }
+        .notification-time { font-size: 0.75rem; color: #6b7280; }
+        
+        .checkout-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background: var(--accent);
+            color: #000;
+            border-radius: 8px;
+            text-decoration: none;
             font-weight: 600;
-            font-size: 0.9375rem;
-            line-height: 1.3;
-            color: #e5e7eb;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .sr-price { 
-            color: var(--accent);
             font-size: 0.875rem;
-            font-weight: 600;
+            gap: 6px;
+            transition: opacity 0.2s;
         }
-
-        .sr-empty { 
-            padding: 16px;
-            color: #9ca3af;
-            text-align: center;
-            font-size: 0.875rem;
-        }
-
-        /* Loading state */
-        .sr-loading {
-            padding: 16px;
-            text-align: center;
-            color: #9ca3af;
-            font-size: 0.875rem;
-        }
+        
+        .checkout-btn:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
-    <!-- NAVBAR -->
     <nav id="site-nav">
         <div class="nav-wrap">
-            <!-- LOGO -->
             <a href="{{ url('/products') }}">
                 <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="logo-img" alt="ShopLy">
             </a>
 
-            <!-- SEARCH -->
             <div class="relative" x-data="searchBox()" @click.away="showResults=false">
                 <svg class="icon-left w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input class="search-input" placeholder="Search products…" x-model="query" @input="debounceSearch" @keydown.arrow-down.prevent="next()" @keydown.arrow-up.prevent="prev()" @keydown.enter.prevent="select()">
 
-                <!-- results panel -->
                 <div x-show="showResults" x-cloak class="search-results" x-transition>
                     <template x-for="(item, idx) in results" :key="item.id">
-                        <a :href="item.url" class="search-result-item" :class="{'active': idx === selectedIndex}" @mouseenter="selectedIndex = idx" @click.prevent="window.location = item.url">
+                        <a :href="item.url" class="search-result-item" :class="{'active': idx === selectedIndex}">
                             <img x-show="item.image" :src="item.image" alt="" class="sr-thumb">
                             <div class="sr-meta">
                                 <div class="sr-name" x-text="item.name"></div>
@@ -460,72 +592,118 @@
                 </div>
             </div>
 
-            <!-- ACTIONS -->
             <div class="nav-actions">
                 @auth
                     <!-- Notifications -->
                     <div class="relative" x-data="notificationDropdown()" @click.away="open = false">
-                        <div class="nav-item-wrap" @click="open = !open; if(open) fetchNotifications()">
+                        <div class="nav-item-wrap" @click="toggle()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                             </svg>
                             <span x-show="$store.global.notificationsCount > 0" class="badge-counter" x-text="$store.global.notificationsCount" x-cloak></span>
                         </div>
+                        
+                        <div x-show="open" x-cloak x-transition class="notification-dropdown">
+                            <div class="notification-dropdown-header">
+                                <span class="notification-dropdown-title">Notifications</span>
+                                <span x-show="notifications.length > 0" @click="markAllAsRead()" class="notification-dropdown-action">Mark all read</span>
+                            </div>
+                            
+                            <div class="notification-dropdown-list">
+                                <div x-show="loading" class="notification-dropdown-loading">Loading...</div>
+                                
+                                <template x-if="!loading && notifications.length === 0">
+                                    <div class="notification-dropdown-empty">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 12px; opacity: 0.4;">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                        </svg>
+                                        <div>No new notifications</div>
+                                    </div>
+                                </template>
+                                
+                                <template x-for="notification in notifications" :key="notification.id">
+                                    <a :href="getNotificationUrl(notification)" @click="markAsRead(notification.id)" class="notification-item">
+                                        <div x-show="getNotificationIcon(notification) === 'ticket'" class="notification-icon ticket">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                                            </svg>
+                                        </div>
+                                        <div x-show="getNotificationIcon(notification) === 'order'" class="notification-icon order">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                            </svg>
+                                        </div>
+                                        <div x-show="getNotificationIcon(notification) === 'default'" class="notification-icon default">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                            </svg>
+                                        </div>
+                                        
+                                        <div class="notification-content">
+                                            <div class="notification-message" x-text="notification.data?.message || 'New notification'"></div>
+                                            <div class="notification-time" x-text="notification.created_at_human || ''"></div>
+                                        </div>
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Support Tickets Link -->
-                    <a href="{{ route('tickets.index') }}" class="nav-item-wrap" title="Support Tickets">
+                    <!-- Support Tickets -->
+                    <a href="{{ route('tickets.index') }}" class="nav-item-wrap" title="Support">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                            <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
                         </svg>
                     </a>
 
                     <!-- Track Order -->
-                    <a href="{{ route('orders.tracking.search') }}" 
-                       class="nav-item-wrap" 
-                       title="Track Order">
+                    <a href="{{ route('orders.tracking.search') }}" class="nav-item-wrap" title="Track Order">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+                            <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
                         </svg>
                     </a>
                 @endauth
 
-                <a href="{{ route('wishlist.index') }}" class="nav-item-wrap" @click="$store.global.markViewed('wishlist')">
+                <!-- Wishlist -->
+                <a href="{{ route('wishlist.index') }}" class="nav-item-wrap">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
-                    <span x-show="$store.global.wishlistCount" class="badge-counter" x-text="$store.global.wishlistCount"></span>
+                    <span x-show="$store.global.wishlistCount > 0" class="badge-counter" x-text="$store.global.wishlistCount" x-cloak></span>
                 </a>
 
-                <a href="{{ route('cart.index') }}" class="nav-item-wrap" @click="$store.global.markViewed('cart')">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#9f9e9eff">
+                <!-- Cart -->
+                <a href="{{ route('cart.index') }}" class="nav-item-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
                         <path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/>
                     </svg>
-                    <span x-show="$store.global.cartCount" class="badge-counter" x-text="$store.global.cartCount"></span>
+                    <span x-show="$store.global.cartCount > 0" class="badge-counter" x-text="$store.global.cartCount" x-cloak></span>
                 </a>
 
-                <a href="{{ route('checkout.show') }}"
-                   class="px-3 py-2 rounded-lg transition-colors flex-none whitespace-nowrap"
-                   style="background: var(--accent); color: #071017; display:inline-flex; align-items:center; justify-content:center;"
-                   aria-label="Proceed to Checkout">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#FFFFFF" aria-hidden="true" focusable="false">
+                <!-- Checkout -->
+                <a href="{{ route('checkout.show') }}" class="checkout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 -960 960 960" width="18" fill="currentColor">
                         <path d="m480-560-56-56 63-64H320v-80h167l-64-64 57-56 160 160-160 160ZM280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM40-800v-80h131l170 360h280l156-280h91L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68.5-39t-1.5-79l54-98-144-304H40Z"/>
                     </svg>
+                    Checkout
                 </a>
 
                 @auth
-                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-2">
+                    <!-- Profile -->
+                    <a href="{{ route('profile.edit') }}" class="user-link">
                         <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim(auth()->user()->email))).'?s=40&d=identicon' }}" class="nav-avatar" alt="avatar">
                         <span class="user-name">{{ auth()->user()->name }}</span>
                     </a>
                 @else
-                    <a href="{{ route('login') }}" style="color: var(--accent)">Sign in</a>
+                    <a href="{{ route('login') }}" style="color: var(--accent); font-weight: 500;">Sign in</a>
                 @endauth
             </div>
         </div>
     </nav>
+
     @yield('content')
+    
     @stack('scripts')
 </body>
 </html>

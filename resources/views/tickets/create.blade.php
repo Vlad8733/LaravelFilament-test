@@ -1,429 +1,245 @@
 @extends('layouts.app')
 
-@section('title', 'Create Support Ticket')
+@section('title', 'Create Ticket - Support')
 
 @push('styles')
     @vite('resources/css/tickets/tickets.css')
     <style>
         .create-ticket-form {
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
-            background: var(--ticket-card);
-            border: 1px solid var(--ticket-border);
-            border-radius: 12px;
-            padding: 2rem;
+            background: linear-gradient(180deg, #1a1a1a, #141414);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 32px;
         }
-
+        
+        .form-header {
+            margin-bottom: 32px;
+        }
+        
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e5e7eb;
+            margin-bottom: 8px;
+        }
+        
+        .form-subtitle {
+            color: #9ca3af;
+            font-size: 0.9375rem;
+        }
+        
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
         }
-
+        
         .form-label {
             display: block;
             font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #e5e7eb;
+            margin-bottom: 8px;
         }
-
-        .form-label .required {
-            color: #ef4444;
-        }
-
+        
         .form-input,
-        .form-textarea,
-        .form-select {
+        .form-select,
+        .form-textarea {
             width: 100%;
-            padding: 0.75rem 1rem;
-            background: #0a0a0a;
-            border: 1px solid var(--ticket-border);
-            border-radius: 8px;
-            color: var(--text-primary);
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: #e5e7eb;
             font-size: 0.9375rem;
-            transition: all 0.2s ease;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-
+        
         .form-input:focus,
-        .form-textarea:focus,
-        .form-select:focus {
+        .form-select:focus,
+        .form-textarea:focus {
             outline: none;
-            border-color: var(--accent);
+            border-color: #f59e0b;
             box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
         }
-
+        
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 44px;
+        }
+        
         .form-textarea {
-            resize: vertical;
             min-height: 150px;
-            font-family: inherit;
-            line-height: 1.6;
+            resize: vertical;
         }
-
-        .form-help {
-            font-size: 0.8125rem;
-            color: var(--text-secondary);
-            margin-top: 0.375rem;
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
-
-        .form-error {
-            font-size: 0.8125rem;
-            color: #ef4444;
-            margin-top: 0.375rem;
+        
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
-
-        .file-upload-area {
-            border: 2px dashed var(--ticket-border);
-            border-radius: 8px;
-            padding: 2rem;
+        
+        .file-upload {
+            border: 2px dashed rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 24px;
             text-align: center;
-            transition: all 0.2s ease;
             cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
         }
-
-        .file-upload-area:hover {
-            border-color: var(--accent);
+        
+        .file-upload:hover {
+            border-color: rgba(245, 158, 11, 0.4);
             background: rgba(245, 158, 11, 0.05);
         }
-
-        .file-upload-area.dragover {
-            border-color: var(--accent);
-            background: rgba(245, 158, 11, 0.1);
-        }
-
+        
         .file-upload-icon {
             width: 48px;
             height: 48px;
-            margin: 0 auto 1rem;
-            color: var(--text-secondary);
+            margin: 0 auto 12px;
+            color: #6b7280;
         }
-
+        
         .file-upload-text {
-            font-size: 0.9375rem;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .file-upload-hint {
-            font-size: 0.8125rem;
-            color: var(--text-secondary);
-        }
-
-        .file-list {
-            margin-top: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem;
-            background: #0a0a0a;
-            border: 1px solid var(--ticket-border);
-            border-radius: 8px;
-        }
-
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex: 1;
-        }
-
-        .file-icon {
-            width: 32px;
-            height: 32px;
-            color: var(--accent);
-        }
-
-        .file-name {
+            color: #9ca3af;
             font-size: 0.875rem;
-            color: var(--text-primary);
-            font-weight: 500;
         }
-
-        .file-size {
+        
+        .file-upload-hint {
+            color: #6b7280;
             font-size: 0.75rem;
-            color: var(--text-secondary);
+            margin-top: 4px;
         }
-
-        .file-remove {
-            background: transparent;
-            border: none;
-            color: #ef4444;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .file-remove:hover {
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--ticket-border);
-        }
-
+        
         .btn-submit {
-            flex: 1;
-            padding: 0.875rem 1.5rem;
-            background: var(--accent);
-            color: #0a0a0a;
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            font-weight: 600;
+            font-size: 1rem;
             border: none;
             border-radius: 10px;
-            font-weight: 600;
-            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
+        
         .btn-submit:hover {
-            background: #d97706;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
         }
-
-        .btn-cancel {
-            padding: 0.875rem 1.5rem;
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--ticket-border);
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
+        
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #9ca3af;
             text-decoration: none;
-            transition: all 0.2s ease;
-            display: inline-block;
-            text-align: center;
+            font-size: 0.875rem;
+            margin-bottom: 24px;
+            transition: color 0.2s;
         }
-
-        .btn-cancel:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+        
+        .btn-back:hover {
+            color: #f59e0b;
         }
-
-        .alert-error {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
+        
+        .error-message {
             color: #ef4444;
+            font-size: 0.8125rem;
+            margin-top: 6px;
         }
     </style>
 @endpush
 
 @section('content')
 <div class="tickets-page">
-    <div class="tickets-container">
-        <!-- Header -->
-        <div class="tickets-header">
-            <h1 class="tickets-title">Create New Ticket</h1>
-        </div>
-
-        <!-- Form -->
-        <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data" class="create-ticket-form">
-            @csrf
-
-            @if($errors->any())
-                <div class="alert-error">
-                    <strong>Please fix the following errors:</strong>
-                    <ul style="margin: 0.5rem 0 0; padding-left: 1.5rem;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+    <div class="tickets-container" style="padding-top: 32px;">
+        <a href="{{ route('tickets.index') }}" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Tickets
+        </a>
+        
+        <div class="create-ticket-form">
+            <div class="form-header">
+                <h1 class="form-title">Create New Ticket</h1>
+                <p class="form-subtitle">Describe your issue and we'll get back to you as soon as possible.</p>
+            </div>
+            
+            <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                
+                <div class="form-group">
+                    <label class="form-label" for="subject">Subject</label>
+                    <input type="text" 
+                           id="subject" 
+                           name="subject" 
+                           class="form-input" 
+                           value="{{ old('subject') }}" 
+                           placeholder="Brief description of your issue"
+                           required>
+                    @error('subject')
+                        <p class="error-message">{{ $message }}</p>
+                    @enderror
                 </div>
-            @endif
 
-            <!-- Subject -->
-            <div class="form-group">
-                <label class="form-label">
-                    Subject <span class="required">*</span>
-                </label>
-                <input 
-                    type="text" 
-                    name="subject" 
-                    class="form-input" 
-                    placeholder="Brief description of your issue"
-                    value="{{ old('subject') }}"
-                    required
-                >
-                @error('subject')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
+                <div class="form-group">
+                    <label class="form-label" for="priority">Priority</label>
+                    <select id="priority" name="priority" class="form-select" required>
+                        <option value="">Select priority</option>
+                        <option value="low" {{ old('priority') === 'low' ? 'selected' : '' }}>Low</option>
+                        <option value="medium" {{ old('priority') === 'medium' ? 'selected' : '' }} selected>Medium</option>
+                        <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>High</option>
+                        <option value="urgent" {{ old('priority') === 'urgent' ? 'selected' : '' }}>Urgent</option>
+                    </select>
+                    @error('priority')
+                        <p class="error-message">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <!-- Priority -->
-            <div class="form-group">
-                <label class="form-label">
-                    Priority <span class="required">*</span>
-                </label>
-                <select name="priority" class="form-select" required>
-                    <option value="low" {{ old('priority') === 'low' ? 'selected' : '' }}>Low - General inquiry</option>
-                    <option value="medium" {{ old('priority', 'medium') === 'medium' ? 'selected' : '' }}>Medium - Normal issue</option>
-                    <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>High - Urgent issue</option>
-                    <option value="urgent" {{ old('priority') === 'urgent' ? 'selected' : '' }}>Urgent - Critical problem</option>
-                </select>
-                <div class="form-help">Select the priority level that best describes your issue</div>
-                @error('priority')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Description -->
-            <div class="form-group">
-                <label class="form-label">
-                    Description <span class="required">*</span>
-                </label>
-                <textarea 
-                    name="description" 
-                    class="form-textarea" 
-                    placeholder="Please provide detailed information about your issue..."
-                    required
-                >{{ old('description') }}</textarea>
-                <div class="form-help">Minimum 10 characters. Include as much detail as possible.</div>
+                <label class="form-label" for="description">Description</label>
+                <textarea id="description" 
+                          name="description" 
+                          class="form-textarea" 
+                          rows="6" 
+                          placeholder="Describe your issue in detail..."
+                          required>{{ old('description') }}</textarea>
                 @error('description')
-                    <div class="form-error">{{ $message }}</div>
+                    <p class="error-message">{{ $message }}</p>
                 @enderror
-            </div>
 
-            <!-- File Upload -->
-            <div class="form-group">
-                <label class="form-label">
-                    Attachments (Optional)
-                </label>
-                <div class="file-upload-area" id="fileUploadArea">
-                    <svg class="file-upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    <div class="file-upload-text">Click to upload or drag and drop</div>
-                    <div class="file-upload-hint">Images, PDF, Word documents up to 10MB each (max 5 files)</div>
-                    <input 
-                        type="file" 
-                        name="attachments[]" 
-                        id="fileInput" 
-                        multiple 
-                        accept="image/*,.pdf,.doc,.docx,.txt"
-                        style="display: none;"
-                    >
+                <div class="form-group">
+                    <label class="form-label">Attachments (optional)</label>
+                    <label class="file-upload">
+                        <input type="file" name="attachments[]" multiple style="display: none;" accept="image/*,.pdf,.doc,.docx,.txt">
+                        <svg class="file-upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <p class="file-upload-text">Click to upload files</p>
+                        <p class="file-upload-hint">Images, PDF, DOC up to 10MB each</p>
+                    </label>
+                    @error('attachments.*')
+                        <p class="error-message">{{ $message }}</p>
+                    @enderror
                 </div>
-                <div class="file-list" id="fileList"></div>
-                @error('attachments.*')
-                    <div class="form-error">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Actions -->
-            <div class="form-actions">
+                
                 <button type="submit" class="btn-submit">
                     Create Ticket
                 </button>
-                <a href="{{ route('tickets.index') }}" class="btn-cancel">
-                    Cancel
-                </a>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const fileUploadArea = document.getElementById('fileUploadArea');
-    const fileInput = document.getElementById('fileInput');
-    const fileList = document.getElementById('fileList');
-    let selectedFiles = [];
-
-    // Click to upload
-    fileUploadArea.addEventListener('click', () => fileInput.click());
-
-    // Drag and drop
-    fileUploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        fileUploadArea.classList.add('dragover');
-    });
-
-    fileUploadArea.addEventListener('dragleave', () => {
-        fileUploadArea.classList.remove('dragover');
-    });
-
-    fileUploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        fileUploadArea.classList.remove('dragover');
-        handleFiles(e.dataTransfer.files);
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        handleFiles(e.target.files);
-    });
-
-    function handleFiles(files) {
-        const dt = new DataTransfer();
-        
-        // Add existing files
-        selectedFiles.forEach(file => dt.items.add(file));
-        
-        // Add new files (max 5 total)
-        for (let i = 0; i < files.length && selectedFiles.length < 5; i++) {
-            const file = files[i];
-            if (file.size <= 10 * 1024 * 1024) { // 10MB max
-                selectedFiles.push(file);
-                dt.items.add(file);
-            }
-        }
-
-        fileInput.files = dt.files;
-        renderFileList();
-    }
-
-    function renderFileList() {
-        fileList.innerHTML = '';
-        selectedFiles.forEach((file, index) => {
-            const fileItem = document.createElement('div');
-            fileItem.className = 'file-item';
-            fileItem.innerHTML = `
-                <div class="file-info">
-                    <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <div>
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-size">${formatFileSize(file.size)}</div>
-                    </div>
-                </div>
-                <button type="button" class="file-remove" onclick="removeFile(${index})">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            `;
-            fileList.appendChild(fileItem);
-        });
-    }
-
-    window.removeFile = function(index) {
-        selectedFiles.splice(index, 1);
-        const dt = new DataTransfer();
-        selectedFiles.forEach(file => dt.items.add(file));
-        fileInput.files = dt.files;
-        renderFileList();
-    };
-
-    function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-    }
-});
-</script>
 @endsection

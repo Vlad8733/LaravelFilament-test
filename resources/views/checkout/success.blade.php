@@ -46,7 +46,7 @@
                 Continue Shopping
             </a>
 
-            <a href="{{ route('orders.track', ['orderNumber' => $order->order_number, 'email' => $order->customer_email]) }}" 
+            <a href="{{ route('orders.tracking.show', ['orderNumber' => $order->order_number]) }}" 
                class="inline-block bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors mt-3">
                 Track Order
             </a>

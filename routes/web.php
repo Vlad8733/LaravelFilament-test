@@ -52,7 +52,9 @@ Route::middleware('auth')->group(function () {
     Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
     Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile/accounts/create-child', [AccountController::class, 'createChild'])->name('profile.accounts.create-child');
     Route::post('/profile/accounts/store-child', [AccountController::class, 'storeChild'])->name('profile.accounts.store-child');
+    Route::post('/profile/accounts/switch', [AccountController::class, 'switchAccount'])->name('profile.accounts.switch');
 });
 
 // Продукты
@@ -109,11 +111,21 @@ Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(
 // Support Tickets Routes
 Route::middleware(['auth'])->prefix('support')->name('tickets.')->group(function () {
     Route::get('/', [TicketController::class, 'index'])->name('index');
+    Route::get('/create', [TicketController::class, 'create'])->name('create');
+    Route::post('/', [TicketController::class, 'store'])->name('store');
     Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
+    Route::post('/{ticket}/reply', [TicketController::class, 'reply'])->name('reply');
+    Route::post('/{ticket}/close', [TicketController::class, 'close'])->name('close');
+    Route::post('/{ticket}/reopen', [TicketController::class, 'reopen'])->name('reopen');
 });
 
 // Notifications Routes
 Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::get('/unread', [App\Http\Controllers\NotificationController::class, 'unread'])->name('unread');
+    Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
+    Route::post('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
     Route::delete('/', [App\Http\Controllers\NotificationController::class, 'destroyAll'])->name('destroy-all');
 });
 

@@ -3,138 +3,109 @@
 namespace App\Filament\Resources\TicketResource\Pages;
 
 use App\Filament\Resources\TicketResource;
+use App\Models\TicketMessage;
+use App\Notifications\TicketReplied;
 use Filament\Actions;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\FileUpload;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Auth;
-use Livewire\WithFileUploads;
 
 class ViewTicket extends ViewRecord
 {
-    use WithFileUploads;
-
     protected static string $resource = TicketResource::class;
-    
-    protected static string $view = 'filament.resources.ticket-resource.pages.view-ticket';
-
-    public string $newMessage = '';
-    public array $attachments = [];
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
-        ];
-    }
-    
-    public function removeAttachment($index)
-    {
-        if (isset($this->attachments[$index])) {
-            unset($this->attachments[$index]);
-            $this->attachments = array_values($this->attachments);
-        }
-    }
-    
-    public function sendMessage()
-    {
-        $this->validate([
-            'newMessage' => 'required|string|max:5000',
-            'attachments.*' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx,txt,zip',
-        ]);
+            Actions\Action::make('openChat')
+                ->label('Open Chat')
+                ->icon('heroicon-o-chat-bubble-left-right')
+                ->url(fn ($record) => TicketResource::getUrl('chat', ['record' => $record]))
+                ->color('success'),
 
-        try {
-            $message = $this->record->messages()->create([
-                'user_id' => Auth::id(),
-                'message' => $this->newMessage,
-                'is_admin_reply' => true,
-            ]);
-
-            // Обрабатываем вложения
-            if (!empty($this->attachments)) {
-                foreach ($this->attachments as $file) {
-                    $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                    $path = $file->storeAs('ticket-attachments', $filename, 'public');
-
-                    $message->attachments()->create([
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_path' => $path,
-                        'file_size' => $file->getSize(),
-                        'mime_type' => $file->getMimeType(),
+            Actions\Action::make('reply')
+                ->label('Send Reply')
+                ->icon('heroicon-o-paper-airplane')
+                ->form([
+                    Textarea::make('message')
+                        ->label('Your Reply')
+                        ->required()
+                        ->rows(4),
+                    FileUpload::make('attachments')
+                        ->label('Attachments')
+                        ->multiple()
+                        ->directory('ticket-attachments')
+                        ->maxFiles(5)
+                        ->maxSize(10240),
+                ])
+                ->action(function (array $data) {
+                    $ticket = $this->record;
+                    
+                    // Создаём сообщение
+                    $message = $ticket->messages()->create([
+                        'user_id' => Auth::id(),
+                        'message' => $data['message'],
+                        'is_admin_reply' => true,
                     ]);
-                }
-            }
 
-            $this->record->update(['last_reply_at' => now()]);
+                    // Обрабатываем вложения
+                    if (!empty($data['attachments'])) {
+                        foreach ($data['attachments'] as $path) {
+                            $message->attachments()->create([
+                                'file_name' => basename($path),
+                                'file_path' => $path,
+                                'file_type' => null,
+                                'file_size' => null,
+                            ]);
+                        }
+                    }
 
-            try {
-                $this->record->user->notify(new \App\Notifications\TicketReplied($this->record, $message));
-            } catch (\Exception $e) {
-                \Log::error('Notification failed: ' . $e->getMessage());
-            }
+                    // Обновляем статус и время
+                    $ticket->update([
+                        'status' => 'in_progress',
+                        'last_reply_at' => now(),
+                        'assigned_to' => Auth::id(),
+                    ]);
 
-            $this->newMessage = '';
-            $this->attachments = [];
-            $this->record->load(['messages.user', 'messages.attachments']);
-            
-            $this->dispatch('message-sent');
-            
-            \Filament\Notifications\Notification::make()
-                ->success()
-                ->title('Message sent!')
-                ->send();
-            
-        } catch (\Exception $e) {
-            \Log::error('Error: ' . $e->getMessage());
-            
-            \Filament\Notifications\Notification::make()
-                ->danger()
-                ->title('Failed to send message')
-                ->body($e->getMessage())
-                ->send();
-        }
-    }
+                    // Отправляем уведомление пользователю
+                    $ticket->user->notify(new TicketReplied($ticket, $message));
 
-    public function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                Infolists\Components\Section::make('Ticket Details')
-                    ->schema([
-                        Infolists\Components\TextEntry::make('subject')
-                            ->columnSpanFull(),
-                        
-                        Infolists\Components\TextEntry::make('description')
-                            ->columnSpanFull()
-                            ->markdown(),
-                        
-                        Infolists\Components\TextEntry::make('priority')
-                            ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'low' => 'success',
-                                'medium' => 'warning',
-                                'high' => 'danger',
-                                'urgent' => 'danger',
-                                default => 'gray',
-                            }),
-                        
-                        Infolists\Components\TextEntry::make('status')
-                            ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'open' => 'info',
-                                'in_progress' => 'warning',
-                                'resolved' => 'success',
-                                'closed' => 'gray',
-                                default => 'gray',
-                            }),
-                        
-                        Infolists\Components\TextEntry::make('user.name')
-                            ->label('Created By'),
-                        
-                        Infolists\Components\TextEntry::make('created_at')
-                            ->dateTime(),
-                    ])
-                    ->columns(2),
-            ]);
+                    Notification::make()
+                        ->title('Reply sent successfully')
+                        ->success()
+                        ->send();
+                }),
+
+            Actions\Action::make('close')
+                ->label('Close Ticket')
+                ->icon('heroicon-o-x-circle')
+                ->color('danger')
+                ->requiresConfirmation()
+                ->visible(fn () => $this->record->status !== 'closed')
+                ->action(function () {
+                    $this->record->update(['status' => 'closed']);
+                    
+                    Notification::make()
+                        ->title('Ticket closed')
+                        ->success()
+                        ->send();
+                }),
+
+            Actions\Action::make('reopen')
+                ->label('Reopen Ticket')
+                ->icon('heroicon-o-arrow-path')
+                ->color('success')
+                ->visible(fn () => $this->record->status === 'closed')
+                ->action(function () {
+                    $this->record->update(['status' => 'open']);
+                    
+                    Notification::make()
+                        ->title('Ticket reopened')
+                        ->success()
+                        ->send();
+                }),
+        ];
     }
 }

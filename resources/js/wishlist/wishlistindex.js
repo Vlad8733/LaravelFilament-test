@@ -22,7 +22,7 @@ function updateGlobalCount(type, n = 1) {
 }
 
 /**
- * wishlistPage factory - ТОЧНО КАК В PRODUCTS
+ * wishlistPage factory
  */
 function wishlistPageFactory() {
     return {
@@ -82,13 +82,19 @@ function wishlistPageFactory() {
                 
                 if (data.success) {
                     this.showNotification('was removed from wishlist', 'info', productName);
-                    updateGlobalCount('wishlist', -1);
+                    
+                    // Плавно обновляем счётчик в navbar
+                    if (typeof window.updateWishlistCount === 'function') {
+                        window.updateWishlistCount(data.count);
+                    } else if (typeof window.decrementWishlistCount === 'function') {
+                        window.decrementWishlistCount();
+                    }
                     
                     // Находим карточку товара и удаляем её с анимацией ВЛЕВО
                     const card = document.querySelector(`[data-product-id="${productId}"]`);
                     if (card) {
                         card.style.opacity = '0';
-                        card.style.transform = 'translateX(-100px)'; // Изменено с 100px на -100px
+                        card.style.transform = 'translateX(-100px)';
                         card.style.transition = 'all 0.3s ease';
                         
                         setTimeout(() => {
@@ -146,7 +152,11 @@ function wishlistPageFactory() {
                 
                 if (data.success) {
                     this.showNotification('was added to cart', 'success', productName);
-                    updateGlobalCount('cart', 1);
+                    
+                    // Плавно обновляем счётчик корзины в navbar
+                    if (typeof window.updateCartCount === 'function' && data.cartCount !== undefined) {
+                        window.updateCartCount(data.cartCount);
+                    }
                 } else {
                     this.showNotification(data.message || 'Failed to add to cart', 'error', productName);
                 }
@@ -161,7 +171,7 @@ function wishlistPageFactory() {
 }
 
 /**
- * Register with Alpine and expose globals - ТОЧНО КАК В PRODUCTS
+ * Register with Alpine
  */
 function registerWishlistComponents() {
     if (!window.Alpine) return;

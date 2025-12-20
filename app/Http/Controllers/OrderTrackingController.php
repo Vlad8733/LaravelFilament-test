@@ -61,9 +61,8 @@ class OrderTrackingController extends Controller
             ]);
         }
         
-        return redirect()->route('orders.track', [
-            'orderNumber' => $order->order_number,
-            'email' => $request->email
+        return redirect()->route('orders.tracking.show', [
+            'orderNumber' => $order->order_number
         ]);
     }
 }

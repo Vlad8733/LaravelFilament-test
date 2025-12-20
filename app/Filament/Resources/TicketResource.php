@@ -236,6 +236,7 @@ class TicketResource extends Resource
             'create' => Pages\CreateTicket::route('/create'),
             'edit' => Pages\EditTicket::route('/{record}/edit'),
             'view' => Pages\ViewTicket::route('/{record}'),
+            'chat' => Pages\TicketChat::route('/{record}/chat'),
         ];
     }
 }

@@ -16,21 +16,31 @@ use Illuminate\Support\Facades\DB;
 class TicketController extends Controller
 {
     /**
-     * Показать список заявок пользователя
+     * Список тикетов пользователя
      */
     public function index()
     {
         $tickets = Auth::user()->tickets()
-            ->with(['lastMessage', 'messages'])
-            ->withCount(['messages', 'unreadMessagesForUser'])
+            ->withCount('messages')
+            ->withCount(['messages as unread_messages_for_user_count' => function ($query) {
+                $query->where('is_admin_reply', true)->where('is_read', false);
+            }])
+            ->with(['messages', 'latestMessage'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('tickets.index', compact('tickets'));
+        $stats = [
+            'total' => Auth::user()->tickets()->count(),
+            'open' => Auth::user()->tickets()->where('status', 'open')->count(),
+            'in_progress' => Auth::user()->tickets()->where('status', 'in_progress')->count(),
+            'closed' => Auth::user()->tickets()->where('status', 'closed')->count(),
+        ];
+
+        return view('tickets.index', compact('tickets', 'stats'));
     }
 
     /**
-     * Показать форму создания новой заявки
+     * Форма создания нового тикета
      */
     public function create()
     {
@@ -38,29 +48,29 @@ class TicketController extends Controller
     }
 
     /**
-     * Сохранить новую заявку
+     * Сохранение нового тикета
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
-            'description' => 'required|string',
-            'priority' => 'required|in:low,medium,high,urgent',
-            'attachments.*' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx,txt,zip',
+            'priority' => 'required|string|in:low,medium,high,urgent',
+            'description' => 'required|string|min:10',
+            'attachments.*' => 'nullable|file|max:10240', // 10MB max
         ]);
 
         DB::beginTransaction();
         try {
-            // Создаём заявку
+            // Создаём тикет
             $ticket = Ticket::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'subject' => $validated['subject'],
                 'description' => $validated['description'],
                 'priority' => $validated['priority'],
                 'status' => 'open',
             ]);
 
-            // Создаём первое сообщение (описание)
+            // Создаём первое сообщение
             $message = $ticket->messages()->create([
                 'user_id' => Auth::id(),
                 'message' => $validated['description'],
@@ -71,7 +81,6 @@ class TicketController extends Controller
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
                     $path = $file->store('ticket-attachments', 'public');
-                    
                     $message->attachments()->create([
                         'file_name' => $file->getClientOriginalName(),
                         'file_path' => $path,
@@ -81,158 +90,131 @@ class TicketController extends Controller
                 }
             }
 
-            DB::commit();
-            
-            // Отправляем уведомление админам ПОСЛЕ commit
+            // Уведомляем админов о новом тикете
             $admins = User::where('is_admin', true)->get();
             if ($admins->count() > 0) {
                 Notification::send($admins, new NewTicketCreated($ticket));
             }
 
+            DB::commit();
+
             return redirect()->route('tickets.show', $ticket)
-                ->with('success', 'Your support ticket has been created successfully!');
-                
+                ->with('success', 'Ticket created successfully!');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Failed to create ticket: ' . $e->getMessage()]);
+            return back()->withInput()->with('error', 'Failed to create ticket: ' . $e->getMessage());
         }
     }
 
     /**
-     * Показать конкретную заявку
+     * Показать тикет (чат)
      */
     public function show(Ticket $ticket)
     {
-        // Проверяем права доступа
+        // Проверяем что тикет принадлежит пользователю
         if ($ticket->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized access to this ticket.');
+            abort(403);
         }
 
-        // Загружаем сообщения с вложениями
-        $ticket->load(['messages.user', 'messages.attachments']);
+        // Помечаем сообщения от админа как прочитанные
+        $ticket->messages()
+            ->where('is_admin_reply', true)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
 
-        // Помечаем непрочитанные сообщения от админа как прочитанные
-        $ticket->unreadMessagesForUser()->update(['is_read' => true]);
+        $ticket->load(['messages.user', 'messages.attachments']);
 
         return view('tickets.show', compact('ticket'));
     }
 
     /**
-     * Добавить ответ к заявке
+     * Ответ на тикет
      */
     public function reply(Request $request, Ticket $ticket)
     {
-        // Проверяем права доступа
+        // Проверяем что тикет принадлежит пользователю
         if ($ticket->user_id !== Auth::id()) {
             abort(403);
-        }
-
-        // Проверяем, не закрыта ли заявка
-        if ($ticket->isClosed()) {
-            return back()->with('error', 'Cannot reply to a closed ticket.');
         }
 
         $validated = $request->validate([
-            'message' => 'required|string|min:3',
-            'attachments.*' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,pdf,doc,docx,txt',
+            'message' => 'required|string|min:1',
+            'attachments.*' => 'nullable|file|max:10240',
         ]);
 
-        // Создаём сообщение
-        $message = $ticket->messages()->create([
-            'user_id' => Auth::id(),
-            'message' => $validated['message'],
-            'is_admin_reply' => false,
-        ]);
+        DB::beginTransaction();
+        try {
+            $message = $ticket->messages()->create([
+                'user_id' => Auth::id(),
+                'message' => $validated['message'],
+                'is_admin_reply' => false,
+            ]);
 
-        // Обрабатываем вложения
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $path = $file->store('ticket-attachments', 'public');
-                
-                $message->attachments()->create([
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
-                    'file_type' => $file->getMimeType(),
-                    'file_size' => $file->getSize(),
+            // Обрабатываем вложения
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $path = $file->store('ticket-attachments', 'public');
+                    $message->attachments()->create([
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_path' => $path,
+                        'file_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(),
+                    ]);
+                }
+            }
+
+            // Обновляем статус тикета если он был закрыт
+            if ($ticket->status === 'closed') {
+                $ticket->update(['status' => 'open']);
+            }
+
+            $ticket->update(['last_reply_at' => now()]);
+
+            DB::commit();
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message->load(['user', 'attachments']),
                 ]);
             }
-        }
 
-        // Обновляем время последнего ответа
-        $ticket->update(['last_reply_at' => now()]);
+            return back()->with('success', 'Reply sent!');
 
-        // Отправляем уведомление назначенному админу или всем админам
-        if ($ticket->assigned_to) {
-            $ticket->assignedTo->notify(new TicketReplied($ticket, $message));
-        } else {
-            $admins = User::where('is_admin', true)->get();
+        } catch (\Exception $e) {
+            DB::rollBack();
             
-            if ($admins->count() > 0) {
-                Notification::send($admins, new TicketReplied($ticket, $message));
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
             }
+            
+            return back()->with('error', 'Failed to send reply');
         }
-
-        return back()->with('success', 'Your reply has been added successfully!');
     }
 
     /**
-     * Закрыть заявку
+     * Закрыть тикет
      */
     public function close(Ticket $ticket)
     {
-        // Проверяем права доступа
         if ($ticket->user_id !== Auth::id()) {
             abort(403);
         }
 
-        $ticket->update(['status' => Ticket::STATUS_CLOSED]);
+        $ticket->update(['status' => 'closed']);
 
-        return back()->with('success', 'Ticket has been closed.');
+        return back()->with('success', 'Ticket closed');
     }
 
-    /**
-     * Переоткрыть заявку
-     */
     public function reopen(Ticket $ticket)
     {
-        // Проверяем права доступа
         if ($ticket->user_id !== Auth::id()) {
             abort(403);
         }
 
-        $ticket->update(['status' => Ticket::STATUS_OPEN]);
+        $ticket->update(['status' => 'open']);
 
-        return back()->with('success', 'Ticket has been reopened.');
-    }
-
-    public function checkNewMessages(Ticket $ticket, Request $request)
-    {
-        $afterId = (int) $request->query('after', 0);
-        
-        $messages = $ticket->messages()
-            ->where('id', '>', $afterId)
-            ->with(['user:id,name,avatar', 'attachments'])
-            ->orderBy('created_at', 'asc')
-            ->get()
-            ->map(function ($msg) {
-                return [
-                    'id' => $msg->id,
-                    'user_id' => $msg->user_id,
-                    'user_name' => $msg->user->name,
-                    'user_avatar' => $msg->user->avatar ? asset('storage/' . $msg->user->avatar) : null,
-                    'message' => nl2br(e($msg->message)),
-                    'is_admin_reply' => (bool) $msg->is_admin_reply,
-                    'created_at' => $msg->created_at->toISOString(),
-                    'attachments' => $msg->attachments->map(function($att) {
-                        return [
-                            'file_name' => $att->file_name,
-                            'url' => asset('storage/' . $att->file_path),
-                            'file_size' => $att->human_readable_size ?? round($att->file_size / 1024, 2) . ' KB',
-                        ];
-                    }),
-                ];
-            });
-
-        return response()->json(['messages' => $messages]);
+        return back()->with('success', 'Ticket reopened');
     }
 }

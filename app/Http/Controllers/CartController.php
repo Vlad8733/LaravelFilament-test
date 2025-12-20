@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
+use App\Models\Product;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatus;
 use App\Models\OrderStatusHistory;
-use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class CartController extends Controller
 {
@@ -127,20 +130,19 @@ class CartController extends Controller
         return redirect()->route('cart.index');
     }
 
-    // Show checkout page
+    /**
+     * Показать страницу checkout
+     */
     public function checkout()
     {
-        $userId = auth()->id();
-        if (!$userId) {
-            return redirect()->route('login');
-        }
-
+        $userId = Auth::id();
+        
         $cartItems = CartItem::with('product.images')
             ->where('user_id', $userId)
             ->get();
 
         if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.show')->with('error', 'Your cart is empty');
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
         }
 
         $subtotal = $cartItems->sum(function ($item) {
@@ -177,7 +179,7 @@ class CartController extends Controller
                 ->get();
 
             if ($cartItems->isEmpty()) {
-                return redirect()->route('cart.show')
+                return redirect()->route('cart.index')
                     ->with('error', 'Your cart is empty');
             }
 

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\TicketResource\Pages;
 
 use App\Filament\Resources\TicketResource;
 use App\Models\Ticket;
+use App\Notifications\TicketReplied;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,53 +12,45 @@ class TicketChat extends Page
 {
     protected static string $resource = TicketResource::class;
 
-    protected static string $view = 'filament.pages.ticket-chat';
+    protected static string $view = 'filament.resources.ticket-resource.pages.ticket-chat';
 
-    public Ticket $record;
+    public $record;
     
-    public string $newMessage = '';
+    public $newMessage = '';
 
-    public function mount(int|string $record): void
+    public function mount($record): void
     {
         $this->record = Ticket::with(['messages.user', 'messages.attachments', 'user'])->findOrFail($record);
     }
 
-    public function sendMessage(): void
+    public function sendMessage()
     {
         $this->validate([
             'newMessage' => 'required|string|max:5000',
         ]);
 
+        $message = $this->record->messages()->create([
+            'user_id' => Auth::id(),
+            'message' => $this->newMessage,
+            'is_admin_reply' => true,
+        ]);
+
+        $this->record->update(['last_reply_at' => now()]);
+        
+        // Уведомляем пользователя о новом ответе
         try {
-            $message = $this->record->messages()->create([
-                'user_id' => Auth::id(),
-                'message' => $this->newMessage,
-                'is_admin_reply' => true,
-            ]);
-
-            $this->record->update(['last_reply_at' => now()]);
-
-            try {
-                $this->record->user->notify(new \App\Notifications\TicketReplied($this->record, $message));
-            } catch (\Exception $e) {
-                \Log::error('Notification failed: ' . $e->getMessage());
-            }
-
-            $this->newMessage = '';
-            $this->record->load(['messages.user', 'messages.attachments']);
-            
-            \Filament\Notifications\Notification::make()
-                ->success()
-                ->title('Message sent!')
-                ->send();
-            
+            $this->record->user->notify(new TicketReplied($this->record, $message));
         } catch (\Exception $e) {
-            \Log::error('Error: ' . $e->getMessage());
-            
-            \Filament\Notifications\Notification::make()
-                ->danger()
-                ->title('Failed to send message')
-                ->send();
+            \Log::error('Failed to send notification: ' . $e->getMessage());
         }
+        
+        $this->newMessage = '';
+        $this->record->refresh();
+        $this->record->load(['messages.user', 'messages.attachments']);
+        
+        \Filament\Notifications\Notification::make()
+            ->success()
+            ->title('Message sent!')
+            ->send();
     }
 }

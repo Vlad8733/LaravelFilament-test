@@ -16,7 +16,6 @@ class WishlistController extends Controller
             ->where('user_id', $userId)
             ->get()
             ->map(function($wi) {
-                // keep same structure as previous Wishlist model expected in blade
                 $p = $wi->product;
                 return (object)[
                     'id' => $wi->id,
@@ -37,12 +36,19 @@ class WishlistController extends Controller
         $product = Product::find($productId);
         if (! $product) return response()->json(['success' => false, 'message' => 'Product not found'], 404);
 
-        WishlistItem::firstOrCreate([
+        $created = WishlistItem::firstOrCreate([
             'user_id' => $userId,
             'product_id' => $productId,
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Added to wishlist']);
+        $count = WishlistItem::where('user_id', $userId)->count();
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Added to wishlist',
+            'count' => $count,
+            'added' => $created->wasRecentlyCreated
+        ]);
     }
 
     // Remove product from wishlist (DB)
@@ -50,7 +56,14 @@ class WishlistController extends Controller
     {
         $userId = auth()->id();
         WishlistItem::where('user_id', $userId)->where('product_id', $productId)->delete();
-        return response()->json(['success' => true, 'message' => 'Removed']);
+        
+        $count = $userId ? WishlistItem::where('user_id', $userId)->count() : 0;
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Removed',
+            'count' => $count
+        ]);
     }
 
     // Count for header/badge

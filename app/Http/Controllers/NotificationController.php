@@ -8,30 +8,41 @@ use Illuminate\Support\Facades\Auth;
 class NotificationController extends Controller
 {
     /**
-     * Показать все уведомления пользователя
+     * Показать страницу уведомлений
      */
     public function index()
     {
         $notifications = Auth::user()
             ->notifications()
-            ->paginate(20);
+            ->paginate(15);
 
         return view('notifications.index', compact('notifications'));
     }
 
     /**
-     * Получить непрочитанные уведомления (для AJAX)
+     * Получить непрочитанные уведомления (для dropdown)
      */
     public function unread()
     {
-        $notifications = Auth::user()
-            ->unreadNotifications()
+        $user = Auth::user();
+        
+        $notifications = $user->unreadNotifications()
+            ->latest()
             ->take(10)
-            ->get();
+            ->get()
+            ->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'type' => $notification->type,
+                    'data' => $notification->data,
+                    'created_at' => $notification->created_at->toISOString(),
+                    'created_at_human' => $notification->created_at->diffForHumans(),
+                ];
+            });
 
         return response()->json([
             'notifications' => $notifications,
-            'count' => Auth::user()->unreadNotifications()->count(),
+            'count' => $user->unreadNotifications()->count(),
         ]);
     }
 
@@ -42,31 +53,24 @@ class NotificationController extends Controller
     {
         $notification = Auth::user()
             ->notifications()
-            ->findOrFail($id);
+            ->where('id', $id)
+            ->first();
 
-        $notification->markAsRead();
-
-        // Редирект на соответствующую страницу
-        $data = $notification->data;
-        
-        if (isset($data['ticket_id'])) {
-            return redirect()->route('tickets.show', $data['ticket_id']);
+        if ($notification) {
+            $notification->markAsRead();
         }
 
-        return redirect()->back();
+        return response()->json(['success' => true]);
     }
 
     /**
-     * Пометить все уведомления как прочитанные
+     * Пометить все как прочитанные
      */
     public function markAllAsRead()
     {
         Auth::user()->unreadNotifications->markAsRead();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'All notifications marked as read',
-        ]);
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -74,16 +78,12 @@ class NotificationController extends Controller
      */
     public function destroy($id)
     {
-        $notification = Auth::user()
+        Auth::user()
             ->notifications()
-            ->findOrFail($id);
+            ->where('id', $id)
+            ->delete();
 
-        $notification->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Notification deleted',
-        ]);
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -93,9 +93,6 @@ class NotificationController extends Controller
     {
         Auth::user()->notifications()->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'All notifications deleted',
-        ]);
+        return response()->json(['success' => true]);
     }
 }

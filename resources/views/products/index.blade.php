@@ -366,7 +366,14 @@ document.addEventListener('alpine:init', () => {
                 });
                 const json = await resp.json();
                 if (json.success) {
-                    this.wishlistCount = json.wishlistCount ?? this.wishlistItems.length;
+                    // Обновляем локальный счётчик
+                    this.wishlistCount = json.count ?? this.wishlistItems.length;
+                    
+                    // Плавно обновляем счётчик в navbar
+                    if (typeof window.updateWishlistCount === 'function') {
+                        window.updateWishlistCount(this.wishlistCount);
+                    }
+                    
                     this.showNotification(already ? 'removed from wishlist' : 'added to wishlist', 'success', productName);
                 } else {
                     if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
