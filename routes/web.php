@@ -89,7 +89,7 @@ Route::get('/checkout/verify/{orderId}', [CartController::class, 'verifyOrder'])
 Route::post('/checkout/verify/{orderId}', [CartController::class, 'verifyOrderPost'])->name('checkout.verify.post');
 
 // Отзывы
-Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('product.reviews.store');
 
 // API для купонов
 Route::post('/api/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
@@ -144,4 +144,15 @@ Route::middleware(['auth'])->prefix('refunds')->name('refunds.')->group(function
     Route::post('/request/{order}', [App\Http\Controllers\RefundController::class, 'store'])->name('store');
     Route::get('/{refund}', [App\Http\Controllers\RefundController::class, 'show'])->name('show');
     Route::post('/{refund}/cancel', [App\Http\Controllers\RefundController::class, 'cancel'])->name('cancel');
+});
+
+// Customer Reviews Routes
+Route::middleware(['auth'])->prefix('reviews')->name('reviews.')->group(function () {
+    Route::get('/', [App\Http\Controllers\CustomerReviewController::class, 'index'])->name('index');
+    Route::get('/order/{order}', [App\Http\Controllers\CustomerReviewController::class, 'create'])->name('create');
+    Route::post('/order/{order}', [App\Http\Controllers\CustomerReviewController::class, 'store'])->name('store');
+    Route::get('/{review}', [App\Http\Controllers\CustomerReviewController::class, 'show'])->name('show');
+    Route::get('/{review}/edit', [App\Http\Controllers\CustomerReviewController::class, 'edit'])->name('edit');
+    Route::put('/{review}', [App\Http\Controllers\CustomerReviewController::class, 'update'])->name('update');
+    Route::delete('/{review}', [App\Http\Controllers\CustomerReviewController::class, 'destroy'])->name('destroy');
 });

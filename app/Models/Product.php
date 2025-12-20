@@ -92,7 +92,12 @@ class Product extends Model
 
     public function reviews(): HasMany
     {
-        return $this->hasMany(Review::class);
+        return $this->hasMany(CustomerReview::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(CustomerReview::class)->where('status', 'approved');
     }
 
     public function orderItems(): HasMany
@@ -119,14 +124,15 @@ class Product extends Model
         return round((($this->price - $this->sale_price) / $this->price) * 100);
     }
 
-    public function getAverageRating()
+    public function getAverageRatingAttribute(): ?float
     {
-        return $this->reviews()->approved()->avg('rating') ?: 0;
+        $avg = $this->approvedReviews()->avg('overall_rating');
+        return $avg ? round($avg, 1) : null;
     }
 
-    public function getReviewsCount()
+    public function getReviewsCountAttribute(): int
     {
-        return $this->reviews()->approved()->count();
+        return $this->approvedReviews()->count();
     }
 
     public function getPrimaryImage()

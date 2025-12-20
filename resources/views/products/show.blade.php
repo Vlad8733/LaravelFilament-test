@@ -59,15 +59,15 @@
                     <div class="flex items-center mt-2">
                         <div class="flex items-center">
                             @for($i = 1; $i <= 5; $i++)
-                                <svg class="w-5 h-5 {{ $i <= round($product->getAverageRating()) ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                <svg class="w-5 h-5 {{ $i <= round($product->average_rating ?? 0) ? 'text-yellow-400' : 'text-gray-300' }}" 
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                                 </svg>
                             @endfor
                         </div>
                         <span class="ml-2 text-sm text-gray-600">
-                            {{ number_format($product->getAverageRating(), 1) }} 
-                            ({{ $product->getReviewsCount() }} {{ Str::plural('review', $product->getReviewsCount()) }})
+                            {{ number_format($product->average_rating ?? 0, 1) }} 
+                            ({{ $product->reviews_count }} {{ Str::plural('review', $product->reviews_count) }})
                         </span>
                     </div>
                 </div>
@@ -145,41 +145,103 @@
             </div>
         </div>
 
-        <!-- Reviews Section -->
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <h3 class="text-2xl font-semibold mb-6">Customer Reviews</h3>
+        <!-- Customer Reviews -->
+        <div class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-semibold">Customer Reviews</h3>
+                @if($product->reviews_count > 0)
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center">
+                            @for($i = 1; $i <= 5; $i++)
+                                <svg class="w-5 h-5 {{ $i <= round($product->average_rating ?? 0) ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                     fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            @endfor
+                        </div>
+                        <span class="text-gray-600 font-medium">{{ $product->average_rating ?? 0 }}</span>
+                        <span class="text-gray-400">({{ $product->reviews_count }} {{ Str::plural('review', $product->reviews_count) }})</span>
+                    </div>
+                @endif
+            </div>
             
-            @if($product->reviews->count() > 0)
+            @if($product->approvedReviews->count() > 0)
                 <div class="space-y-6">
-                    @foreach($product->reviews as $review)
+                    @foreach($product->approvedReviews as $review)
                         <div class="border-b border-gray-200 pb-6 last:border-0">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                                        <span class="text-sm font-medium text-gray-700">
-                                            {{ substr($review->reviewer_name, 0, 1) }}
+                                    <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
+                                        <span class="text-sm font-medium text-white">
+                                            {{ strtoupper(substr($review->user->name ?? 'U', 0, 1)) }}
                                         </span>
                                     </div>
                                     <div>
-                                        <h4 class="font-medium text-gray-900">{{ $review->reviewer_name }}</h4>
-                                        <div class="flex items-center">
+                                        <h4 class="font-medium text-gray-900">{{ $review->user->name ?? 'Anonymous' }}</h4>
+                                        <div class="flex items-center gap-1">
                                             @for($i = 1; $i <= 5; $i++)
-                                                <svg class="w-4 h-4 {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                                <svg class="w-4 h-4 {{ $i <= round($review->overall_rating) ? 'text-yellow-400' : 'text-gray-300' }}" 
                                                      fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                                </svg>
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                             @endfor
+                                            <span class="text-sm text-gray-500 ml-1">{{ $review->overall_rating }}/5</span>
                                         </div>
                                     </div>
                                 </div>
                                 <span class="text-sm text-gray-500">{{ $review->created_at->format('M j, Y') }}</span>
                             </div>
-                            <p class="mt-3 text-gray-600">{{ $review->comment }}</p>
+                            
+                            <!-- Rating breakdown -->
+                            <div class="mt-3 flex flex-wrap gap-4 text-sm">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-gray-500">Delivery:</span>
+                                    <div class="flex">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-3 h-3 {{ $i <= $review->delivery_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                                 fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-gray-500">Packaging:</span>
+                                    <div class="flex">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-3 h-3 {{ $i <= $review->packaging_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                                 fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-gray-500">Product:</span>
+                                    <div class="flex">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-3 h-3 {{ $i <= $review->product_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                                 fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if($review->comment)
+                                <p class="mt-3 text-gray-600">{{ $review->comment }}</p>
+                            @endif
                         </div>
                     @endforeach
                 </div>
             @else
-                <p class="text-gray-500 text-center py-8">No reviews yet. Be the first to review this product!</p>
+                <div class="text-center py-12 bg-gray-50 rounded-lg">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                    <p class="text-gray-500 text-lg mb-2">No reviews yet</p>
+                    <p class="text-gray-400 text-sm">Be the first to review this product after your purchase!</p>
+                </div>
             @endif
         </div>
 

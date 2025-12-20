@@ -175,6 +175,49 @@
                 @endif
             @endauth
 
+            <!-- Leave Review Card -->
+            @auth
+                @if($order->canBeReviewed())
+                    @php
+                        $existingReviews = $order->reviews()->where('user_id', auth()->id())->pluck('product_id')->toArray();
+                        $itemsToReview = $order->items->filter(fn($item) => !in_array($item->product_id, $existingReviews));
+                    @endphp
+                    
+                    @if($itemsToReview->isNotEmpty())
+                        <div class="tracking-card-small border-2 border-yellow-500/30">
+                            <div class="flex items-center gap-3 mb-3">
+                                <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <h3 class="text-lg font-bold">Share Your Experience</h3>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-4">
+                                Your order has been delivered! Tell us about your experience with 
+                                {{ $itemsToReview->count() }} {{ Str::plural('product', $itemsToReview->count()) }}.
+                            </p>
+                            <a href="{{ route('reviews.create', $order) }}" 
+                               class="block w-full py-2 px-4 bg-yellow-500 hover:bg-yellow-400 text-black text-center rounded-lg transition-colors text-sm font-medium">
+                                Leave a Review
+                            </a>
+                        </div>
+                    @else
+                        <div class="tracking-card-small">
+                            <div class="flex items-center gap-3 mb-3">
+                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <h3 class="text-lg font-bold">Thanks for Your Reviews!</h3>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-4">You've reviewed all products in this order.</p>
+                            <a href="{{ route('reviews.index') }}" 
+                               class="block w-full py-2 px-4 bg-zinc-700 hover:bg-zinc-600 text-white text-center rounded-lg transition-colors text-sm font-medium">
+                                View My Reviews
+                            </a>
+                        </div>
+                    @endif
+                @endif
+            @endauth
+
             <!-- Order Details -->
             <div class="tracking-card-small">
                 <h3 class="text-lg font-bold mb-4">Order Details</h3>

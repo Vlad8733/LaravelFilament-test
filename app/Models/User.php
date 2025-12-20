@@ -166,4 +166,9 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         }
         return false;
     }
+
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CustomerReview::class);
+    }
 }

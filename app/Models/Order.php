@@ -114,4 +114,14 @@ class Order extends Model
     {
         return $this->hasOne(RefundRequest::class);
     }
+
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CustomerReview::class);
+    }
+
+    public function canBeReviewed(): bool
+    {
+        return $this->status && $this->status->slug === 'delivered';
+    }
 }

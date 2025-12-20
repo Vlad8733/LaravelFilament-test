@@ -1,0 +1,129 @@
+@extends('layouts.app')
+
+@section('title', 'Edit Review')
+
+@push('styles')
+    @vite('resources/css/reviews/reviews.css')
+@endpush
+
+@section('content')
+<div class="reviews-page">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <div class="mb-6">
+            <a href="{{ route('reviews.show', $review) }}" class="reviews-back-link">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back to Review
+            </a>
+        </div>
+
+        @if(session('error'))
+            <div class="reviews-alert error">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <div class="reviews-card">
+            <div class="reviews-card-header">
+                <div class="flex items-center gap-4">
+                    @if($review->product && $review->product->images->first())
+                        <img src="{{ $review->product->images->first()->image_url }}" 
+                             alt="{{ $review->product->name }}" 
+                             class="reviews-product-image">
+                    @else
+                        <div class="reviews-product-image-placeholder">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    @endif
+                    <div>
+                        <h1 class="reviews-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">Edit Review</h1>
+                        <p class="reviews-subtitle">{{ $review->product->name ?? 'Product' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <form action="{{ route('reviews.update', $review) }}" method="POST" class="reviews-form">
+                @csrf
+                @method('PUT')
+
+                @if($errors->any())
+                    <div class="reviews-errors">
+                        <ul>
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Ratings -->
+                <div class="reviews-form-group">
+                    <label class="reviews-form-label">Rate Your Experience</label>
+                    <div class="reviews-ratings-grid">
+                        <!-- Delivery Rating -->
+                        <div class="reviews-rating-item">
+                            <span class="reviews-rating-item-label">Delivery</span>
+                            <div class="star-rating">
+                                @for($i = 5; $i >= 1; $i--)
+                                    <input type="radio" name="delivery_rating" value="{{ $i }}" id="delivery_{{ $i }}" 
+                                           {{ old('delivery_rating', $review->delivery_rating) == $i ? 'checked' : '' }} required>
+                                    <label for="delivery_{{ $i }}" title="{{ $i }} stars">★</label>
+                                @endfor
+                            </div>
+                        </div>
+
+                        <!-- Packaging Rating -->
+                        <div class="reviews-rating-item">
+                            <span class="reviews-rating-item-label">Packaging</span>
+                            <div class="star-rating">
+                                @for($i = 5; $i >= 1; $i--)
+                                    <input type="radio" name="packaging_rating" value="{{ $i }}" id="packaging_{{ $i }}"
+                                           {{ old('packaging_rating', $review->packaging_rating) == $i ? 'checked' : '' }} required>
+                                    <label for="packaging_{{ $i }}" title="{{ $i }} stars">★</label>
+                                @endfor
+                            </div>
+                        </div>
+
+                        <!-- Product Rating -->
+                        <div class="reviews-rating-item">
+                            <span class="reviews-rating-item-label">Product</span>
+                            <div class="star-rating">
+                                @for($i = 5; $i >= 1; $i--)
+                                    <input type="radio" name="product_rating" value="{{ $i }}" id="product_{{ $i }}"
+                                           {{ old('product_rating', $review->product_rating) == $i ? 'checked' : '' }} required>
+                                    <label for="product_{{ $i }}" title="{{ $i }} stars">★</label>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comment -->
+                <div class="reviews-form-group">
+                    <label for="comment" class="reviews-form-label">Your Review (Optional)</label>
+                    <textarea name="comment" id="comment" rows="5"
+                              class="reviews-textarea"
+                              placeholder="Share your experience with this product...">{{ old('comment', $review->comment) }}</textarea>
+                    <p class="reviews-form-hint">Maximum 2000 characters</p>
+                </div>
+
+                <!-- Submit -->
+                <div class="reviews-form-actions">
+                    <a href="{{ route('reviews.show', $review) }}" class="reviews-btn reviews-btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="reviews-btn reviews-btn-primary">
+                        Update Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
