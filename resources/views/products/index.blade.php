@@ -7,11 +7,11 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/products/productindex.js')
+    @vite(['resources/js/products/productindex.js'])
 @endpush
 
 @section('content')
-<div x-data="shop()" x-init="init()" x-cloak>
+<div x-data="shop()">
     <!-- Toast Notifications Container -->
     <div class="toast-container">
         <template x-for="(notification, index) in notifications.slice().reverse()" :key="notification.id">
@@ -24,37 +24,26 @@
                      'info': notification.type === 'info'
                  }"
                  class="toast-notification">
-                
-                <!-- Icon -->
                 <div class="toast-icon">
-                    <!-- Success Icon -->
                     <svg x-show="notification.type === 'success'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    <!-- Error Icon -->
                     <svg x-show="notification.type === 'error'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
-                    <!-- Info Icon -->
                     <svg x-show="notification.type === 'info'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-
-                <!-- Content -->
                 <div class="toast-content">
                     <div class="toast-product-name" x-text="notification.productName"></div>
                     <div class="toast-message" x-text="notification.message"></div>
                 </div>
-
-                <!-- Close Button -->
                 <button @click="removeNotification(notification.id)" class="toast-close">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
-
-                <!-- Progress Bar -->
                 <div class="toast-progress"></div>
             </div>
         </template>
@@ -77,7 +66,7 @@
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
-            <!-- FILTER DRAWER (rendered as off-canvas, does NOT take layout space) -->
+            <!-- FILTER DRAWER -->
             <div x-show="showFilters" x-cloak x-transition class="filters-backdrop" @click="showFilters = false"></div>
             <aside x-show="showFilters" x-cloak x-transition:enter="transition transform duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
                    x-transition:leave="transition transform duration-180" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
@@ -87,8 +76,6 @@
                         <h3 class="text-lg font-semibold">Filters</h3>
                         <button @click="showFilters = false" class="px-2 py-1 rounded bg-gray-800 text-white">Close</button>
                     </div>
-
-                    <!-- Categories -->
                     <div class="mb-6">
                         <h4 class="font-medium mb-3">Categories</h4>
                         <div class="space-y-2">
@@ -106,8 +93,6 @@
                             @endif
                         </div>
                     </div>
-
-                    <!-- Price Range -->
                     <div class="mb-6">
                         <h4 class="font-medium mb-3">Price Range</h4>
                         <div class="filter-row">
@@ -121,13 +106,10 @@
                             </label>
                         </div>
                     </div>
-
-                    <!-- Availability -->
                     <div class="mb-6">
                         <label class="flex items-center"><input type="checkbox" x-model="filters.inStock" class="mr-2"> In Stock Only</label>
                         <label class="flex items-center mt-2"><input type="checkbox" x-model="filters.onSale" class="mr-2"> On Sale</label>
                     </div>
-
                     <div class="mt-auto space-y-2">
                         <button @click="applyFilters(); showFilters=false" :disabled="filterLoading"
                                 class="w-full bg-blue-600 text-white py-2 rounded">Apply Filters</button>
@@ -140,15 +122,12 @@
             <main class="flex-1">
                 <!-- Toolbar -->
                 <div class="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-                    <!-- left side: filters and other controls -->
                     <div class="flex items-center space-x-4">
                         <button @click="showFilters = !showFilters" class="p-2 rounded bg-gray-800 text-white flex items-center gap-2" title="Filters">
                             <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/></svg>
                             <span class="hidden sm:inline text-sm">Filters</span>
                         </button>
                     </div>
-
-                    <!-- right side: sort -->
                     <div class="flex items-center space-x-2">
                         <label class="text-sm text-gray-600">Sort by:</label>
                         <select x-model="filters.sort" @change="applyFilters()" class="border border-gray-300 rounded px-3 py-1 text-sm">
@@ -169,7 +148,6 @@
                     @forelse($products as $product)
                         <!-- Grid View -->
                         <div x-show="viewMode === 'grid'" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 group">
-                            <!-- Product Image -->
                             <div class="aspect-square bg-gray-200 relative overflow-hidden">
                                 @if($product->getPrimaryImage())
                                     <img src="{{ asset('storage/' . $product->getPrimaryImage()->image_path) }}" 
@@ -182,22 +160,16 @@
                                         </svg>
                                     </div>
                                 @endif
-
-                                <!-- Sale Badge -->
                                 @if($product->sale_price)
                                     <div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
                                         -{{ $product->getDiscountPercentage() }}%
                                     </div>
                                 @endif
-
-                                <!-- Stock Badge - сдвигаем влево -->
                                 @if(!$product->isInStock())
                                     <div class="absolute top-2 left-12 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">
                                         Out of Stock
                                     </div>
                                 @endif
-
-                                <!-- Wishlist Button -->
                                 <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
                                         :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
                                         class="products-wish absolute top-2 right-2"
@@ -207,8 +179,6 @@
                                     </svg>
                                 </button>
                             </div>
-
-                            <!-- Product Info -->
                             <div class="p-4">
                                 <div class="mb-2">
                                     <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">
@@ -216,14 +186,10 @@
                                             {{ $product->name }}
                                         </a>
                                     </h3>
-                                    
-                                    <!-- Category -->
                                     @if($product->category && is_object($product->category))
                                         <span class="text-sm text-gray-500">{{ $product->category->name }}</span>
                                     @endif
                                 </div>
-
-                                <!-- Rating -->
                                 <div class="flex items-center mb-2">
                                     <div class="flex items-center">
                                         @for($i = 1; $i <= 5; $i++)
@@ -235,8 +201,6 @@
                                     </div>
                                     <span class="text-sm text-gray-500 ml-1">({{ $product->getReviewsCount() }})</span>
                                 </div>
-
-                                <!-- Price -->
                                 <div class="flex items-center justify-between mb-3">
                                     <div class="flex items-center space-x-2">
                                         @if($product->sale_price)
@@ -247,9 +211,7 @@
                                         @endif
                                     </div>
                                 </div>
-
-                                <!-- Add to Cart -->
-                                <button @click="addToCart({{ $product->id }})" 
+                                <button @click="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}')"
                                         :disabled="!{{ $product->isInStock() ? 'true' : 'false' }} || loading"
                                         class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
                                     <span x-show="!loading">
@@ -259,10 +221,8 @@
                                 </button>
                             </div>
                         </div>
-
                         <!-- List View -->
                         <div x-show="viewMode === 'list'" class="bg-white rounded-lg shadow-sm p-6 flex space-x-6">
-                            <!-- Product Image -->
                             <div class="w-32 h-32 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden relative">
                                 @if($product->getPrimaryImage())
                                     <img src="{{ asset('storage/' . $product->getPrimaryImage()->image_path) }}" 
@@ -275,8 +235,6 @@
                                         </svg>
                                     </div>
                                 @endif
-
-                                <!-- Wishlist Button for List View -->
                                 <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
                                         :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
                                         class="products-wish absolute top-2 right-2"
@@ -286,8 +244,6 @@
                                     </svg>
                                 </button>
                             </div>
-
-                            <!-- Product Info -->
                             <div class="flex-1">
                                 <div class="flex justify-between items-start mb-2">
                                     <div>
@@ -300,7 +256,6 @@
                                             <span class="text-sm text-gray-500">{{ $product->category->name }}</span>
                                         @endif
                                     </div>
-                                    
                                     <div class="text-right">
                                         @if($product->sale_price)
                                             <div class="text-lg font-bold text-green-600">${{ number_format($product->sale_price, 2) }}</div>
@@ -310,11 +265,8 @@
                                         @endif
                                     </div>
                                 </div>
-
                                 <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ $product->description }}</p>
-
                                 <div class="flex items-center justify-between">
-                                    <!-- Rating -->
                                     <div class="flex items-center">
                                         <div class="flex items-center">
                                             @for($i = 1; $i <= 5; $i++)
@@ -326,8 +278,6 @@
                                         </div>
                                         <span class="text-sm text-gray-500 ml-1">({{ $product->getReviewsCount() }})</span>
                                     </div>
-
-                                    <!-- Actions -->
                                     <div class="flex items-center space-x-3">
                                         <button @click="addToCart({{ $product->id }})" 
                                                 :disabled="!{{ $product->isInStock() ? 'true' : 'false' }} || loading"
@@ -351,8 +301,6 @@
                         </div>
                     @endforelse
                 </div>
-
-                <!-- Pagination -->
                 @if($products->hasPages())
                     <div class="mt-8">
                         {{ $products->links() }}
@@ -362,4 +310,149 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('shop', () => ({
+        viewMode: 'grid',
+        showFilters: false,
+        cartCount: 0,
+        wishlistCount: 0,
+        wishlistItems: [],
+        loading: false,
+        filterLoading: false,
+        notifications: [],
+        notificationIdCounter: 0,
+        filters: {
+            category: new URLSearchParams(window.location.search).get('category') || 'all',
+            priceMin: (() => { const v = new URLSearchParams(window.location.search).get('price_min'); return v !== null ? Number(v) : null; })(),
+            priceMax: (() => { const v = new URLSearchParams(window.location.search).get('price_max'); return v !== null ? Number(v) : null; })(),
+            inStock: Boolean(new URLSearchParams(window.location.search).get('in_stock')),
+            onSale: Boolean(new URLSearchParams(window.location.search).get('on_sale')),
+            sort: new URLSearchParams(window.location.search).get('sort') || ''
+        },
+
+        init() {
+            this.updateCartCount();
+            this.updateWishlistCount();
+            this.loadWishlistItems();
+        },
+
+        isInWishlist(productId) {
+            return this.wishlistItems.includes(Number(productId));
+        },
+
+        async loadWishlistItems() {
+            try {
+                const res = await fetch('/wishlist/items', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                this.wishlistItems = Array.isArray(data.items) ? data.items.map(i => Number(i)) : [];
+                this.wishlistCount = data.count ?? this.wishlistItems.length;
+            } catch (e) { console.warn('Failed loading wishlist', e); }
+        },
+
+        async toggleWishlist(productId, productName = 'Product') {
+            const id = Number(productId);
+            const already = this.isInWishlist(id);
+            if (!already) this.wishlistItems.push(id);
+            else this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+
+            try {
+                const url = already ? `/wishlist/remove/${id}` : `/wishlist/add/${id}`;
+                const resp = await fetch(url, {
+                    method: already ? 'DELETE' : 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+                });
+                const json = await resp.json();
+                if (json.success) {
+                    this.wishlistCount = json.wishlistCount ?? this.wishlistItems.length;
+                    this.showNotification(already ? 'removed from wishlist' : 'added to wishlist', 'success', productName);
+                } else {
+                    if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+                    else this.wishlistItems.push(id);
+                    this.showNotification(json.message || 'Failed', 'error', productName);
+                }
+            } catch (err) {
+                if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
+                else this.wishlistItems.push(id);
+                this.showNotification('Network error', 'error', productName);
+            }
+        },
+
+        showNotification(message, type = 'success', productName = '') {
+            const id = ++this.notificationIdCounter;
+            this.notifications.push({ id, message, type, productName, show: true });
+            if (this.notifications.length > 5) this.removeNotification(this.notifications[0].id);
+            setTimeout(() => this.removeNotification(id), 4000);
+        },
+
+        removeNotification(id) {
+            const idx = this.notifications.findIndex(n => n.id === id);
+            if (idx !== -1) {
+                this.notifications[idx].show = false;
+                setTimeout(() => { this.notifications = this.notifications.filter(n => n.id !== id); }, 500);
+            }
+        },
+
+        async addToCart(productId, productName = 'Product') {
+            this.loading = true;
+            try {
+                const response = await fetch(`/cart/add/${productId}`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                    body: JSON.stringify({ quantity: 1 })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    this.cartCount = data.cartCount;
+                    if (Alpine.store('global')) Alpine.store('global').cartCount = data.cartCount;
+                    this.showNotification('added to cart', 'success', productName);
+                } else {
+                    this.showNotification(data.message || 'Failed', 'error', productName);
+                }
+            } catch (error) {
+                this.showNotification('Error adding to cart', 'error', productName);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async updateCartCount() {
+            try {
+                const res = await fetch('/cart/count', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                this.cartCount = data.count;
+            } catch (e) { console.error(e); }
+        },
+
+        async updateWishlistCount() {
+            try {
+                const res = await fetch('/wishlist/count', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                this.wishlistCount = data.count;
+            } catch (e) { console.error(e); }
+        },
+
+        applyFilters() {
+            if (this.filterLoading) return;
+            this.filterLoading = true;
+            const params = new URLSearchParams();
+            if (this.filters.category && this.filters.category !== 'all') params.set('category', this.filters.category);
+            if (this.filters.sort) params.set('sort', this.filters.sort);
+            if (this.filters.priceMin !== null) params.set('price_min', this.filters.priceMin);
+            if (this.filters.priceMax !== null) params.set('price_max', this.filters.priceMax);
+            if (this.filters.inStock) params.set('in_stock', '1');
+            if (this.filters.onSale) params.set('on_sale', '1');
+            window.location.href = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        },
+
+        clearFilters() {
+            this.filters = { category: 'all', priceMin: null, priceMax: null, inStock: false, onSale: false, sort: '' };
+            this.applyFilters();
+        }
+    }));
+});
+</script>
 @endsection

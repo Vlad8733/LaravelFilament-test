@@ -1,103 +1,112 @@
 /**
- * Factory for cart page data — возвращаем объект данных/методов
+ * Factory for cart page data
  */
 function cartFactory() {
     return {
+        items: [],
+        loading: false,
         couponCode: '',
 
-        async updateQuantity(productId, quantity) {
-            if (quantity < 1) return this.removeItem(productId);
-            try {
-                const response = await fetch(`/cart/update/${productId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ quantity })
-                });
-                if (response.ok) location.reload();
-            } catch (error) {
-                console.error('Error updating quantity:', error);
-            }
+        init() {
+            console.log('Cart page initialized');
         },
 
-        async removeItem(productId) {
-            try {
-                const response = await fetch(`/cart/remove/${productId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                });
+        updateQuantity(itemId, quantity) {
+            if (quantity < 1) return this.removeItem(itemId);
+            
+            fetch(`/cart/update/${itemId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ quantity: quantity })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('Server error:', text);
+                        throw new Error('Server error');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        },
+
+        removeItem(itemId) {
+            fetch(`/cart/remove/${itemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
                 if (response.ok) location.reload();
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Error removing item:', error);
-            }
+            });
         },
 
-        async applyCoupon() {
+        applyCoupon() {
             if (!this.couponCode || !this.couponCode.trim()) return;
-            try {
-                const response = await fetch('/cart/coupon/apply', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ code: this.couponCode })
-                });
+            
+            fetch('/cart/coupon/apply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ code: this.couponCode })
+            })
+            .then(response => {
                 if (response.ok) location.reload();
                 else {
-                    const data = await response.json();
-                    alert(data.message || 'Invalid coupon code');
+                    return response.json().then(data => {
+                        alert(data.message || 'Invalid coupon code');
+                    });
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Error applying coupon:', error);
-            }
+            });
         },
 
-        async removeCoupon() {
-            try {
-                const response = await fetch('/cart/coupon/remove', {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                });
+        removeCoupon() {
+            fetch('/cart/coupon/remove', {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
                 if (response.ok) location.reload();
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Error removing coupon:', error);
-            }
+            });
         }
     };
 }
 
-// helper to register and init existing nodes if Alpine already ran
-function registerCartComponent() {
-    if (!window.Alpine) return;
-    Alpine.data('cartPage', cartFactory);
-
-    // if Alpine already initialized the DOM earlier, initialize only the cart nodes now
-    try {
-        document.querySelectorAll('[x-data="cartPage()"]').forEach(el => {
-            // Alpine.initTree exists in Alpine v3 — initialize subtree
-            if (typeof Alpine.initTree === 'function') {
-                Alpine.initTree(el);
-            }
-        });
-    } catch (e) {
-        // silently ignore if API differs
-        console.warn('Alpine initTree failed', e);
-    }
-}
-
-// register at the right time
-if (window.Alpine) {
-    registerCartComponent();
-} else {
-    document.addEventListener('alpine:init', registerCartComponent);
-}
-
-// also expose factory as global function so x-data="cartPage()" works regardless of timing
+// Регистрируем глобально
 window.cartPage = cartFactory;
+
+// Регистрируем в Alpine если он уже загружен
+if (window.Alpine) {
+    window.Alpine.data('cartPage', cartFactory);
+}
+
+// Также регистрируем при инициализации Alpine
+document.addEventListener('alpine:init', () => {
+    Alpine.data('cartPage', cartFactory);
+});
+
+console.log('Cart JS loaded');

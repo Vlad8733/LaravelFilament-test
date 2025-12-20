@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cart;
+use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatus;
@@ -15,8 +15,8 @@ class CartController extends Controller
 {
     protected function dbCartItemsForUser($userId)
     {
-        // Изменили CartItem на Cart
-        return Cart::with(['product', 'product.images', 'product.category'])
+        // Было: return Cart::with(['product', ...])
+        return CartItem::with(['product', 'product.images', 'product.category'])
             ->where('user_id', $userId)
             ->get();
     }
@@ -33,7 +33,7 @@ class CartController extends Controller
 
         $product = Product::findOrFail($productId);
 
-        $cartItem = Cart::where('user_id', $userId)
+        $cartItem = CartItem::where('user_id', $userId)
             ->where('product_id', $productId)
             ->first();
 
@@ -41,7 +41,7 @@ class CartController extends Controller
             $cartItem->quantity += $qty;
             $cartItem->save();
         } else {
-            Cart::create([
+            CartItem::create([
                 'user_id' => $userId,
                 'product_id' => $productId,
                 'quantity' => $qty,
@@ -49,7 +49,7 @@ class CartController extends Controller
             ]);
         }
 
-        $count = Cart::where('user_id', $userId)->sum('quantity');
+        $count = CartItem::where('user_id', $userId)->sum('quantity');
 
         return response()->json([
             'success' => true,
@@ -68,22 +68,31 @@ class CartController extends Controller
 
         $qty = max(1, (int) $request->input('quantity', 1));
 
-        $cartItem = Cart::where('id', $itemId)
+        $cartItem = CartItem::where('id', $itemId)
             ->where('user_id', $userId)
-            ->firstOrFail();
+            ->first();
+
+        if (!$cartItem) {
+            return response()->json(['success' => false, 'message' => 'Item not found'], 404);
+        }
 
         $cartItem->quantity = $qty;
         $cartItem->save();
 
-        $subtotal = $cartItem->product->price * $qty;
-        $total = Cart::where('user_id', $userId)->get()->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+        // Пересчитываем итоги
+        $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
+        
+        $subtotal = $cartItems->sum(function ($item) {
+            return $item->product->getCurrentPrice() * $item->quantity;
         });
+
+        $itemSubtotal = $cartItem->product->getCurrentPrice() * $qty;
 
         return response()->json([
             'success' => true,
-            'subtotal' => $subtotal,
-            'total' => $total,
+            'subtotal' => $itemSubtotal,
+            'total' => $subtotal,
+            'cartCount' => $cartItems->sum('quantity')
         ]);
     }
 
@@ -95,34 +104,27 @@ class CartController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
-        Cart::where('id', $itemId)
+        $deleted = CartItem::where('id', $itemId)
             ->where('user_id', $userId)
             ->delete();
 
-        $count = Cart::where('user_id', $userId)->sum('quantity');
+        if (!$deleted) {
+            return response()->json(['success' => false, 'message' => 'Item not found'], 404);
+        }
+
+        $cartCount = CartItem::where('user_id', $userId)->sum('quantity');
 
         return response()->json([
             'success' => true,
-            'message' => 'Item removed',
-            'cartCount' => $count,
+            'cartCount' => $cartCount
         ]);
     }
 
     // Show cart page
     public function show()
     {
-        $userId = auth()->id();
-        if (!$userId) {
-            return redirect()->route('login');
-        }
-
-        $cartItems = $this->dbCartItemsForUser($userId);
-
-        $total = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
-
-        return view('cart.show', compact('cartItems', 'total'));
+        // Можно просто редиректить на index
+        return redirect()->route('cart.index');
     }
 
     // Show checkout page
@@ -133,7 +135,7 @@ class CartController extends Controller
             return redirect()->route('login');
         }
 
-        $cartItems = Cart::with('product.images')
+        $cartItems = CartItem::with('product.images')
             ->where('user_id', $userId)
             ->get();
 
@@ -170,7 +172,7 @@ class CartController extends Controller
             }
 
             // Получаем корзину
-            $cartItems = Cart::with('product')
+            $cartItems = CartItem::with('product')
                 ->where('user_id', $userId)
                 ->get();
 
@@ -240,7 +242,7 @@ class CartController extends Controller
             session(['last_order_id' => $order->id]);
 
             // Очищаем корзину
-            Cart::where('user_id', $userId)->delete();
+            CartItem::where('user_id', $userId)->delete();
 
             // ДОЛЖНО БЫТЬ ТАК:
             return response()->json([
@@ -313,8 +315,31 @@ class CartController extends Controller
             return response()->json(['count' => 0]);
         }
 
-        $count = Cart::where('user_id', $userId)->sum('quantity');
+        $count = CartItem::where('user_id', $userId)->sum('quantity');
 
         return response()->json(['count' => $count]);
+    }
+
+    public function index()
+    {
+        // Получаем ID пользователя
+        $userId = auth()->id();
+
+        // Если пользователь не авторизован — редирект на логин
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Please login to view your cart.');
+        }
+
+        // Получаем товары из корзины
+        $cartItems = \App\Models\CartItem::with('product')->where('user_id', $userId)->get();
+
+        // Считаем сумму
+        $subtotal = $cartItems->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+
+        $total = $subtotal;
+
+        return view('cart.index', compact('cartItems', 'subtotal', 'total'));
     }
 }
