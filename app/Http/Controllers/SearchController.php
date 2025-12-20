@@ -7,31 +7,31 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-    public function search(Request $request)
+    public function index(Request $request)
     {
-        $query = $request->input('query', '');
+        $query = $request->input('query', $request->input('q', ''));
 
         if (strlen($query) < 2) {
             return response()->json([]);
         }
 
         $products = Product::with(['images', 'category'])
-            ->where('name', 'like', '%' . $query . '%')
-            ->orWhere('description', 'like', '%' . $query . '%')
+            ->where('is_active', true)
+            ->where(function($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%')
+                  ->orWhere('description', 'like', '%' . $query . '%');
+            })
             ->limit(10)
             ->get();
 
         $results = $products->map(function ($product) {
             $image = null;
             
-            // Get first image if exists
             if ($product->images && $product->images->count() > 0) {
                 $firstImage = $product->images->first();
                 if ($firstImage && $firstImage->image_path) {
-                    // Ensure proper path format
                     $imagePath = $firstImage->image_path;
                     
-                    // Remove 'public/' prefix if present (storage handles this)
                     if (strpos($imagePath, 'public/') === 0) {
                         $imagePath = substr($imagePath, 7);
                     }
@@ -45,7 +45,7 @@ class SearchController extends Controller
                 'name' => $product->name,
                 'price' => $product->sale_price ?? $product->price,
                 'image' => $image,
-                'url' => route('products.show', $product->id)
+                'url' => route('products.show', $product->slug)
             ];
         });
 
