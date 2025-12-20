@@ -185,10 +185,38 @@ class CartController extends Controller
 
             // Подсчёт суммы
             $cartTotal = $cartItems->sum(function ($item) {
-                return $item->product->price * $item->quantity;
+                return $item->product->getCurrentPrice() * $item->quantity;
             });
 
+            // Получаем купон из сессии
+            $couponData = session('coupon');
             $discount = 0;
+            $couponId = null;
+            $couponCode = null;
+
+            if ($couponData) {
+                $coupon = Coupon::find($couponData['id']);
+                
+                if ($coupon && $coupon->isValid()) {
+                    // Пересчитываем скидку для применимых товаров
+                    $applicableTotal = 0;
+                    foreach ($cartItems as $item) {
+                        if ($coupon->appliesTo($item->product)) {
+                            $applicableTotal += $item->product->getCurrentPrice() * $item->quantity;
+                        }
+                    }
+                    
+                    if ($applicableTotal > 0) {
+                        $discount = $coupon->calculateDiscount($applicableTotal);
+                        $couponId = $coupon->id;
+                        $couponCode = $coupon->code;
+                        
+                        // Увеличиваем счётчик использований
+                        $coupon->incrementUsage();
+                    }
+                }
+            }
+
             $finalTotal = $cartTotal - $discount;
 
             // Получаем статус Pending
@@ -204,12 +232,13 @@ class CartController extends Controller
                 'notes' => $request->notes,
                 'subtotal' => $cartTotal,
                 'discount_amount' => $discount,
+                'coupon_code' => $couponCode,
                 'total' => $finalTotal,
                 'payment_method' => 'fake',
                 'payment_status' => 'completed',
             ]);
 
-            // ДОБАВЬ ЭТУ СТРОКУ:
+            // Сохраняем ID заказа в сессию
             session(['last_order_id' => $order->id]);
 
             // Создаём items заказа
@@ -219,8 +248,8 @@ class CartController extends Controller
                     'product_id' => $item->product_id,
                     'product_name' => $item->product->name,
                     'quantity' => $item->quantity,
-                    'product_price' => $item->product->price,  // Оставьте только эту
-                    'total' => $item->product->price * $item->quantity,
+                    'product_price' => $item->product->getCurrentPrice(),
+                    'total' => $item->product->getCurrentPrice() * $item->quantity,
                 ]);
             }
 
@@ -235,18 +264,17 @@ class CartController extends Controller
                         'changed_at' => now(),
                     ]);
                 } catch (\Exception $e) {
-                    Log::warning('Could not create order history: ' . $e->getMessage());
+                    \Log::warning('Could not create order history: ' . $e->getMessage());
                 }
             }
 
             // Сохраняем ID заказа в сессию
             session(['recent_order_id' => $order->id]);
-            session(['last_order_id' => $order->id]);
 
-            // Очищаем корзину
+            // Очищаем корзину и купон
             CartItem::where('user_id', $userId)->delete();
+            session()->forget('coupon');
 
-            // ДОЛЖНО БЫТЬ ТАК:
             return response()->json([
                 'success' => true,
                 'message' => 'Order placed successfully',
@@ -324,24 +352,160 @@ class CartController extends Controller
 
     public function index()
     {
-        // Получаем ID пользователя
         $userId = auth()->id();
 
-        // Если пользователь не авторизован — редирект на логин
         if (!$userId) {
             return redirect()->route('login')->with('error', 'Please login to view your cart.');
         }
 
-        // Получаем товары из корзины
         $cartItems = \App\Models\CartItem::with('product')->where('user_id', $userId)->get();
 
-        // Считаем сумму
         $subtotal = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            return $item->product->getCurrentPrice() * $item->quantity;
         });
 
-        $total = $subtotal;
+        // Получаем купон из сессии
+        $coupon = session('coupon');
+        $discount = $coupon['discount'] ?? 0;
+        $total = $subtotal - $discount;
 
-        return view('cart.index', compact('cartItems', 'subtotal', 'total'));
+        return view('cart.index', compact('cartItems', 'subtotal', 'total', 'discount', 'coupon'));
+    }
+
+    /**
+     * Применить купон к корзине
+     */
+    public function applyCoupon(Request $request)
+    {
+        try {
+            $request->validate([
+                'code' => 'required|string|max:20',
+            ]);
+
+            $userId = auth()->id();
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please login to apply coupon'
+                ], 401);
+            }
+
+            $code = strtoupper(trim($request->code));
+            
+            $coupon = Coupon::where('code', $code)->first();
+
+            if (!$coupon) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid coupon code'
+                ], 404);
+            }
+
+            if (!$coupon->isValid()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This coupon is expired or no longer valid'
+                ], 400);
+            }
+
+            // Получаем корзину
+            $cartItems = CartItem::with('product')->where('user_id', $userId)->get();
+
+            if ($cartItems->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your cart is empty'
+                ], 400);
+            }
+
+            // Считаем сумму применимых товаров
+            $applicableTotal = 0;
+            $applicableItems = [];
+
+            foreach ($cartItems as $item) {
+                if ($coupon->appliesTo($item->product)) {
+                    $itemTotal = $item->product->getCurrentPrice() * $item->quantity;
+                    $applicableTotal += $itemTotal;
+                    $applicableItems[] = $item;
+                }
+            }
+
+            if ($applicableTotal == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This coupon does not apply to any items in your cart'
+                ], 400);
+            }
+
+            // Проверяем минимальную сумму
+            if ($coupon->minimum_amount && $applicableTotal < $coupon->minimum_amount) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Minimum order amount of \${$coupon->minimum_amount} required for this coupon"
+                ], 400);
+            }
+
+            // Считаем скидку
+            $discount = $coupon->calculateDiscount($applicableTotal);
+
+            // Сохраняем купон в сессию
+            session([
+                'coupon' => [
+                    'id' => $coupon->id,
+                    'code' => $coupon->code,
+                    'type' => $coupon->type,
+                    'value' => $coupon->value,
+                    'discount' => $discount,
+                ]
+            ]);
+
+            // Полная сумма корзины
+            $subtotal = $cartItems->sum(function ($item) {
+                return $item->product->getCurrentPrice() * $item->quantity;
+            });
+
+            $total = $subtotal - $discount;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Coupon applied successfully!',
+                'coupon' => $coupon->code,
+                'discount' => $discount,
+                'subtotal' => $subtotal,
+                'total' => $total,
+                'discount_formatted' => '$' . number_format($discount, 2),
+                'total_formatted' => '$' . number_format($total, 2),
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Coupon apply error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to apply coupon'
+            ], 500);
+        }
+    }
+
+    /**
+     * Удалить купон из корзины
+     */
+    public function removeCoupon()
+    {
+        session()->forget('coupon');
+
+        $userId = auth()->id();
+        $cartItems = CartItem::with('product')->where('user_id', $userId)->get();
+
+        $subtotal = $cartItems->sum(function ($item) {
+            return $item->product->getCurrentPrice() * $item->quantity;
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon removed',
+            'subtotal' => $subtotal,
+            'total' => $subtotal,
+            'total_formatted' => '$' . number_format($subtotal, 2),
+        ]);
     }
 }

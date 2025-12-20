@@ -17,27 +17,49 @@ class Coupon extends Model
         'starts_at',
         'expires_at',
         'is_active',
+        'applies_to',
+        'category_ids',
+        'product_ids',
     ];
 
     protected $casts = [
         'value' => 'decimal:2',
         'minimum_amount' => 'decimal:2',
-        'is_active' => 'boolean',
         'starts_at' => 'datetime',
         'expires_at' => 'datetime',
+        'is_active' => 'boolean',
+        'category_ids' => 'array',
+        'product_ids' => 'array',
     ];
 
-    public function isValid($amount = 0)
+    /**
+     * Генерация кода купона в формате XXXX-XXXX
+     */
+    public static function generateCode(): string
+    {
+        do {
+            $code = strtoupper(substr(bin2hex(random_bytes(4)), 0, 4)) . '-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 4));
+        } while (self::where('code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Проверка валидности купона
+     */
+    public function isValid(): bool
     {
         if (!$this->is_active) {
             return false;
         }
 
-        if ($this->starts_at && $this->starts_at->isFuture()) {
+        $now = Carbon::now();
+
+        if ($this->starts_at && $now->lt($this->starts_at)) {
             return false;
         }
 
-        if ($this->expires_at && $this->expires_at->isPast()) {
+        if ($this->expires_at && $now->gt($this->expires_at)) {
             return false;
         }
 
@@ -45,31 +67,45 @@ class Coupon extends Model
             return false;
         }
 
-        if ($this->minimum_amount && $amount < $this->minimum_amount) {
-            return false;
-        }
-
         return true;
     }
 
-    public function calculateDiscount($amount)
+    /**
+     * Проверка применимости купона к продукту
+     */
+    public function appliesTo(Product $product): bool
     {
-        if (!$this->isValid($amount)) {
-            return 0;
+        if ($this->applies_to === 'all') {
+            return true;
         }
 
-        if ($this->type === 'percentage') {
-            return min($amount * ($this->value / 100), $amount);
+        if ($this->applies_to === 'categories' && $this->category_ids) {
+            return in_array($product->category_id, $this->category_ids);
         }
 
-        if ($this->type === 'fixed') {
-            return min($this->value, $amount);
+        if ($this->applies_to === 'products' && $this->product_ids) {
+            return in_array($product->id, $this->product_ids);
         }
 
-        return 0;
+        return false;
     }
 
-    public function incrementUsage()
+    /**
+     * Расчёт скидки для суммы
+     */
+    public function calculateDiscount(float $amount): float
+    {
+        if ($this->type === 'percentage') {
+            return round($amount * ($this->value / 100), 2);
+        }
+
+        return min($this->value, $amount);
+    }
+
+    /**
+     * Увеличить счётчик использований
+     */
+    public function incrementUsage(): void
     {
         $this->increment('used_count');
     }

@@ -85,6 +85,16 @@
                                 <span>${{ number_format($subtotal, 2) }}</span>
                             </div>
                             
+                            @if(isset($coupon) && $coupon)
+                                <div class="flex justify-between text-green-600">
+                                    <span class="flex items-center gap-2">
+                                        Discount ({{ $coupon['code'] }})
+                                        <button @click="removeCoupon()" class="text-red-500 hover:text-red-700 text-xs">✕</button>
+                                    </span>
+                                    <span>-${{ number_format($discount, 2) }}</span>
+                                </div>
+                            @endif
+                            
                             <hr class="my-3">
                             
                             <div class="flex justify-between text-lg font-bold">
@@ -94,6 +104,7 @@
                         </div>
 
                         <!-- Coupon Code -->
+                        @if(!isset($coupon) || !$coupon)
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Coupon Code</label>
                             <div class="flex space-x-2">
@@ -106,6 +117,7 @@
                                 </button>
                             </div>
                         </div>
+                        @endif
 
                         <a href="{{ route('checkout.show') }}" 
                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg text-center font-medium hover:bg-blue-700 transition-colors block">
@@ -167,6 +179,19 @@
                     .then(response => {
                         if (response.ok) location.reload();
                         else response.json().then(data => alert(data.message || 'Invalid coupon'));
+                    })
+                    .catch(error => console.error('Error:', error));
+                },
+
+                removeCoupon() {
+                    fetch('/cart/coupon/remove', {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) location.reload();
                     })
                     .catch(error => console.error('Error:', error));
                 }
