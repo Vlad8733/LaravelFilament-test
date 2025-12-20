@@ -563,6 +563,148 @@
         }
         
         .checkout-btn:hover { opacity: 0.9; }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 280px;
+            background: linear-gradient(180deg, #1a1a1a, #141414);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+            z-index: 1100;
+        }
+        
+        .profile-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .profile-dropdown-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .profile-dropdown-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .profile-dropdown-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: #e5e7eb;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-dropdown-email {
+            font-size: 0.8125rem;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-dropdown-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+        }
+        
+        .profile-dropdown-section {
+            padding: 8px;
+        }
+        
+        .profile-dropdown-section-title {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            padding: 8px 12px 4px;
+        }
+        
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: #d1d5db;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            width: 100%;
+            background: none;
+            border: none;
+            text-align: left;
+        }
+        
+        .profile-dropdown-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+        
+        .profile-dropdown-item svg {
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+        
+        .profile-dropdown-item:hover svg {
+            opacity: 1;
+        }
+        
+        .profile-dropdown-item span {
+            flex: 1;
+        }
+        
+        .profile-dropdown-badge {
+            background: var(--accent);
+            color: #000;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        .profile-dropdown-item.admin-link {
+            color: #a78bfa;
+        }
+        
+        .profile-dropdown-item.admin-link:hover {
+            background: rgba(139, 92, 246, 0.1);
+            color: #c4b5fd;
+        }
+        
+        .profile-dropdown-item.logout-btn {
+            color: #f87171;
+        }
+        
+        .profile-dropdown-item.logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+        }
+        
+        .chevron-icon {
+            opacity: 0.5;
+        }
+        
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body>
@@ -650,51 +792,138 @@
                         </div>
                     </div>
 
-                    <!-- Support Tickets -->
-                    <a href="{{ route('tickets.index') }}" class="nav-item-wrap" title="Support">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                    <!-- Wishlist -->
+                    <a href="{{ route('wishlist.index') }}" class="nav-item-wrap">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                         </svg>
+                        <span x-show="$store.global.wishlistCount > 0" class="badge-counter" x-text="$store.global.wishlistCount" x-cloak></span>
                     </a>
 
-                    <!-- Track Order -->
-                    <a href="{{ route('orders.tracking.search') }}" class="nav-item-wrap" title="Track Order">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                    <!-- Cart -->
+                    <a href="{{ route('cart.index') }}" class="nav-item-wrap">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                            <path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/>
                         </svg>
+                        <span x-show="$store.global.cartCount > 0" class="badge-counter" x-text="$store.global.cartCount" x-cloak></span>
                     </a>
-                @endauth
 
-                <!-- Wishlist -->
-                <a href="{{ route('wishlist.index') }}" class="nav-item-wrap">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                    </svg>
-                    <span x-show="$store.global.wishlistCount > 0" class="badge-counter" x-text="$store.global.wishlistCount" x-cloak></span>
-                </a>
-
-                <!-- Cart -->
-                <a href="{{ route('cart.index') }}" class="nav-item-wrap">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
-                        <path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/>
-                    </svg>
-                    <span x-show="$store.global.cartCount > 0" class="badge-counter" x-text="$store.global.cartCount" x-cloak></span>
-                </a>
-
-                <!-- Checkout -->
-                <a href="{{ route('checkout.show') }}" class="checkout-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 -960 960 960" width="18" fill="currentColor">
-                        <path d="m480-560-56-56 63-64H320v-80h167l-64-64 57-56 160 160-160 160ZM280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM40-800v-80h131l170 360h280l156-280h91L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68.5-39t-1.5-79l54-98-144-304H40Z"/>
-                    </svg>
-                    Checkout
-                </a>
-
-                @auth
-                    <!-- Profile -->
-                    <a href="{{ route('profile.edit') }}" class="user-link">
-                        <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim(auth()->user()->email))).'?s=40&d=identicon' }}" class="nav-avatar" alt="avatar">
-                        <span class="user-name">{{ auth()->user()->name }}</span>
+                    <!-- Checkout -->
+                    <a href="{{ route('checkout.show') }}" class="checkout-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 -960 960 960" width="18" fill="currentColor">
+                            <path d="m480-560-56-56 63-64H320v-80h167l-64-64 57-56 160 160-160 160ZM280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM40-800v-80h131l170 360h280l156-280h91L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68.5-39t-1.5-79l54-98-144-304H40Z"/>
+                        </svg>
+                        Checkout
                     </a>
+
+                    <!-- Profile Dropdown -->
+                    <div class="relative" x-data="{ profileOpen: false }" @click.away="profileOpen = false">
+                        <button @click="profileOpen = !profileOpen" class="user-link" style="background: none; border: none; cursor: pointer;">
+                            <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim(auth()->user()->email))).'?s=40&d=identicon' }}" class="nav-avatar" alt="avatar">
+                            <span class="user-name">{{ auth()->user()->name }}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron-icon" :class="{ 'rotate-180': profileOpen }" style="transition: transform 0.2s;">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                        
+                        <div x-show="profileOpen" x-cloak 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="profile-dropdown">
+                            
+                            <!-- User Info Header -->
+                            <div class="profile-dropdown-header">
+                                <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim(auth()->user()->email))).'?s=60&d=identicon' }}" class="profile-dropdown-avatar" alt="avatar">
+                                <div class="profile-dropdown-info">
+                                    <div class="profile-dropdown-name">{{ auth()->user()->name }}</div>
+                                    <div class="profile-dropdown-email">{{ auth()->user()->email }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-dropdown-divider"></div>
+                            
+                            <!-- Navigation Links -->
+                            <div class="profile-dropdown-section">
+                                <a href="{{ route('profile.edit') }}" class="profile-dropdown-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    <span>My Profile</span>
+                                </a>
+                                
+                                <a href="{{ route('orders.tracking.search') }}" class="profile-dropdown-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                    </svg>
+                                    <span>Track Orders</span>
+                                </a>
+                                
+                                <a href="{{ route('tickets.index') }}" class="profile-dropdown-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                                    </svg>
+                                    <span>Support Tickets</span>
+                                </a>
+                            </div>
+                            
+                            <div class="profile-dropdown-divider"></div>
+                            
+                            <!-- Shopping Section 
+                            <div class="profile-dropdown-section">
+                                <div class="profile-dropdown-section-title">Shopping</div>
+                                
+                                <a href="{{ route('wishlist.index') }}" class="profile-dropdown-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                    </svg>
+                                    <span>Wishlist</span>
+                                    <span x-show="$store.global.wishlistCount > 0" class="profile-dropdown-badge" x-text="$store.global.wishlistCount"></span>
+                                </a>
+                                
+                                <a href="{{ route('cart.index') }}" class="profile-dropdown-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                    </svg>
+                                    <span>Cart</span>
+                                    <span x-show="$store.global.cartCount > 0" class="profile-dropdown-badge" x-text="$store.global.cartCount"></span>
+                                </a>
+                            </div>-->
+                            
+                            <div class="profile-dropdown-divider"></div>
+                            
+                            <!-- Account Actions -->
+                            <div class="profile-dropdown-section">
+                                @if(auth()->user()->is_admin)
+                                <a href="/admin" class="profile-dropdown-item admin-link">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>
+                                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+                                    </svg>
+                                    <span>Admin Panel</span>
+                                </a>
+                                @endif
+                                
+                                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                                    @csrf
+                                    <button type="submit" class="profile-dropdown-item logout-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                            <polyline points="16 17 21 12 16 7"></polyline>
+                                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                                        </svg>
+                                        <span>Sign Out</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 @else
                     <a href="{{ route('login') }}" style="color: var(--accent); font-weight: 500;">Sign in</a>
                 @endauth
