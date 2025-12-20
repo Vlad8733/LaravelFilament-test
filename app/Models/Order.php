@@ -109,4 +109,9 @@ class Order extends Model
             default => 'gray',
         };
     }
+
+    public function refundRequest(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(RefundRequest::class);
+    }
 }
