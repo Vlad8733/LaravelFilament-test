@@ -331,12 +331,16 @@
         
         [x-cloak] { display: none !important; }
 
-        html { overflow-y: scroll; }
+        html, body {
+            background: #000 !important;
+        }
 
         body {
             margin: 0;
             padding-top: var(--nav-h);
-            background: var(--bg);
+            min-height: 100vh;
+            background: radial-gradient(ellipse at top, #111 0%, #000 70%) !important;
+            background-attachment: fixed !important;
             color: #e5e7eb;
         }
 

@@ -47,10 +47,10 @@
         .form-textarea {
             width: 100%;
             padding: 12px 16px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            color: #e5e7eb;
+            background: rgba(0,0,0,0.3) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 10px !important;
+            color: #e5e7eb !important;
             font-size: 0.9375rem;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
@@ -59,16 +59,16 @@
         .form-select:focus,
         .form-textarea:focus {
             outline: none;
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1) !important;
         }
         
         .form-select {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 12px center !important;
+            background-size: 20px !important;
             padding-right: 44px;
         }
         
@@ -89,46 +89,53 @@
             }
         }
         
+        /* File Upload - Fixed */
         .file-upload {
-            border: 2px dashed rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
+            display: block !important;
+            border: 2px dashed rgba(255,255,255,0.15) !important;
+            border-radius: 12px !important;
+            padding: 32px 24px !important;
+            text-align: center !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            background: rgba(0,0,0,0.2) !important;
         }
         
         .file-upload:hover {
-            border-color: rgba(245, 158, 11, 0.4);
-            background: rgba(245, 158, 11, 0.05);
+            border-color: rgba(245, 158, 11, 0.5) !important;
+            background: rgba(245, 158, 11, 0.05) !important;
         }
         
         .file-upload-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 12px;
-            color: #6b7280;
+            width: 48px !important;
+            height: 48px !important;
+            max-width: 48px !important;
+            max-height: 48px !important;
+            margin: 0 auto 12px !important;
+            color: #6b7280 !important;
+            display: block !important;
         }
         
         .file-upload-text {
-            color: #9ca3af;
-            font-size: 0.875rem;
+            color: #9ca3af !important;
+            font-size: 0.9375rem !important;
+            margin: 0 0 4px 0 !important;
         }
         
         .file-upload-hint {
-            color: #6b7280;
-            font-size: 0.75rem;
-            margin-top: 4px;
+            color: #6b7280 !important;
+            font-size: 0.8125rem !important;
+            margin: 0 !important;
         }
         
         .btn-submit {
             width: 100%;
             padding: 14px 24px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #000;
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            color: #000 !important;
             font-weight: 600;
             font-size: 1rem;
-            border: none;
+            border: none !important;
             border-radius: 10px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
@@ -152,6 +159,11 @@
         
         .btn-back:hover {
             color: #f59e0b;
+        }
+        
+        .btn-back svg {
+            width: 20px !important;
+            height: 20px !important;
         }
         
         .error-message {
@@ -209,16 +221,18 @@
                     @enderror
                 </div>
 
-                <label class="form-label" for="description">Description</label>
-                <textarea id="description" 
-                          name="description" 
-                          class="form-textarea" 
-                          rows="6" 
-                          placeholder="Describe your issue in detail..."
-                          required>{{ old('description') }}</textarea>
-                @error('description')
-                    <p class="error-message">{{ $message }}</p>
-                @enderror
+                <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea id="description" 
+                              name="description" 
+                              class="form-textarea" 
+                              rows="6" 
+                              placeholder="Describe your issue in detail..."
+                              required>{{ old('description') }}</textarea>
+                    @error('description')
+                        <p class="error-message">{{ $message }}</p>
+                    @enderror
+                </div>
 
                 <div class="form-group">
                     <label class="form-label">Attachments (optional)</label>
