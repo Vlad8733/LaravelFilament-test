@@ -1137,3 +1137,63 @@ main .grid {
         transform: translateX(0);
     }
 }
+
+/* ===== PRODUCT CARD ALIGNMENT FIX ===== */
+/* Убираем ВСЕ старые правила для карточек и добавляем новые */
+
+/* Грид - одинаковая высота строк */
+main .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3 {
+    display: grid !important;
+    grid-auto-rows: 1fr !important;
+}
+
+/* Карточка Grid View - flex column на всю высоту ячейки */
+main .grid > div[x-show="viewMode === 'grid'"] {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+/* Контейнер изображения - фиксированный */
+main .grid > div[x-show="viewMode === 'grid'"] > .aspect-square {
+    flex-shrink: 0 !important;
+}
+
+/* Контент карточки .p-4 - растягивается */
+main .grid > div[x-show="viewMode === 'grid'"] > .p-4 {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+}
+
+/* Блок названия - фиксированная высота */
+main .grid > div[x-show="viewMode === 'grid'"] > .p-4 > .mb-2:first-child {
+    flex-shrink: 0 !important;
+    min-height: 3rem !important;
+    max-height: 3rem !important;
+    overflow: hidden !important;
+}
+
+/* Рейтинг - фиксированный */
+main .grid > div[x-show="viewMode === 'grid'"] > .p-4 > .flex.items-center.mb-2 {
+    flex-shrink: 0 !important;
+}
+
+/* Цена - фиксированная */
+main .grid > div[x-show="viewMode === 'grid'"] > .p-4 > .flex.items-center.justify-between.mb-3 {
+    flex-shrink: 0 !important;
+}
+
+/* Spacer div - занимает всё свободное место */
+main .grid > div[x-show="viewMode === 'grid'"] > .p-4 > div[style*="flex: 1"] {
+    flex: 1 1 auto !important;
+    min-height: 8px !important;
+}
+
+/* Кнопка - всегда внизу */
+main .grid > div[x-show="viewMode === 'grid'"] > .p-4 > button.w-full {
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+}
+
+/* ===== END ALIGNMENT FIX ===== */
