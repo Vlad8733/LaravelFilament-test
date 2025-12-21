@@ -37,7 +37,7 @@ class SellerPanelProvider extends PanelProvider
             ->darkMode(true, true)
             ->brandName('ShopLy Seller')
             ->brandLogo(asset('storage/logo/ShopLySellerlogo.png'))
-            ->brandLogoHeight('2rem')
+            ->brandLogoHeight('6rem')
             ->favicon(asset('favicon.ico'))
             ->discoverResources(in: app_path('Filament/Seller/Resources'), for: 'App\\Filament\\Seller\\Resources')
             ->discoverPages(in: app_path('Filament/Seller/Pages'), for: 'App\\Filament\\Seller\\Pages')

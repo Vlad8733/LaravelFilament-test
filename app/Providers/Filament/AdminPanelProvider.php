@@ -3,7 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\EnsureUserIsAdmin;
-use App\Models\User;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -39,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkMode(true, true)
             ->brandName('ShopLy Admin')
             ->brandLogo(asset('storage/logo/ShopLyAdminlogo.png'))
-            ->brandLogoHeight('2rem')
+            ->brandLogoHeight('6rem')
             ->favicon(asset('favicon.ico'))
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
