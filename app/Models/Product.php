@@ -13,6 +13,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id', // Добавляем
         'name',
         'slug',
         'description',
@@ -80,6 +81,26 @@ class Product extends Model
         return $slug;
     }
 
+    // =========================================================
+    // RELATIONSHIPS
+    // =========================================================
+
+    /**
+     * Продавец (владелец товара)
+     */
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Alias для seller
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -104,6 +125,30 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    // =========================================================
+    // SELLER HELPERS
+    // =========================================================
+
+    /**
+     * Проверка: принадлежит ли товар пользователю
+     */
+    public function belongsToUser(User $user): bool
+    {
+        return $this->user_id === $user->id;
+    }
+
+    /**
+     * Scope: товары конкретного продавца
+     */
+    public function scopeBySeller($query, User $user)
+    {
+        return $query->where('user_id', $user->id);
+    }
+
+    // =========================================================
+    // EXISTING METHODS
+    // =========================================================
 
     public function getRouteKeyName(): string
     {

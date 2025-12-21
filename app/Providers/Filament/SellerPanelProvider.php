@@ -2,8 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Http\Middleware\EnsureUserIsAdmin;
-use App\Models\User;
+use App\Http\Middleware\EnsureUserIsSeller;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -20,14 +19,13 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class AdminPanelProvider extends PanelProvider
+class SellerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin')
+            ->id('seller')
+            ->path('seller')
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -37,19 +35,18 @@ class AdminPanelProvider extends PanelProvider
                 'info' => Color::Blue,
             ])
             ->darkMode(true, true)
-            ->brandName('ShopLy Admin')
-            ->brandLogo(asset('storage/logo/ShopLyAdminlogo.png'))
+            ->brandName('ShopLy Seller')
+            ->brandLogo(asset('storage/logo/ShopLySellerlogo.png'))
             ->brandLogoHeight('2rem')
             ->favicon(asset('favicon.ico'))
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/Seller/Resources'), for: 'App\\Filament\\Seller\\Resources')
+            ->discoverPages(in: app_path('Filament/Seller/Pages'), for: 'App\\Filament\\Seller\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Seller/Widgets'), for: 'App\\Filament\\Seller\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -64,18 +61,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                EnsureUserIsAdmin::class,
+                EnsureUserIsSeller::class,
             ])
             ->authGuard('web')
             ->sidebarCollapsibleOnDesktop()
-            ->maxContentWidth('full')
-            ->navigationGroups([
-                'Shop',
-                'Users',
-                'Support',
-                'Settings',
-            ])
-            ->databaseNotifications()
-            ->databaseNotificationsPolling('30s');
+            ->maxContentWidth('full');
     }
 }

@@ -7,7 +7,6 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\WishlistController;
-use App\Http\Controllers\SellerController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -101,11 +100,6 @@ Route::prefix('wishlist')->name('wishlist.')->group(function () {
     Route::get('/count', [WishlistController::class, 'getCount'])->name('count');
     Route::post('/add/{productId}', [WishlistController::class, 'add'])->name('add');
     Route::delete('/remove/{productId}', [WishlistController::class, 'remove'])->name('remove');
-});
-
-// Продукты продавца
-Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(function () {
-    Route::get('/products', [SellerController::class, 'products'])->name('products');
 });
 
 // Support Tickets Routes

@@ -15,11 +15,25 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     use Notifiable, HasFactory;
 
+    /**
+     * Email супер-админа (создатель системы)
+     */
+    public const SUPER_ADMIN_EMAIL = 'vladislavperviy0702@gmail.com';
+
+    /**
+     * Константы ролей
+     */
+    public const ROLE_USER = 'user';
+    public const ROLE_SELLER = 'seller';
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_SUPER_ADMIN = 'super_admin';
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'avatar',
+        'role',
         'is_seller',
         'parent_user_id',
         'username',
@@ -38,10 +52,139 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         ];
     }
 
+    // =========================================================
+    // ROLE CHECKING METHODS
+    // =========================================================
+
+    /**
+     * Проверка: является ли пользователь супер-админом
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === self::ROLE_SUPER_ADMIN 
+            || $this->email === self::SUPER_ADMIN_EMAIL;
+    }
+
+    /**
+     * Проверка: является ли пользователь админом (включая супер-админа)
+     */
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_SUPER_ADMIN]);
+    }
+
+    /**
+     * Проверка: является ли пользователь продавцом
+     */
     public function isSeller(): bool
     {
-        return (bool) $this->is_seller;
+        return $this->role === self::ROLE_SELLER || (bool) $this->is_seller;
     }
+
+    /**
+     * Проверка: обычный пользователь
+     */
+    public function isUser(): bool
+    {
+        return $this->role === self::ROLE_USER;
+    }
+
+    /**
+     * Проверка роли
+     */
+    public function hasRole(string $role): bool
+    {
+        // Супер-админ имеет все роли
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->role === $role;
+    }
+
+    /**
+     * Проверка нескольких ролей (любая из списка)
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return in_array($this->role, $roles);
+    }
+
+    // =========================================================
+    // PROTECTION METHODS
+    // =========================================================
+
+    /**
+     * Можно ли редактировать этого пользователя
+     */
+    public function canBeEditedBy(?User $editor): bool
+    {
+        // Супер-админа может редактировать только он сам
+        if ($this->isSuperAdmin()) {
+            return $editor && $editor->id === $this->id;
+        }
+
+        // Админы могут редактировать всех кроме супер-админа
+        if ($editor && $editor->isAdmin()) {
+            return true;
+        }
+
+        // Пользователь может редактировать только себя
+        return $editor && $editor->id === $this->id;
+    }
+
+    /**
+     * Можно ли удалить этого пользователя
+     */
+    public function canBeDeleted(): bool
+    {
+        // Супер-админа нельзя удалить никогда
+        return !$this->isSuperAdmin();
+    }
+
+    /**
+     * Можно ли изменить роль этого пользователя
+     */
+    public function canChangeRole(?User $editor): bool
+    {
+        // Роль супер-админа нельзя изменить
+        if ($this->isSuperAdmin()) {
+            return false;
+        }
+
+        // Только супер-админ может назначать роль admin
+        if ($editor && !$editor->isSuperAdmin()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // =========================================================
+    // FILAMENT ACCESS
+    // =========================================================
+
+    /**
+     * Определяет доступ к панелям Filament
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        $panelId = $panel->getId();
+
+        return match ($panelId) {
+            'admin' => $this->isAdmin(), // admin и super_admin
+            'seller' => $this->isSeller() || $this->isAdmin(), // seller, admin, super_admin
+            default => false,
+        };
+    }
+
+    // =========================================================
+    // EXISTING RELATIONSHIPS
+    // =========================================================
 
     public function products()
     {
@@ -53,82 +196,51 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         return $this->hasOne(Profile::class);
     }
 
-    /**
-     * Parent (master) account, nullable.
-     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_user_id');
     }
 
-    /**
-     * Child accounts of this user (only valid for master users).
-     */
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_user_id');
     }
 
-    /**
-     * Возвращает количество дочерних аккаунтов.
-     */
     public function childrenCount(): int
     {
-        // always query DB to get up-to-date number (prevents stale relation)
         return (int) $this->children()->count();
     }
 
-    /**
-     * Можно ли создать ещё дочерний аккаунт (максимум 2).
-     */
     public function canCreateChild(): bool
     {
         return $this->childrenCount() < 2;
     }
 
-    /**
-     * Является ли пользователь мастером (не является дочерним).
-     */
     public function isMaster(): bool
     {
         return $this->parent_user_id === null;
     }
 
-    /**
-     * Является ли этот пользователь дочерним по отношению к переданному юзеру.
-     */
     public function isChildOf(User $user): bool
     {
         return $this->parent_user_id !== null && $this->parent_user_id === $user->id;
     }
 
-    /**
-     * Является ли переданный юзер владельцем/мастером для этого аккаунта.
-     */
     public function ownedBy(User $user): bool
     {
         return $this->id === $user->id || $this->parent_user_id === $user->id;
     }
 
-    /**
-     * Заявки пользователя
-     */
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
     }
 
-    /**
-     * Заявки, назначенные на пользователя (если он админ)
-     */
     public function assignedTickets()
     {
         return $this->hasMany(Ticket::class, 'assigned_to');
     }
 
-    /**
-     * Сообщения в заявках
-     */
     public function ticketMessages()
     {
         return $this->hasMany(TicketMessage::class);
@@ -144,31 +256,38 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         return $this->hasMany(\App\Models\WishlistItem::class);
     }
 
-    /**
-     * Determine if user can access Filament admin panel
-     */
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return in_array($this->email, [
-            'vladislavperviy0702@gmail.com', // ваш email
-        ]);
-    }
-
-    /**
-     * Check if user has a specific role
-     */
-    public function hasRole(string $role): bool
-    {
-        if ($role === 'admin') {
-            return in_array($this->email, [
-                'vladislavperviy0702@gmail.com', // ваш email
-            ]);
-        }
-        return false;
-    }
-
-    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function reviews(): HasMany
     {
         return $this->hasMany(CustomerReview::class);
+    }
+
+    // =========================================================
+    // BOOT METHOD - PROTECTION
+    // =========================================================
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Защита от удаления супер-админа
+        static::deleting(function (User $user) {
+            if ($user->isSuperAdmin()) {
+                throw new \Exception('Супер-админ не может быть удалён.');
+            }
+        });
+
+        // Защита от изменения email супер-админа
+        static::updating(function (User $user) {
+            if ($user->getOriginal('email') === self::SUPER_ADMIN_EMAIL) {
+                // Нельзя менять email супер-админа
+                if ($user->isDirty('email')) {
+                    throw new \Exception('Email супер-админа не может быть изменён.');
+                }
+                // Нельзя менять роль супер-админа
+                if ($user->isDirty('role') && $user->role !== self::ROLE_SUPER_ADMIN) {
+                    throw new \Exception('Роль супер-админа не может быть изменена.');
+                }
+            }
+        });
     }
 }
