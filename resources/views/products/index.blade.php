@@ -1,6 +1,6 @@
 @extends("layouts.app")
 
-@section('title', 'Products - My Shop')
+@section('title', __('products.title') . ' - My Shop')
 
 @push('styles')
     @vite('resources/css/products/productindex.css')
@@ -53,16 +53,16 @@
         <!-- Breadcrumbs -->
         <nav class="mb-8">
             <ol class="flex items-center space-x-2 text-sm">
-                <li><a href="/" class="text-blue-600 hover:text-blue-800">Home</a></li>
+                <li><a href="/" class="text-blue-600 hover:text-blue-800">{{ __('products.home') }}</a></li>
                 <li class="text-gray-500">/</li>
-                <li class="text-gray-900">Products</li>
+                <li class="text-gray-900">{{ __('products.products') }}</li>
             </ol>
         </nav>
 
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">All Products</h1>
-            <p class="text-gray-600">Discover our amazing collection of {{ $stats['total_products'] ?? 0 }} products</p>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ __('products.title') }}</h1>
+            <p class="text-gray-600">{{ __('products.discover', ['count' => $stats['total_products'] ?? 0]) }}</p>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
@@ -97,7 +97,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                         </svg>
-                        Filters
+                        {{ __('products.filters') }}
                     </h3>
                     <button @click="showFilters = false" class="filters-close-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,11 +110,11 @@
                 <div class="filters-drawer-content">
                     <!-- Categories -->
                     <div class="filter-section">
-                        <h4>Categories</h4>
+                        <h4>{{ __('products.categories') }}</h4>
                         <div class="filter-radio-group">
                             <label class="filter-radio">
                                 <input type="radio" name="category" value="all" x-model="filters.category">
-                                <span>All Categories</span>
+                                <span>{{ __('products.all_categories') }}</span>
                             </label>
                             @if(isset($categories))
                                 @foreach($categories as $category)
@@ -129,14 +129,14 @@
 
                     <!-- Price Range -->
                     <div class="filter-section">
-                        <h4>Price Range</h4>
+                        <h4>{{ __('products.price_range') }}</h4>
                         <div class="filter-price-row">
                             <div class="filter-price-input">
-                                <label>Min Price</label>
+                                <label>{{ __('products.min_price') }}</label>
                                 <input type="number" x-model.number="filters.priceMin" min="0" placeholder="$0">
                             </div>
                             <div class="filter-price-input">
-                                <label>Max Price</label>
+                                <label>{{ __('products.max_price') }}</label>
                                 <input type="number" x-model.number="filters.priceMax" min="0" placeholder="$999">
                             </div>
                         </div>
@@ -144,15 +144,15 @@
 
                     <!-- Availability -->
                     <div class="filter-section">
-                        <h4>Availability</h4>
+                        <h4>{{ __('products.availability') }}</h4>
                         <div class="filter-checkbox-group">
                             <label class="filter-checkbox">
                                 <input type="checkbox" x-model="filters.inStock">
-                                <span>In Stock Only</span>
+                                <span>{{ __('products.in_stock') }}</span>
                             </label>
                             <label class="filter-checkbox">
                                 <input type="checkbox" x-model="filters.onSale">
-                                <span>On Sale</span>
+                                <span>{{ __('products.sale') }}</span>
                             </label>
                         </div>
                     </div>
@@ -166,10 +166,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span x-text="filterLoading ? 'Applying...' : 'Apply Filters'"></span>
+                        <span x-text="filterLoading ? '{{ __('common.loading') }}' : '{{ __('products.apply_filters') }}'"></span>
                     </button>
                     <button @click="clearFilters(); showFilters = false" class="filter-clear-btn">
-                        Clear All Filters
+                        {{ __('products.clear_all') }}
                     </button>
                 </div>
             </aside>
@@ -179,22 +179,22 @@
                 <!-- Toolbar -->
                 <div class="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
                     <div class="flex items-center space-x-4">
-                        <button @click="showFilters = !showFilters" class="p-2 rounded bg-gray-800 text-white flex items-center gap-2" title="Filters">
+                        <button @click="showFilters = !showFilters" class="p-2 rounded bg-gray-800 text-white flex items-center gap-2" title="{{ __('products.filters') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/></svg>
-                            <span class="hidden sm:inline text-sm">Filters</span>
+                            <span class="hidden sm:inline text-sm">{{ __('products.filters') }}</span>
                         </button>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <label class="text-sm text-gray-600">Sort by:</label>
+                        <label class="text-sm text-gray-600">{{ __('products.sort_by') }}:</label>
                         <select x-model="filters.sort" @change="applyFilters()" class="border border-gray-300 rounded px-3 py-1 text-sm">
-                            <option value="">Featured</option>
-                            <option value="newest">Newest</option>
-                            <option value="price_asc">Price: Low to High</option>
-                            <option value="price_desc">Price: High to Low</option>
-                            <option value="name_asc">Name: A to Z</option>
-                            <option value="name_desc">Name: Z to A</option>
-                            <option value="rating">Best Rating</option>
-                            <option value="popular">Most Popular</option>
+                            <option value="">{{ __('products.featured') }}</option>
+                            <option value="newest">{{ __('products.newest') }}</option>
+                            <option value="price_asc">{{ __('products.price_low_high') }}</option>
+                            <option value="price_desc">{{ __('products.price_high_low') }}</option>
+                            <option value="name_asc">{{ __('products.name_a_z') }}</option>
+                            <option value="name_desc">{{ __('products.name_z_a') }}</option>
+                            <option value="rating">{{ __('products.top_rated') }}</option>
+                            <option value="popular">{{ __('products.most_popular') }}</option>
                         </select>
                     </div>
                 </div>
@@ -223,7 +223,7 @@
                                 @endif
                                 @if(!$product->isInStock())
                                     <div class="absolute top-2 left-12 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">
-                                        Out of Stock
+                                        {{ __('products.out_of_stock') }}
                                     </div>
                                 @endif
                                 <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
@@ -255,7 +255,7 @@
                                             </svg>
                                         @endfor
                                     </div>
-                                    <span class="text-sm text-gray-500 ml-1">({{ $product->reviews_count }})</span>
+                                    <span class="text-sm text-gray-500 ml-1">({{ $product->reviews_count }} {{ __('products.reviews') }})</span>
                                 </div>
                                 <div class="flex items-center justify-between mb-3">
                                     <div class="flex items-center space-x-2">
@@ -271,9 +271,9 @@
                                         :disabled="!{{ $product->isInStock() ? 'true' : 'false' }} || loading"
                                         class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
                                     <span x-show="!loading">
-                                        {{ $product->isInStock() ? 'Add to Cart' : 'Out of Stock' }}
+                                        {{ $product->isInStock() ? __('products.add_to_cart') : __('products.out_of_stock') }}
                                     </span>
-                                    <span x-show="loading">Adding...</span>
+                                    <span x-show="loading">{{ __('common.loading') }}</span>
                                 </button>
                             </div>
                         </div>
@@ -332,13 +332,13 @@
                                                 </svg>
                                             @endfor
                                         </div>
-                                        <span class="text-sm text-gray-500 ml-1">({{ $product->reviews_count }})</span>
+                                        <span class="text-sm text-gray-500 ml-1">({{ $product->reviews_count }} {{ __('products.reviews') }})</span>
                                     </div>
                                     <div class="flex items-center space-x-3">
                                         <button @click="addToCart({{ $product->id }})" 
                                                 :disabled="!{{ $product->isInStock() ? 'true' : 'false' }} || loading"
                                                 class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
-                                            {{ $product->isInStock() ? 'Add to Cart' : 'Out of Stock' }}
+                                            {{ $product->isInStock() ? __('products.add_to_cart') : __('products.out_of_stock') }}
                                         </button>
                                     </div>
                                 </div>
@@ -349,10 +349,10 @@
                             <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                             </svg>
-                            <h3 class="text-xl font-medium text-gray-500 mb-2">No products found</h3>
-                            <p class="text-gray-400 mb-4">Try adjusting your search or filter criteria</p>
+                            <h3 class="text-xl font-medium text-gray-500 mb-2">{{ __('products.no_products') }}</h3>
+                            <p class="text-gray-400 mb-4">{{ __('products.try_adjusting') }}</p>
                             <button @click="clearFilters()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                                Clear Filters
+                                {{ __('products.clear_all') }}
                             </button>
                         </div>
                     @endforelse
@@ -379,6 +379,13 @@ document.addEventListener('alpine:init', () => {
         filterLoading: false,
         notifications: [],
         notificationIdCounter: 0,
+        translations: {
+            added_to_cart: '{{ __('products.added_to_cart') }}',
+            add_to_wishlist: '{{ __('products.add_to_wishlist') }}',
+            removed_from_wishlist: '{{ __('products.removed_from_wishlist') }}',
+            error: '{{ __('common.error') }}',
+            network_error: '{{ __('common.network_error') }}'
+        },
         filters: {
             category: new URLSearchParams(window.location.search).get('category') || 'all',
             priceMin: (() => { const v = new URLSearchParams(window.location.search).get('price_min'); return v !== null ? Number(v) : null; })(),
@@ -422,24 +429,20 @@ document.addEventListener('alpine:init', () => {
                 });
                 const json = await resp.json();
                 if (json.success) {
-                    // Обновляем локальный счётчик
                     this.wishlistCount = json.count ?? this.wishlistItems.length;
-                    
-                    // Плавно обновляем счётчик в navbar
                     if (typeof window.updateWishlistCount === 'function') {
                         window.updateWishlistCount(this.wishlistCount);
                     }
-                    
-                    this.showNotification(already ? 'removed from wishlist' : 'added to wishlist', 'success', productName);
+                    this.showNotification(already ? this.translations.removed_from_wishlist : this.translations.add_to_wishlist, 'success', productName);
                 } else {
                     if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
                     else this.wishlistItems.push(id);
-                    this.showNotification(json.message || 'Failed', 'error', productName);
+                    this.showNotification(json.message || this.translations.error, 'error', productName);
                 }
             } catch (err) {
                 if (!already) this.wishlistItems = this.wishlistItems.filter(x => x !== id);
                 else this.wishlistItems.push(id);
-                this.showNotification('Network error', 'error', productName);
+                this.showNotification(this.translations.network_error, 'error', productName);
             }
         },
 
@@ -471,12 +474,12 @@ document.addEventListener('alpine:init', () => {
                 if (data.success) {
                     this.cartCount = data.cartCount;
                     if (Alpine.store('global')) Alpine.store('global').cartCount = data.cartCount;
-                    this.showNotification('added to cart', 'success', productName);
+                    this.showNotification(this.translations.added_to_cart, 'success', productName);
                 } else {
-                    this.showNotification(data.message || 'Failed', 'error', productName);
+                    this.showNotification(data.message || this.translations.error, 'error', productName);
                 }
             } catch (error) {
-                this.showNotification('Error adding to cart', 'error', productName);
+                this.showNotification(this.translations.network_error, 'error', productName);
             } finally {
                 this.loading = false;
             }

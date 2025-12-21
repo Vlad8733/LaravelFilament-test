@@ -150,3 +150,17 @@ Route::middleware(['auth'])->prefix('reviews')->name('reviews.')->group(function
     Route::put('/{review}', [App\Http\Controllers\CustomerReviewController::class, 'update'])->name('update');
     Route::delete('/{review}', [App\Http\Controllers\CustomerReviewController::class, 'destroy'])->name('destroy');
 });
+
+// Settings Routes
+Route::middleware(['auth'])->prefix('settings')->name('settings.')->group(function () {
+    Route::get('/', [App\Http\Controllers\SettingsController::class, 'index'])->name('index');
+    Route::post('/locale', [App\Http\Controllers\SettingsController::class, 'updateLocale'])->name('locale');
+});
+
+// Language switch route
+Route::get('/language/{locale}', function (string $locale) {
+    if (in_array($locale, ['en', 'ru'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('language.switch');

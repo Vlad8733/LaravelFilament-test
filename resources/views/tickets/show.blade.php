@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Ticket #' . $ticket->id)
+@section('title', __('tickets.ticket_number', ['id' => $ticket->id]))
 
 @push('styles')
     @vite('resources/css/tickets/tickets.css')
@@ -14,14 +14,14 @@
         <div class="ticket-show-header">
             <div class="ticket-header-top">
                 <div style="flex: 1;">
-                    <div class="ticket-show-id">Ticket #{{ $ticket->id }}</div>
+                    <div class="ticket-show-id">{{ __('tickets.ticket_number', ['id' => $ticket->id]) }}</div>
                     <h1 class="ticket-show-subject">{{ $ticket->subject }}</h1>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
                         <span class="badge badge-status-{{ $ticket->status }}">
-                            {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
+                            {{ __('tickets.status_' . $ticket->status) }}
                         </span>
                         <span class="badge badge-priority-{{ $ticket->priority }}">
-                            {{ ucfirst($ticket->priority) }} Priority
+                            {{ __('tickets.priority_' . $ticket->priority) }}
                         </span>
                     </div>
                     <div class="ticket-show-description">{{ $ticket->description }}</div>
@@ -35,7 +35,7 @@
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
                                 </svg>
-                                Close Ticket
+                                {{ __('tickets.close_ticket') }}
                             </button>
                         </form>
                     @else
@@ -48,7 +48,7 @@
                                     <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
                                     <path d="M3 21v-5h5"></path>
                                 </svg>
-                                Reopen Ticket
+                                {{ __('tickets.reopen_ticket') }}
                             </button>
                         </form>
                     @endif
@@ -57,7 +57,7 @@
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>
-                        Back to Tickets
+                        {{ __('tickets.back_to_tickets') }}
                     </a>
                 </div>
             </div>
@@ -91,7 +91,7 @@
                     <line x1="12" y1="9" x2="12" y2="13"></line>
                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg>
-                This ticket is closed. Reopen it to continue the conversation.
+                {{ __('tickets.ticket_closed_alert') }}
             </div>
         @endif
 
@@ -110,7 +110,7 @@
                             <div class="message-header">
                                 <span class="message-author">{{ $message->user->name }}</span>
                                 @if($message->is_admin_reply)
-                                    <span class="message-badge message-badge-admin">Support Team</span>
+                                    <span class="message-badge message-badge-admin">{{ __('tickets.support_team') }}</span>
                                 @endif
                                 <span class="message-time">{{ $message->created_at->diffForHumans() }}</span>
                             </div>
@@ -135,7 +135,7 @@
                     </div>
                 @empty
                     <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                        No messages yet. Start the conversation!
+                        {{ __('tickets.no_messages') }}
                     </div>
                 @endforelse
             </div>
@@ -147,7 +147,7 @@
                     <textarea 
                         name="message" 
                         class="reply-textarea" 
-                        placeholder="Type your reply here..."
+                        placeholder="{{ __('tickets.reply_placeholder') }}"
                         required
                     ></textarea>
                     
@@ -156,7 +156,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
                             </svg>
-                            Attach Files
+                            {{ __('tickets.attach_files') }}
                             <input type="file" name="attachments[]" id="attachmentInput" multiple accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
                         </label>
                         
@@ -165,7 +165,7 @@
                                 <line x1="22" y1="2" x2="11" y2="13"></line>
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                             </svg>
-                            Send Reply
+                            {{ __('tickets.send_reply') }}
                         </button>
                     </div>
                     
@@ -178,13 +178,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-scroll to bottom of messages
     const messagesArea = document.getElementById('messagesArea');
     if (messagesArea) {
         messagesArea.scrollTop = messagesArea.scrollHeight;
     }
 
-    // File attachment preview
     const attachmentInput = document.getElementById('attachmentInput');
     const attachmentsList = document.getElementById('attachmentsList');
     
@@ -192,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         attachmentInput.addEventListener('change', function() {
             attachmentsList.innerHTML = '';
             if (this.files.length > 0) {
-                attachmentsList.innerHTML = '<div style="font-size: 0.875rem; color: var(--text-secondary);">Selected files:</div>';
+                attachmentsList.innerHTML = '<div style="font-size: 0.875rem; color: var(--text-secondary);">{{ __('tickets.selected_files') }}</div>';
                 Array.from(this.files).forEach(file => {
                     const fileDiv = document.createElement('div');
                     fileDiv.style.cssText = 'padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 6px; margin-top: 0.5rem; font-size: 0.875rem;';
@@ -204,36 +202,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
 @push('scripts')
 <script>
-console.log('Polling script loaded for ticket {{ $ticket->id }}');
 let lastMessageId = {{ $ticket->messages->last()?->id ?? 0 }};
 
 function checkNewMessages() {
-    console.log('Checking for new messages after ID:', lastMessageId);
-    
     fetch('/support/{{ $ticket->id }}/check-new-messages?after=' + lastMessageId, {
         headers: { 'Accept': 'application/json' }
     })
     .then(r => r.json())
     .then(d => {
-        console.log('Received:', d);
-        
         if (d.messages && d.messages.length > 0) {
             const container = document.getElementById('messagesArea');
-            
-            if (!container) {
-                console.error('Messages container not found!');
-                return;
-            }
+            if (!container) return;
             
             d.messages.forEach(msg => {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message-bubble ' + (msg.is_admin_reply ? 'admin-message' : 'user-message');
                 
-                const avatarUrl = msg.user_avatar || `https://www.gravatar.com/avatar/${md5(msg.user_name.toLowerCase())}?s=80&d=identicon`;
+                const avatarUrl = msg.user_avatar || `https://www.gravatar.com/avatar/${msg.user_name.toLowerCase()}?s=80&d=identicon`;
                 
-                // Формируем HTML для вложений
                 let attachmentsHtml = '';
                 if (msg.attachments && msg.attachments.length > 0) {
                     attachmentsHtml = '<div class="message-attachments">';
@@ -258,8 +247,8 @@ function checkNewMessages() {
                     <div class="message-content">
                         <div class="message-header">
                             <span class="message-author">${msg.user_name}</span>
-                            ${msg.is_admin_reply ? '<span class="message-badge message-badge-admin">Support Team</span>' : ''}
-                            <span class="message-time">just now</span>
+                            ${msg.is_admin_reply ? '<span class="message-badge message-badge-admin">{{ __('tickets.support_team') }}</span>' : ''}
+                            <span class="message-time">{{ __('tickets.just_now') }}</span>
                         </div>
                         <div class="message-text">${msg.message}</div>
                         ${attachmentsHtml}
@@ -268,27 +257,11 @@ function checkNewMessages() {
                 
                 container.appendChild(messageDiv);
                 lastMessageId = msg.id;
-                
-                // Плавный скролл вниз
                 container.scrollTop = container.scrollHeight;
             });
-            
-            playNotificationSound();
         }
     })
     .catch(error => console.error('Error:', error));
-}
-
-function playNotificationSound() {
-    try {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZUBD=');
-        audio.volume = 0.3;
-        audio.play().catch(() => {});
-    } catch(e) {}
-}
-
-function md5(str) {
-    return str;
 }
 
 setInterval(checkNewMessages, 3000);

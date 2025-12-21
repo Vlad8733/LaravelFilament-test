@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Review')
+@section('title', __('reviews.edit_review'))
 
 @push('styles')
     @vite('resources/css/reviews/reviews.css')
@@ -14,7 +14,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
-                Back to Review
+                {{ __('reviews.back_to_review') }}
             </a>
         </div>
 
@@ -42,7 +42,7 @@
                         </div>
                     @endif
                     <div>
-                        <h1 class="reviews-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">Edit Review</h1>
+                        <h1 class="reviews-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ __('reviews.edit_review') }}</h1>
                         <p class="reviews-subtitle">{{ $review->product->name ?? 'Product' }}</p>
                     </div>
                 </div>
@@ -64,11 +64,11 @@
 
                 <!-- Ratings -->
                 <div class="reviews-form-group">
-                    <label class="reviews-form-label">Rate Your Experience</label>
+                    <label class="reviews-form-label">{{ __('reviews.rate_experience') }}</label>
                     <div class="reviews-ratings-grid">
                         <!-- Delivery Rating -->
                         <div class="reviews-rating-item">
-                            <span class="reviews-rating-item-label">Delivery</span>
+                            <span class="reviews-rating-item-label">{{ __('reviews.delivery') }}</span>
                             <div class="star-rating">
                                 @for($i = 5; $i >= 1; $i--)
                                     <input type="radio" name="delivery_rating" value="{{ $i }}" id="delivery_{{ $i }}" 
@@ -80,7 +80,7 @@
 
                         <!-- Packaging Rating -->
                         <div class="reviews-rating-item">
-                            <span class="reviews-rating-item-label">Packaging</span>
+                            <span class="reviews-rating-item-label">{{ __('reviews.packaging') }}</span>
                             <div class="star-rating">
                                 @for($i = 5; $i >= 1; $i--)
                                     <input type="radio" name="packaging_rating" value="{{ $i }}" id="packaging_{{ $i }}"
@@ -92,7 +92,7 @@
 
                         <!-- Product Rating -->
                         <div class="reviews-rating-item">
-                            <span class="reviews-rating-item-label">Product</span>
+                            <span class="reviews-rating-item-label">{{ __('reviews.product') }}</span>
                             <div class="star-rating">
                                 @for($i = 5; $i >= 1; $i--)
                                     <input type="radio" name="product_rating" value="{{ $i }}" id="product_{{ $i }}"
@@ -106,20 +106,20 @@
 
                 <!-- Comment -->
                 <div class="reviews-form-group">
-                    <label for="comment" class="reviews-form-label">Your Review (Optional)</label>
+                    <label for="comment" class="reviews-form-label">{{ __('reviews.your_review_optional') }}</label>
                     <textarea name="comment" id="comment" rows="5"
                               class="reviews-textarea"
-                              placeholder="Share your experience with this product...">{{ old('comment', $review->comment) }}</textarea>
-                    <p class="reviews-form-hint">Maximum 2000 characters</p>
+                              placeholder="{{ __('reviews.review_placeholder') }}">{{ old('comment', $review->comment) }}</textarea>
+                    <p class="reviews-form-hint">{{ __('reviews.max_characters', ['count' => 2000]) }}</p>
                 </div>
 
                 <!-- Submit -->
                 <div class="reviews-form-actions">
                     <a href="{{ route('reviews.show', $review) }}" class="reviews-btn reviews-btn-secondary">
-                        Cancel
+                        {{ __('reviews.cancel') }}
                     </a>
                     <button type="submit" class="reviews-btn reviews-btn-primary">
-                        Update Review
+                        {{ __('reviews.update_review') }}
                     </button>
                 </div>
             </form>

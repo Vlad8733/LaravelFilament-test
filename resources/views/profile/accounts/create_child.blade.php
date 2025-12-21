@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
-    <title>Create linked account</title>
+    <title>{{ __('create-child-account.title') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
@@ -115,18 +115,18 @@
 <body>
     <div class="card" role="main" aria-labelledby="create-linked-account">
         <div class="brand">
-            <h1 id="create-linked-account">Create linked account</h1>
-            <p>Create a child account linked to your master account</p>
+            <h1 id="create-linked-account">{{ __('create-child-account.title') }}</h1>
+            <p>{{ __('create-child-account.subtitle') }}</p>
         </div>
 
         <div class="meta">
             <div>
-                <div style="font-size:13px;color:var(--muted)">Master account</div>
+                <div style="font-size:13px;color:var(--muted)">{{ __('create-child-account.master_account') }}</div>
                 <div class="parent-badge">{{ $master->name ?? auth()->user()->name }}</div>
             </div>
 
             <div style="text-align:right;color:var(--muted);font-size:13px">
-                Max children: 2
+                {{ __('create-child-account.max_children', ['count' => 2]) }}
             </div>
         </div>
 
@@ -134,39 +134,39 @@
             @csrf
 
             <div class="field">
-                <label for="name">Full name</label>
+                <label for="name">{{ __('create-child-account.full_name') }}</label>
                 <input id="name" name="name" type="text" value="{{ old('name') }}" required autofocus>
                 @error('name') <div class="error">{{ $message }}</div> @enderror
             </div>
 
             <div class="field">
-                <label for="email">Email address</label>
+                <label for="email">{{ __('create-child-account.email') }}</label>
                 <input id="email" name="email" type="email" value="{{ old('email') }}" required>
                 @error('email') <div class="error">{{ $message }}</div> @enderror
             </div>
 
             <div class="field">
-                <label for="password">Password</label>
+                <label for="password">{{ __('create-child-account.password') }}</label>
                 <input id="password" name="password" type="password" required>
                 @error('password') <div class="error">{{ $message }}</div> @enderror
             </div>
 
             <div class="field">
-                <label for="password_confirmation">Confirm password</label>
+                <label for="password_confirmation">{{ __('create-child-account.password_confirmation') }}</label>
                 <input id="password_confirmation" name="password_confirmation" type="password" required>
             </div>
 
             <div class="field">
-                <label for="username">Username (optional)</label>
+                <label for="username">{{ __('create-child-account.username') }}</label>
                 <input id="username" name="username" type="text" value="{{ old('username') }}">
                 @error('username') <div class="error">{{ $message }}</div> @enderror
-                <div class="help">Optional handle for the child account.</div>
+                <div class="help">{{ __('create-child-account.username_help') }}</div>
             </div>
 
-            <button class="primary" type="submit">Create linked account</button>
+            <button class="primary" type="submit">{{ __('create-child-account.create_btn') }}</button>
 
             <div class="actions">
-                <a class="cancel" href="{{ route('profile.edit') }}">Cancel</a>
+                <a class="cancel" href="{{ route('profile.edit') }}">{{ __('create-child-account.cancel') }}</a>
             </div>
         </form>
     </div>

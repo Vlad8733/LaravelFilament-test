@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Track Order - ' . $order->order_number)
+@section('title', __('order.tracking_title') . ' - ' . $order->order_number)
 
 @push('styles')
     @vite('resources/css/orders/tracking.css')
@@ -14,11 +14,11 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
-            Track Another Order
+            {{ __('order.track_another') }}
         </a>
         
-        <h1 class="text-4xl font-bold mb-2">Order Tracking</h1>
-        <p class="text-gray-400">Order #{{ $order->order_number }}</p>
+        <h1 class="text-4xl font-bold mb-2">{{ __('order.order_tracking') }}</h1>
+        <p class="text-gray-400">{{ __('order.order_prefix', ['number' => $order->order_number]) }}</p>
     </div>
 
     @if(session('error'))
@@ -40,8 +40,8 @@
             <div class="tracking-card">
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-2xl font-bold mb-2">{{ $order->status->name }}</h2>
-                        <p class="text-gray-400">{{ $order->status->description }}</p>
+                        <h2 class="text-2xl font-bold mb-2">{{ $order->status->translated_name }}</h2>
+                        <p class="text-gray-400">{{ $order->status->translated_description }}</p>
                     </div>
                     <div class="w-20 h-20 rounded-full flex items-center justify-center" 
                          style="background: {{ $order->status->color }}22; border: 3px solid {{ $order->status->color }}">
@@ -60,7 +60,7 @@
                 @if($order->tracking_number)
                 <div class="tracking-number-box">
                     <div>
-                        <div class="label">Tracking Number</div>
+                        <div class="label">{{ __('order.tracking_number') }}</div>
                         <div class="value">{{ $order->tracking_number }}</div>
                     </div>
                     <button onclick="navigator.clipboard.writeText('{{ $order->tracking_number }}'); this.innerHTML='<svg class=\'w-6 h-6\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M5 13l4 4L19 7\'></path></svg>'; setTimeout(() => this.innerHTML='<svg class=\'w-6 h-6\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z\'></path></svg>', 2000)" 
@@ -75,7 +75,7 @@
 
             <!-- Timeline -->
             <div class="tracking-card">
-                <h3 class="text-2xl font-bold mb-6">Order History</h3>
+                <h3 class="text-2xl font-bold mb-6">{{ __('order.order_history') }}</h3>
                 
                 <div class="timeline">
                     @foreach($order->statusHistory as $history)
@@ -86,7 +86,7 @@
                         <div class="tracking-card-small" style="margin: 0;">
                             <div class="flex items-start justify-between mb-3">
                                 <h4 class="text-lg font-bold" style="color: {{ $history->status->color }}">
-                                    {{ $history->status->name }}
+                                    {{ $history->status->translated_name }}
                                 </h4>
                                 <span class="text-sm text-gray-400">
                                     {{ $history->changed_at->format('M d, Y') }}
@@ -94,11 +94,11 @@
                                     <span class="text-xs">{{ $history->changed_at->format('H:i') }}</span>
                                 </span>
                             </div>
-                            <p class="text-gray-400 text-sm">{{ $history->status->description }}</p>
+                            <p class="text-gray-400 text-sm">{{ $history->status->translated_description }}</p>
                             @if($history->notes)
                             <div class="mt-3 p-3 bg-black bg-opacity-30 rounded-lg border border-gray-700">
                                 <p class="text-sm text-gray-300">
-                                    <strong class="text-orange-400">Note:</strong> {{ $history->notes }}
+                                    <strong class="text-orange-400">{{ __('order.note') }}:</strong> {{ $history->notes }}
                                 </p>
                             </div>
                             @endif
@@ -134,11 +134,11 @@
                                 @endif">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
                             </svg>
-                            <h3 class="text-lg font-bold">Refund Request</h3>
+                            <h3 class="text-lg font-bold">{{ __('order.refund_request') }}</h3>
                         </div>
                         <div class="space-y-2 text-sm mb-4">
                             <div class="flex justify-between">
-                                <span class="text-gray-400">Status:</span>
+                                <span class="text-gray-400">{{ __('order.refund_status') }}:</span>
                                 <span class="font-medium px-2 py-0.5 rounded text-xs
                                     @if($existingRefund->status === 'pending') bg-yellow-500/20 text-yellow-400
                                     @elseif($existingRefund->status === 'approved') bg-blue-500/20 text-blue-400
@@ -149,13 +149,13 @@
                                 </span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-400">Amount:</span>
+                                <span class="text-gray-400">{{ __('order.refund_amount') }}:</span>
                                 <span class="font-bold text-orange-400">${{ number_format($existingRefund->amount, 2) }}</span>
                             </div>
                         </div>
                         <a href="{{ route('refunds.show', $existingRefund) }}" 
                            class="block w-full py-2 px-4 bg-zinc-700 hover:bg-zinc-600 text-white text-center rounded-lg transition-colors text-sm font-medium">
-                            View Details
+                            {{ __('order.view_details') }}
                         </a>
                     </div>
                 @elseif($canRequestRefund)
@@ -164,12 +164,12 @@
                             <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
                             </svg>
-                            <h3 class="text-lg font-bold">Need a Refund?</h3>
+                            <h3 class="text-lg font-bold">{{ __('order.need_refund') }}</h3>
                         </div>
-                        <p class="text-gray-400 text-sm mb-4">If you're not satisfied with your order, you can request a refund.</p>
+                        <p class="text-gray-400 text-sm mb-4">{{ __('order.refund_description') }}</p>
                         <a href="{{ route('refunds.create', $order) }}" 
                            class="block w-full py-2 px-4 bg-orange-500 hover:bg-orange-400 text-black text-center rounded-lg transition-colors text-sm font-medium">
-                            Request Refund
+                            {{ __('order.request_refund') }}
                         </a>
                     </div>
                 @endif
@@ -189,15 +189,14 @@
                                 <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                 </svg>
-                                <h3 class="text-lg font-bold">Share Your Experience</h3>
+                                <h3 class="text-lg font-bold">{{ __('order.share_experience') }}</h3>
                             </div>
                             <p class="text-gray-400 text-sm mb-4">
-                                Your order has been delivered! Tell us about your experience with 
-                                {{ $itemsToReview->count() }} {{ Str::plural('product', $itemsToReview->count()) }}.
+                                {{ __('order.review_description', ['count' => $itemsToReview->count(), 'products' => $itemsToReview->count() == 1 ? __('order.product') : __('order.products')]) }}
                             </p>
                             <a href="{{ route('reviews.create', $order) }}" 
                                class="block w-full py-2 px-4 bg-yellow-500 hover:bg-yellow-400 text-black text-center rounded-lg transition-colors text-sm font-medium">
-                                Leave a Review
+                                {{ __('order.leave_review') }}
                             </a>
                         </div>
                     @else
@@ -206,12 +205,12 @@
                                 <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
-                                <h3 class="text-lg font-bold">Thanks for Your Reviews!</h3>
+                                <h3 class="text-lg font-bold">{{ __('order.thanks_reviews') }}</h3>
                             </div>
-                            <p class="text-gray-400 text-sm mb-4">You've reviewed all products in this order.</p>
+                            <p class="text-gray-400 text-sm mb-4">{{ __('order.reviewed_all') }}</p>
                             <a href="{{ route('reviews.index') }}" 
                                class="block w-full py-2 px-4 bg-zinc-700 hover:bg-zinc-600 text-white text-center rounded-lg transition-colors text-sm font-medium">
-                                View My Reviews
+                                {{ __('order.view_my_reviews') }}
                             </a>
                         </div>
                     @endif
@@ -220,18 +219,18 @@
 
             <!-- Order Details -->
             <div class="tracking-card-small">
-                <h3 class="text-lg font-bold mb-4">Order Details</h3>
+                <h3 class="text-lg font-bold mb-4">{{ __('order.order_details') }}</h3>
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between py-2 border-b border-gray-700">
-                        <span class="text-gray-400">Order Date:</span>
+                        <span class="text-gray-400">{{ __('order.order_date') }}:</span>
                         <span class="font-semibold">{{ $order->created_at->format('M d, Y') }}</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-700">
-                        <span class="text-gray-400">Total Amount:</span>
+                        <span class="text-gray-400">{{ __('order.total_amount') }}:</span>
                         <span class="font-bold text-xl text-orange-400">${{ number_format($order->total, 2) }}</span>
                     </div>
                     <div class="flex justify-between py-2">
-                        <span class="text-gray-400">Payment Method:</span>
+                        <span class="text-gray-400">{{ __('order.payment_method') }}:</span>
                         <span class="capitalize font-medium">{{ $order->payment_method }}</span>
                     </div>
                 </div>
@@ -239,7 +238,7 @@
 
             <!-- Shipping Address -->
             <div class="tracking-card-small">
-                <h3 class="text-lg font-bold mb-4">Shipping Address</h3>
+                <h3 class="text-lg font-bold mb-4">{{ __('order.shipping_address') }}</h3>
                 <div class="text-sm space-y-2">
                     <p class="font-semibold text-base">{{ $order->customer_name }}</p>
                     <p class="text-gray-300 whitespace-pre-line leading-relaxed">{{ $order->shipping_address }}</p>
@@ -249,7 +248,7 @@
 
             <!-- Order Items -->
             <div class="tracking-card-small">
-                <h3 class="text-lg font-bold mb-4">Items ({{ $order->items->count() }})</h3>
+                <h3 class="text-lg font-bold mb-4">{{ __('order.items') }} ({{ $order->items->count() }})</h3>
                 <div class="space-y-3">
                     @foreach($order->items as $item)
                     <div class="item-card">
@@ -267,7 +266,7 @@
                         @endif
                         <div class="flex-1 min-w-0">
                             <p class="font-semibold text-sm truncate">{{ $item->product_name }}</p>
-                            <p class="text-xs text-gray-400 mt-1">Quantity: {{ $item->quantity }}</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ __('order.quantity') }}: {{ $item->quantity }}</p>
                         </div>
                         <p class="font-bold text-orange-400">${{ number_format($item->total, 2) }}</p>
                     </div>

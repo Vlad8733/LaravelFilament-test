@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Write a Review')
+@section('title', __('reviews.write_review'))
 
 @push('styles')
     @vite('resources/css/reviews/reviews.css')
@@ -14,7 +14,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
-                Back to Order
+                {{ __('reviews.back_to_order') }}
             </a>
         </div>
 
@@ -39,8 +39,8 @@
         <div class="reviews-card">
             <div class="reviews-card-header">
                 <div>
-                    <h1 class="reviews-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">Write a Review</h1>
-                    <p class="reviews-subtitle">Order #{{ $order->order_number }}</p>
+                    <h1 class="reviews-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ __('reviews.write_review') }}</h1>
+                    <p class="reviews-subtitle">{{ __('order.order_prefix', ['number' => $order->order_number]) }}</p>
                 </div>
             </div>
 
@@ -60,7 +60,7 @@
                 <!-- Product Selection -->
                 @if($itemsToReview->count() > 1)
                     <div class="reviews-form-group">
-                        <label class="reviews-form-label">Select Product to Review</label>
+                        <label class="reviews-form-label">{{ __('reviews.select_product') }}</label>
                         <div class="reviews-product-selector">
                             @foreach($itemsToReview as $item)
                                 <label class="reviews-product-option">
@@ -80,7 +80,7 @@
                                         @endif
                                         <div class="reviews-item-info">
                                             <div class="reviews-item-product">{{ $item->product_name }}</div>
-                                            <div class="reviews-item-order">Qty: {{ $item->quantity }} × ${{ number_format($item->product_price, 2) }}</div>
+                                            <div class="reviews-item-order">{{ __('reviews.qty') }}: {{ $item->quantity }} × ${{ number_format($item->product_price, 2) }}</div>
                                         </div>
                                     </div>
                                 </label>
@@ -111,11 +111,11 @@
 
                 <!-- Ratings -->
                 <div class="reviews-form-group">
-                    <label class="reviews-form-label">Rate Your Experience</label>
+                    <label class="reviews-form-label">{{ __('reviews.rate_experience') }}</label>
                     <div class="reviews-ratings-grid">
                         <!-- Delivery Rating -->
                         <div class="reviews-rating-category">
-                            <span class="reviews-rating-label">Delivery</span>
+                            <span class="reviews-rating-label">{{ __('reviews.delivery') }}</span>
                             <div class="star-rating-input" x-data="{ rating: 0 }">
                                 @for($i = 5; $i >= 1; $i--)
                                     <input type="radio" name="delivery_rating" value="{{ $i }}" id="delivery_{{ $i }}" 
@@ -131,7 +131,7 @@
 
                         <!-- Packaging Rating -->
                         <div class="reviews-rating-category">
-                            <span class="reviews-rating-label">Packaging</span>
+                            <span class="reviews-rating-label">{{ __('reviews.packaging') }}</span>
                             <div class="star-rating-input" x-data="{ rating: 0 }">
                                 @for($i = 5; $i >= 1; $i--)
                                     <input type="radio" name="packaging_rating" value="{{ $i }}" id="packaging_{{ $i }}"
@@ -147,7 +147,7 @@
 
                         <!-- Product Rating -->
                         <div class="reviews-rating-category">
-                            <span class="reviews-rating-label">Product Quality</span>
+                            <span class="reviews-rating-label">{{ __('reviews.product_quality') }}</span>
                             <div class="star-rating-input" x-data="{ rating: 0 }">
                                 @for($i = 5; $i >= 1; $i--)
                                     <input type="radio" name="product_rating" value="{{ $i }}" id="product_{{ $i }}"
@@ -165,20 +165,20 @@
 
                 <!-- Comment -->
                 <div class="reviews-form-group">
-                    <label for="comment" class="reviews-form-label">Your Review (Optional)</label>
+                    <label for="comment" class="reviews-form-label">{{ __('reviews.your_review_optional') }}</label>
                     <textarea name="comment" id="comment" rows="4"
                               class="reviews-textarea"
-                              placeholder="Share your experience with this product..."></textarea>
-                    <p class="reviews-form-hint">Max 2000 characters</p>
+                              placeholder="{{ __('reviews.review_placeholder') }}"></textarea>
+                    <p class="reviews-form-hint">{{ __('reviews.max_characters', ['count' => 2000]) }}</p>
                 </div>
 
                 <!-- Submit -->
                 <div class="reviews-form-actions">
                     <a href="{{ route('orders.tracking.show', $order->order_number) }}" class="reviews-btn reviews-btn-secondary">
-                        Cancel
+                        {{ __('reviews.cancel') }}
                     </a>
                     <button type="submit" class="reviews-btn reviews-btn-primary">
-                        Submit Review
+                        {{ __('reviews.submit_review') }}
                     </button>
                 </div>
             </form>

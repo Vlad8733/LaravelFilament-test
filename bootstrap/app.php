@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Добавляем SetLocale в web middleware группу
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+        
         // Регистрируем алиасы middleware
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
@@ -22,4 +27,3 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
-    

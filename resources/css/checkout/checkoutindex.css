@@ -50,10 +50,16 @@ h1, h2, h3 {
     border-color: var(--border) !important;
 }
 
-/* Product images */
-img {
+/* Product images - only inside checkout */
+.checkout-page img:not(.logo-img):not(.nav-avatar) {
     border: 1px solid var(--border);
     background: #0f0f0f;
+}
+
+/* Исключаем логотип */
+.logo-img {
+    border: none !important;
+    background: transparent !important;
 }
 
 /* Inputs & textarea */

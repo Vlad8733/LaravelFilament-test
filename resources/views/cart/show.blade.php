@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Shopping Cart')
+@section('title', __('cart.title'))
 
 @push('styles')
     @vite('resources/css/cart/show.css')
@@ -8,17 +8,17 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-12">
-    <h1 class="text-4xl font-bold mb-8">Shopping Cart</h1>
+    <h1 class="text-4xl font-bold mb-8">{{ __('cart.shopping_cart') }}</h1>
 
     @if($cartItems->isEmpty())
         <div class="text-center py-16">
             <svg class="w-24 h-24 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
             </svg>
-            <h2 class="text-2xl font-bold mb-2">Your cart is empty</h2>
-            <p class="text-gray-400 mb-8">Add some products to get started!</p>
+            <h2 class="text-2xl font-bold mb-2">{{ __('cart.empty_title') }}</h2>
+            <p class="text-gray-400 mb-8">{{ __('cart.empty_subtitle') }}</p>
             <a href="{{ route('products.index') }}" class="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-black font-bold py-3 px-8 rounded-lg hover:from-orange-600 hover:to-amber-600 transition-all">
-                Continue Shopping
+                {{ __('cart.continue_shopping') }}
             </a>
         </div>
     @else
@@ -42,7 +42,7 @@
 
                     <div class="flex-1">
                         <h3 class="text-xl font-bold mb-1">{{ $item->product->name }}</h3>
-                        <p class="text-gray-400 text-sm mb-2">{{ $item->product->category->name ?? 'Uncategorized' }}</p>
+                        <p class="text-gray-400 text-sm mb-2">{{ $item->product->category->name ?? __('cart.uncategorized') }}</p>
                         <p class="text-2xl font-bold text-orange-400">${{ number_format($item->product->price, 2) }}</p>
                     </div>
 
@@ -78,20 +78,20 @@
             <!-- Order Summary -->
             <div class="lg:col-span-1">
                 <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 border border-gray-700 sticky top-24">
-                    <h2 class="text-2xl font-bold mb-6">Order Summary</h2>
+                    <h2 class="text-2xl font-bold mb-6">{{ __('cart.order_summary') }}</h2>
                     
                     <div class="space-y-4 mb-6">
                         <div class="flex justify-between text-lg">
-                            <span class="text-gray-400">Subtotal</span>
+                            <span class="text-gray-400">{{ __('cart.subtotal') }}</span>
                             <span class="font-bold" id="cart-total">${{ number_format($total, 2) }}</span>
                         </div>
                         <div class="flex justify-between text-lg">
-                            <span class="text-gray-400">Shipping</span>
-                            <span class="text-green-400 font-semibold">FREE</span>
+                            <span class="text-gray-400">{{ __('cart.shipping') }}</span>
+                            <span class="text-green-400 font-semibold">{{ __('cart.free') }}</span>
                         </div>
                         <div class="border-t border-gray-700 pt-4">
                             <div class="flex justify-between text-2xl">
-                                <span class="font-bold">Total</span>
+                                <span class="font-bold">{{ __('cart.total') }}</span>
                                 <span class="font-bold text-orange-400">${{ number_format($total, 2) }}</span>
                             </div>
                         </div>
@@ -100,12 +100,12 @@
                     <a href="{{ route('checkout.show') }}" 
                        class="block w-full py-4 rounded-lg font-bold text-lg text-black text-center transition-all transform hover:scale-[1.02]"
                        style="background: linear-gradient(135deg, #f59e0b, #fb923c); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);">
-                        Proceed to Checkout
+                        {{ __('cart.proceed_checkout') }}
                     </a>
 
                     <a href="{{ route('products.index') }}" 
                        class="block w-full mt-4 py-4 rounded-lg font-semibold text-center border border-gray-600 hover:bg-gray-800 transition-colors">
-                        Continue Shopping
+                        {{ __('cart.continue_shopping') }}
                     </a>
                 </div>
             </div>
@@ -115,43 +115,47 @@
 
 @push('scripts')
 <script>
-function updateQuantity(itemId, newQuantity) {
-    if (newQuantity < 1) return;
-    
-    fetch(`/cart/update/${itemId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ quantity: newQuantity })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById(`quantity-${itemId}`).textContent = newQuantity;
-            document.getElementById('cart-total').textContent = `$${data.total.toFixed(2)}`;
-            location.reload(); // Перезагрузим для обновления итога
-        }
-    });
-}
+    window.cartTranslations = {
+        remove_confirm: '{{ __('cart.remove_confirm') }}'
+    };
 
-function removeItem(itemId) {
-    if (!confirm('Remove this item from cart?')) return;
-    
-    fetch(`/cart/remove/${itemId}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        }
-    });
-}
+    function updateQuantity(itemId, newQuantity) {
+        if (newQuantity < 1) return;
+        
+        fetch(`/cart/update/${itemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ quantity: newQuantity })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`quantity-${itemId}`).textContent = newQuantity;
+                document.getElementById('cart-total').textContent = `$${data.total.toFixed(2)}`;
+                location.reload();
+            }
+        });
+    }
+
+    function removeItem(itemId) {
+        if (!confirm(window.cartTranslations.remove_confirm)) return;
+        
+        fetch(`/cart/remove/${itemId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
 </script>
 @endpush
 @endsection

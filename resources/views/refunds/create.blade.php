@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Request Refund')
+@section('title', __('refunds.request_refund'))
 
 @push('styles')
     @vite('resources/css/refunds/refunds.css')
@@ -14,21 +14,21 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
-                Back to Order
+                {{ __('refunds.back_to_order') }}
             </a>
         </div>
 
         <div class="refunds-card">
             <div class="refunds-card-header">
                 <div>
-                    <h1 class="refunds-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">Request a Refund</h1>
-                    <p class="refunds-subtitle">Order #{{ $order->order_number }}</p>
+                    <h1 class="refunds-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ __('refunds.request_refund') }}</h1>
+                    <p class="refunds-subtitle">{{ __('order.order_prefix', ['number' => $order->order_number]) }}</p>
                 </div>
             </div>
 
             <!-- Order Summary -->
             <div class="refunds-order-summary">
-                <h3 class="refunds-order-summary-title">Order Summary</h3>
+                <h3 class="refunds-order-summary-title">{{ __('refunds.order_summary') }}</h3>
                 <div class="refunds-order-summary-items">
                     @foreach($order->items as $item)
                         <div class="refunds-order-summary-item">
@@ -38,7 +38,7 @@
                     @endforeach
                 </div>
                 <div class="refunds-order-summary-total">
-                    <span>Total</span>
+                    <span>{{ __('refunds.total') }}</span>
                     <span>${{ number_format($order->total, 2) }}</span>
                 </div>
             </div>
@@ -59,20 +59,20 @@
 
                 <!-- Refund Type -->
                 <div class="refunds-form-group">
-                    <label class="refunds-form-label">Refund Type</label>
+                    <label class="refunds-form-label">{{ __('refunds.refund_type') }}</label>
                     <div class="refunds-type-grid">
                         <label class="refunds-type-card">
                             <input type="radio" name="type" value="full" x-model="type">
                             <div class="refunds-type-card-content">
-                                <div class="refunds-type-title">Full Refund</div>
+                                <div class="refunds-type-title">{{ __('refunds.full_refund') }}</div>
                                 <div class="refunds-type-amount">${{ number_format($order->total, 2) }}</div>
                             </div>
                         </label>
                         <label class="refunds-type-card">
                             <input type="radio" name="type" value="partial" x-model="type">
                             <div class="refunds-type-card-content">
-                                <div class="refunds-type-title">Partial Refund</div>
-                                <div class="refunds-type-amount">Custom amount</div>
+                                <div class="refunds-type-title">{{ __('refunds.partial_refund') }}</div>
+                                <div class="refunds-type-amount">{{ __('refunds.custom_amount') }}</div>
                             </div>
                         </label>
                     </div>
@@ -80,7 +80,7 @@
 
                 <!-- Partial Amount -->
                 <div class="refunds-form-group" x-show="type === 'partial'" x-transition>
-                    <label for="amount" class="refunds-form-label">Refund Amount</label>
+                    <label for="amount" class="refunds-form-label">{{ __('refunds.refund_amount') }}</label>
                     <div class="refunds-input-wrapper">
                         <span class="refunds-input-prefix">$</span>
                         <input type="number" name="amount" id="amount" step="0.01" min="0.01" max="{{ $order->total }}"
@@ -88,25 +88,25 @@
                                class="refunds-input"
                                placeholder="0.00">
                     </div>
-                    <p class="refunds-form-hint">Maximum: ${{ number_format($order->total, 2) }}</p>
+                    <p class="refunds-form-hint">{{ __('refunds.maximum') }}: ${{ number_format($order->total, 2) }}</p>
                 </div>
 
                 <!-- Reason -->
                 <div class="refunds-form-group">
-                    <label for="reason" class="refunds-form-label">Reason for Refund</label>
+                    <label for="reason" class="refunds-form-label">{{ __('refunds.reason') }}</label>
                     <textarea name="reason" id="reason" rows="4" required minlength="10"
                               class="refunds-textarea"
-                              placeholder="Please explain why you're requesting a refund..."></textarea>
-                    <p class="refunds-form-hint">Minimum 10 characters</p>
+                              placeholder="{{ __('refunds.reason_placeholder') }}"></textarea>
+                    <p class="refunds-form-hint">{{ __('refunds.reason_hint') }}</p>
                 </div>
 
                 <!-- Submit -->
                 <div class="refunds-form-actions">
                     <a href="{{ route('orders.tracking.show', $order->order_number) }}" class="refunds-btn refunds-btn-secondary">
-                        Cancel
+                        {{ __('refunds.cancel') }}
                     </a>
                     <button type="submit" class="refunds-btn refunds-btn-primary">
-                        Submit Request
+                        {{ __('refunds.submit_request') }}
                     </button>
                 </div>
             </form>

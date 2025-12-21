@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Shopping Cart')
+@section('title', __('cart.title'))
 
 @push('styles')
     @vite('resources/css/cart/cartindex.css')
@@ -13,16 +13,16 @@
 @section('content')
     <div x-data="cartPage()">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">{{ __('cart.your_cart') }}</h1>
 
             @if($cartItems->isEmpty())
                 <div class="bg-white rounded-lg shadow-sm p-8 text-center">
                     <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                     </svg>
-                    <h2 class="text-xl font-medium text-gray-500 mb-4">Your cart is empty</h2>
+                    <h2 class="text-xl font-medium text-gray-500 mb-4">{{ __('cart.empty') }}</h2>
                     <a href="{{ route('products.index') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                        Continue Shopping
+                        {{ __('cart.continue_shopping') }}
                     </a>
                 </div>
             @else
@@ -68,7 +68,7 @@
                                     <p class="font-semibold">${{ number_format($item->product->getCurrentPrice() * $item->quantity, 2) }}</p>
                                     <button @click="removeItem({{ $item->id }})" 
                                             class="text-red-500 hover:text-red-700 text-sm">
-                                        Remove
+                                        {{ __('cart.remove') }}
                                     </button>
                                 </div>
                             </div>
@@ -77,18 +77,18 @@
 
                     <!-- Order Summary -->
                     <div class="bg-white rounded-lg shadow-sm p-6 h-fit">
-                        <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
+                        <h2 class="text-xl font-semibold mb-4">{{ __('cart.order_summary') }}</h2>
                         
                         <div class="space-y-3 mb-6">
                             <div class="flex justify-between">
-                                <span>Subtotal:</span>
+                                <span>{{ __('cart.subtotal') }}:</span>
                                 <span>${{ number_format($subtotal, 2) }}</span>
                             </div>
                             
                             @if(isset($coupon) && $coupon)
                                 <div class="flex justify-between text-green-600">
                                     <span class="flex items-center gap-2">
-                                        Discount ({{ $coupon['code'] }})
+                                        {{ __('cart.discount') }} ({{ $coupon['code'] }})
                                         <button @click="removeCoupon()" class="text-red-500 hover:text-red-700 text-xs">✕</button>
                                     </span>
                                     <span>-${{ number_format($discount, 2) }}</span>
@@ -98,7 +98,7 @@
                             <hr class="my-3">
                             
                             <div class="flex justify-between text-lg font-bold">
-                                <span>Total:</span>
+                                <span>{{ __('cart.total') }}:</span>
                                 <span>${{ number_format($total, 2) }}</span>
                             </div>
                         </div>
@@ -106,14 +106,14 @@
                         <!-- Coupon Code -->
                         @if(!isset($coupon) || !$coupon)
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Coupon Code</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('cart.coupon_code') }}</label>
                             <div class="flex space-x-2">
                                 <input type="text" x-model="couponCode" 
                                        class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="XXXX-XXXX">
                                 <button @click="applyCoupon()" 
                                         class="flex-none bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                                    Apply
+                                    {{ __('cart.apply') }}
                                 </button>
                             </div>
                         </div>
@@ -121,7 +121,7 @@
 
                         <a href="{{ route('checkout.show') }}" 
                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg text-center font-medium hover:bg-blue-700 transition-colors block">
-                            Proceed to Checkout
+                            {{ __('cart.proceed_checkout') }}
                         </a>
                     </div>
                 </div>
@@ -129,11 +129,14 @@
         </div>
     </div>
 
-    {{-- Inline script для регистрации Alpine data ДО его инициализации --}}
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('cartPage', () => ({
                 couponCode: '',
+                translations: {
+                    coupon_invalid: '{{ __('cart.coupon_invalid') }}',
+                    error_updating: '{{ __('cart.error_updating') }}'
+                },
 
                 updateQuantity(itemId, quantity) {
                     if (quantity < 1) return this.removeItem(itemId);
@@ -178,7 +181,7 @@
                     })
                     .then(response => {
                         if (response.ok) location.reload();
-                        else response.json().then(data => alert(data.message || 'Invalid coupon'));
+                        else response.json().then(data => alert(data.message || this.translations.coupon_invalid));
                     })
                     .catch(error => console.error('Error:', error));
                 },

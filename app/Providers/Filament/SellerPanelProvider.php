@@ -41,9 +41,6 @@ class SellerPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             ->discoverResources(in: app_path('Filament/Seller/Resources'), for: 'App\\Filament\\Seller\\Resources')
             ->discoverPages(in: app_path('Filament/Seller/Pages'), for: 'App\\Filament\\Seller\\Pages')
-            ->pages([
-                Pages\Dashboard::class,
-            ])
             ->discoverWidgets(in: app_path('Filament/Seller/Widgets'), for: 'App\\Filament\\Seller\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,

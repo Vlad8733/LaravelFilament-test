@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Review Details')
+@section('title', __('reviews.title'))
 
 @push('styles')
     @vite('resources/css/reviews/reviews.css')
@@ -14,7 +14,7 @@
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
-                Back to My Reviews
+                {{ __('reviews.back_to_reviews') }}
             </a>
         </div>
 
@@ -53,7 +53,7 @@
                     @endif
                     <div>
                         <h1 class="reviews-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ $review->product->name ?? 'Product' }}</h1>
-                        <p class="reviews-subtitle">Order #{{ $review->order->order_number }}</p>
+                        <p class="reviews-subtitle">{{ __('order.order_prefix', ['number' => $review->order->order_number]) }}</p>
                     </div>
                 </div>
                 <span class="reviews-status {{ $review->status }}">
@@ -64,7 +64,7 @@
 
             <!-- Overall Rating -->
             <div class="reviews-detail-section">
-                <div class="reviews-section-label">Overall Rating</div>
+                <div class="reviews-section-label">{{ __('reviews.overall_rating') }}</div>
                 <div class="reviews-overall">
                     <span class="reviews-overall-value">{{ number_format($review->overall_rating, 1) }}</span>
                     <div class="reviews-overall-stars">
@@ -75,17 +75,17 @@
                                 </svg>
                             @endfor
                         </div>
-                        <span style="font-size: 0.75rem; color: var(--text-dim);">{{ $review->created_at->format('M d, Y') }}</span>
+                        <span style="font-size: 0.75rem; color: var(--text-dim);">{{ $review->created_at->translatedFormat('M d, Y') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Ratings Breakdown -->
             <div class="reviews-detail-section">
-                <div class="reviews-section-label">Ratings Breakdown</div>
+                <div class="reviews-section-label">{{ __('reviews.ratings_breakdown') }}</div>
                 <div class="reviews-breakdown">
                     <div class="reviews-breakdown-item">
-                        <span class="reviews-breakdown-label">Delivery</span>
+                        <span class="reviews-breakdown-label">{{ __('reviews.delivery') }}</span>
                         <div class="reviews-breakdown-stars">
                             <div class="reviews-stars">
                                 @for($i = 1; $i <= 5; $i++)
@@ -98,7 +98,7 @@
                         <span class="reviews-breakdown-value">{{ $review->delivery_rating }}/5</span>
                     </div>
                     <div class="reviews-breakdown-item">
-                        <span class="reviews-breakdown-label">Packaging</span>
+                        <span class="reviews-breakdown-label">{{ __('reviews.packaging') }}</span>
                         <div class="reviews-breakdown-stars">
                             <div class="reviews-stars">
                                 @for($i = 1; $i <= 5; $i++)
@@ -111,7 +111,7 @@
                         <span class="reviews-breakdown-value">{{ $review->packaging_rating }}/5</span>
                     </div>
                     <div class="reviews-breakdown-item">
-                        <span class="reviews-breakdown-label">Product Quality</span>
+                        <span class="reviews-breakdown-label">{{ __('reviews.product_quality') }}</span>
                         <div class="reviews-breakdown-stars">
                             <div class="reviews-stars">
                                 @for($i = 1; $i <= 5; $i++)
@@ -128,11 +128,11 @@
 
             <!-- Comment -->
             <div class="reviews-detail-section">
-                <div class="reviews-section-label">Your Review</div>
+                <div class="reviews-section-label">{{ __('reviews.your_review') }}</div>
                 @if($review->comment)
                     <p class="reviews-comment">{{ $review->comment }}</p>
                 @else
-                    <p class="reviews-comment-placeholder">No written review provided.</p>
+                    <p class="reviews-comment-placeholder">{{ __('reviews.no_comment') }}</p>
                 @endif
             </div>
 
@@ -140,7 +140,7 @@
             @if($review->isRejected() && $review->moderation_notes)
                 <div class="reviews-detail-section">
                     <div class="reviews-moderation">
-                        <div class="reviews-moderation-label">Rejection Reason</div>
+                        <div class="reviews-moderation-label">{{ __('reviews.rejection_reason') }}</div>
                         <p class="reviews-moderation-text">{{ $review->moderation_notes }}</p>
                     </div>
                 </div>
@@ -153,17 +153,17 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                        Edit Review
+                        {{ __('reviews.edit_review_btn') }}
                     </a>
                     <form action="{{ route('reviews.destroy', $review) }}" method="POST" style="flex: 1;"
-                          onsubmit="return confirm('Are you sure you want to delete this review?')">
+                          onsubmit="return confirm('{{ __('reviews.delete_confirm') }}')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="reviews-btn reviews-btn-danger" style="width: 100%;">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
-                            Delete Review
+                            {{ __('reviews.delete_review') }}
                         </button>
                     </form>
                 </div>

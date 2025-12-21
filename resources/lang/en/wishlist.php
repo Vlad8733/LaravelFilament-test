@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'title' => 'My Wishlist',
+    'your_wishlist' => 'Your Wishlist',
+    'items' => 'items',
+    'item' => 'item',
+    'home' => 'Home',
+    'wishlist' => 'Wishlist',
+    'empty' => 'Your wishlist is empty',
+    'empty_description' => 'Start adding products you love to keep track of them',
+    'browse_products' => 'Browse Products',
+    'remove' => 'Remove',
+    'add_to_cart' => 'Add to Cart',
+    'view_product' => 'View Product',
+    'in_stock' => 'In Stock',
+    'out_of_stock' => 'Out of Stock',
+    'uncategorized' => 'Uncategorized',
+    'added_to_cart' => 'Added to cart',
+    'removed' => 'Removed from wishlist',
+    'error_removing' => 'Failed to remove from wishlist',
+    'error_adding_cart' => 'Failed to add to cart',
+];

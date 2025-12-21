@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Verify Your Order')
+@section('title', __('checkout.verify_title'))
 
 @push('styles')
     @vite('resources/css/orders/tracking.css')
@@ -16,9 +16,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                 </svg>
             </div>
-            <h1 class="text-4xl font-bold mb-3">Verify Your Order</h1>
-            <p class="text-gray-400 text-lg">Please enter your email to view order details</p>
-            <p class="text-gray-500 text-sm mt-2">Order #{{ $order->order_number }}</p>
+            <h1 class="text-4xl font-bold mb-3">{{ __('checkout.verify_title') }}</h1>
+            <p class="text-gray-400 text-lg">{{ __('checkout.verify_subtitle') }}</p>
+            <p class="text-gray-500 text-sm mt-2">{{ __('checkout.verify_order_number', ['number' => $order->order_number]) }}</p>
         </div>
 
         <div class="tracking-card">
@@ -27,12 +27,12 @@
                 
                 <div>
                     <label class="block text-sm font-semibold text-gray-300 mb-2">
-                        Email Address
+                        {{ __('checkout.email_address') }}
                     </label>
                     <input type="email" 
                            name="email" 
                            value="{{ old('email') }}"
-                           placeholder="your@email.com"
+                           placeholder="{{ __('checkout.email_placeholder') }}"
                            required
                            autofocus
                            class="w-full px-4 py-3 bg-black bg-opacity-30 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
@@ -44,13 +44,13 @@
                 <button type="submit" 
                         class="w-full py-4 rounded-lg font-bold text-lg text-black transition-all transform hover:scale-[1.02] hover:shadow-2xl"
                         style="background: linear-gradient(135deg, #f59e0b, #fb923c); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);">
-                    Verify & View Order
+                    {{ __('checkout.verify_button') }}
                 </button>
             </form>
 
             <div class="mt-6 pt-6 border-t border-gray-700 text-center">
                 <p class="text-sm text-gray-400">
-                    This is a security measure to protect your order information.
+                    {{ __('checkout.verify_security_note') }}
                 </p>
             </div>
         </div>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $product->name . ' - My Shop')
+@section('title', $product->name)
 
 @push('styles')
     @vite('resources/css/products/show.css')
@@ -33,7 +33,7 @@
                     @endif
                 </div>
 
-                <!-- Thumbnail Images (update main image via show.js) -->
+                <!-- Thumbnail Images -->
                 @if($product->images && $product->images->count() > 1)
                     <div class="flex space-x-2 overflow-x-auto mt-2">
                         @foreach($product->images as $index => $image)
@@ -67,7 +67,7 @@
                         </div>
                         <span class="ml-2 text-sm text-gray-600">
                             {{ number_format($product->average_rating ?? 0, 1) }} 
-                            ({{ $product->reviews_count }} {{ Str::plural('review', $product->reviews_count) }})
+                            ({{ trans_choice('products.reviews_count', $product->reviews_count, ['count' => $product->reviews_count]) }})
                         </span>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                         <span class="text-3xl font-bold text-green-600">${{ number_format($product->sale_price, 2) }}</span>
                         <span class="text-xl text-gray-500 line-through">${{ number_format($product->price, 2) }}</span>
                         <span class="bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded">
-                            {{ $product->getDiscountPercentage() }}% OFF
+                            {{ $product->getDiscountPercentage() }}% {{ __('products.off') }}
                         </span>
                     @else
                         <span class="text-3xl font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
@@ -92,25 +92,25 @@
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                             </svg>
-                            {{ $product->stock_quantity }} in stock
+                            {{ $product->stock_quantity }} {{ __('products.in_stock') }}
                         </span>
                     @else
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Out of stock
+                            {{ __('products.out_of_stock') }}
                         </span>
                     @endif
                 </div>
 
                 <!-- Description -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-2">Description</h3>
+                    <h3 class="text-lg font-semibold mb-2">{{ __('products.description') }}</h3>
                     <p class="text-gray-600">{{ $product->description }}</p>
                 </div>
 
                 <!-- Long Description -->
                 @if($product->long_description)
                     <div>
-                        <h3 class="text-lg font-semibold mb-2">Details</h3>
+                        <h3 class="text-lg font-semibold mb-2">{{ __('products.details') }}</h3>
                         <div class="text-gray-600 prose max-w-none">
                             {!! nl2br(e($product->long_description)) !!}
                         </div>
@@ -120,7 +120,7 @@
                 <!-- Add to Cart -->
                 <div class="space-y-4">
                     <div class="flex items-center space-x-4">
-                        <label class="text-sm font-medium text-gray-700">Quantity:</label>
+                        <label class="text-sm font-medium text-gray-700">{{ __('products.quantity') }}:</label>
                         <div class="flex items-center border rounded-lg">
                             <button type="button" data-qty-action="decrement"
                                     class="px-3 py-2 hover:bg-gray-100 transition-colors" aria-label="Decrease quantity">-</button>
@@ -139,7 +139,7 @@
                             @click="addToCart({{ $product->id }})"
                             :disabled="!canAddToCart || loading"
                             class="w-full bg-blue-600 text-white text-lg py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                        Add to Cart
+                        {{ __('products.add_to_cart') }}
                     </button>
                  </div>
             </div>
@@ -148,7 +148,7 @@
         <!-- Customer Reviews -->
         <div class="mb-12">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-semibold">Customer Reviews</h3>
+                <h3 class="text-2xl font-semibold">{{ __('products.customer_reviews') }}</h3>
                 @if($product->reviews_count > 0)
                     <div class="flex items-center gap-2">
                         <div class="flex items-center">
@@ -160,7 +160,7 @@
                             @endfor
                         </div>
                         <span class="text-gray-600 font-medium">{{ $product->average_rating ?? 0 }}</span>
-                        <span class="text-gray-400">({{ $product->reviews_count }} {{ Str::plural('review', $product->reviews_count) }})</span>
+                        <span class="text-gray-400">({{ trans_choice('products.reviews_count', $product->reviews_count, ['count' => $product->reviews_count]) }})</span>
                     </div>
                 @endif
             </div>
@@ -188,13 +188,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <span class="text-sm text-gray-500">{{ $review->created_at->format('M j, Y') }}</span>
+                                <span class="text-sm text-gray-500">{{ $review->created_at->translatedFormat('M j, Y') }}</span>
                             </div>
                             
                             <!-- Rating breakdown -->
                             <div class="mt-3 flex flex-wrap gap-4 text-sm">
                                 <div class="flex items-center gap-1">
-                                    <span class="text-gray-500">Delivery:</span>
+                                    <span class="text-gray-500">{{ __('products.delivery') }}:</span>
                                     <div class="flex">
                                         @for($i = 1; $i <= 5; $i++)
                                             <svg class="w-3 h-3 {{ $i <= $review->delivery_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
@@ -205,7 +205,7 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <span class="text-gray-500">Packaging:</span>
+                                    <span class="text-gray-500">{{ __('products.packaging') }}:</span>
                                     <div class="flex">
                                         @for($i = 1; $i <= 5; $i++)
                                             <svg class="w-3 h-3 {{ $i <= $review->packaging_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
@@ -216,7 +216,7 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <span class="text-gray-500">Product:</span>
+                                    <span class="text-gray-500">{{ __('products.product') }}:</span>
                                     <div class="flex">
                                         @for($i = 1; $i <= 5; $i++)
                                             <svg class="w-3 h-3 {{ $i <= $review->product_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
@@ -239,8 +239,8 @@
                     <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                     </svg>
-                    <p class="text-gray-500 text-lg mb-2">No reviews yet</p>
-                    <p class="text-gray-400 text-sm">Be the first to review this product after your purchase!</p>
+                    <p class="text-gray-500 text-lg mb-2">{{ __('products.no_reviews_yet') }}</p>
+                    <p class="text-gray-400 text-sm">{{ __('products.be_first_review') }}</p>
                 </div>
             @endif
         </div>
@@ -248,7 +248,7 @@
         <!-- Related Products -->
         @if(isset($relatedProducts) && $relatedProducts->count() > 0)
             <div class="mb-12">
-                <h3 class="text-2xl font-semibold mb-6">Related Products</h3>
+                <h3 class="text-2xl font-semibold mb-6">{{ __('products.related_products') }}</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @foreach($relatedProducts as $relatedProduct)
                         <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -267,7 +267,7 @@
                                     </span>
                                     <a href="{{ route('products.show', $relatedProduct) }}" 
                                        class="text-blue-600 hover:text-blue-800 text-sm">
-                                        View Details
+                                        {{ __('products.view_details') }}
                                     </a>
                                 </div>
                             </div>

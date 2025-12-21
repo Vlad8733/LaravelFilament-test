@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'My Refund Requests')
+@section('title', __('refunds.my_requests'))
 
 @push('styles')
     @vite('resources/css/refunds/refunds.css')
@@ -11,14 +11,14 @@
     <div class="max-w-4xl mx-auto px-4 py-8">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="refunds-title">My Refund Requests</h1>
-                <p class="refunds-subtitle">Track the status of your refund requests</p>
+                <h1 class="refunds-title">{{ __('refunds.my_requests') }}</h1>
+                <p class="refunds-subtitle">{{ __('refunds.track_status') }}</p>
             </div>
             <a href="{{ route('orders.tracking.search') }}" class="refunds-back-link">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
-                Back to Orders
+                {{ __('refunds.back_to_orders') }}
             </a>
         </div>
 
@@ -37,8 +37,8 @@
                     <svg class="refunds-empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
                     </svg>
-                    <h3 class="refunds-empty-title">No refund requests yet</h3>
-                    <p class="refunds-empty-text">When you request a refund for an order, it will appear here.</p>
+                    <h3 class="refunds-empty-title">{{ __('refunds.no_requests') }}</h3>
+                    <p class="refunds-empty-text">{{ __('refunds.no_requests_text') }}</p>
                 </div>
             </div>
         @else
@@ -47,7 +47,7 @@
                     <a href="{{ route('refunds.show', $refund) }}" class="refunds-item">
                         <div class="refunds-item-header">
                             <div class="flex items-center gap-3">
-                                <span class="refunds-item-order">Order #{{ $refund->order->order_number }}</span>
+                                <span class="refunds-item-order">{{ __('order.order_prefix', ['number' => $refund->order->order_number]) }}</span>
                                 <span class="refunds-status {{ $refund->status }}">
                                     <span class="refunds-status-dot"></span>
                                     {{ $refund->status_label }}
@@ -57,7 +57,7 @@
                         </div>
                         
                         <div class="refunds-item-details">
-                            <span class="refunds-item-type">{{ $refund->type }} refund</span>
+                            <span class="refunds-item-type">{{ $refund->type === 'full' ? __('refunds.full_refund') : __('refunds.partial_refund') }}</span>
                             <span class="refunds-item-amount">${{ number_format($refund->amount, 2) }}</span>
                         </div>
                         

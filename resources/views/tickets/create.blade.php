@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Ticket - Support')
+@section('title', __('tickets.create_ticket'))
 
 @push('styles')
     @vite('resources/css/tickets/tickets.css')
@@ -77,19 +77,6 @@
             resize: vertical;
         }
         
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        
-        @media (max-width: 600px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* File Upload - Fixed */
         .file-upload {
             display: block !important;
             border: 2px dashed rgba(255,255,255,0.15) !important;
@@ -109,8 +96,6 @@
         .file-upload-icon {
             width: 48px !important;
             height: 48px !important;
-            max-width: 48px !important;
-            max-height: 48px !important;
             margin: 0 auto 12px !important;
             color: #6b7280 !important;
             display: block !important;
@@ -181,26 +166,26 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
-            Back to Tickets
+            {{ __('tickets.back_to_tickets') }}
         </a>
         
         <div class="create-ticket-form">
             <div class="form-header">
-                <h1 class="form-title">Create New Ticket</h1>
-                <p class="form-subtitle">Describe your issue and we'll get back to you as soon as possible.</p>
+                <h1 class="form-title">{{ __('tickets.create_title') }}</h1>
+                <p class="form-subtitle">{{ __('tickets.create_subtitle') }}</p>
             </div>
             
             <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="form-group">
-                    <label class="form-label" for="subject">Subject</label>
+                    <label class="form-label" for="subject">{{ __('tickets.subject') }}</label>
                     <input type="text" 
                            id="subject" 
                            name="subject" 
                            class="form-input" 
                            value="{{ old('subject') }}" 
-                           placeholder="Brief description of your issue"
+                           placeholder="{{ __('tickets.subject_placeholder') }}"
                            required>
                     @error('subject')
                         <p class="error-message">{{ $message }}</p>
@@ -208,13 +193,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="priority">Priority</label>
+                    <label class="form-label" for="priority">{{ __('tickets.priority') }}</label>
                     <select id="priority" name="priority" class="form-select" required>
-                        <option value="">Select priority</option>
-                        <option value="low" {{ old('priority') === 'low' ? 'selected' : '' }}>Low</option>
-                        <option value="medium" {{ old('priority') === 'medium' ? 'selected' : '' }} selected>Medium</option>
-                        <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>High</option>
-                        <option value="urgent" {{ old('priority') === 'urgent' ? 'selected' : '' }}>Urgent</option>
+                        <option value="">{{ __('tickets.select_priority') }}</option>
+                        <option value="low" {{ old('priority') === 'low' ? 'selected' : '' }}>{{ __('tickets.priority_low') }}</option>
+                        <option value="medium" {{ old('priority') === 'medium' ? 'selected' : '' }} selected>{{ __('tickets.priority_medium') }}</option>
+                        <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>{{ __('tickets.priority_high') }}</option>
+                        <option value="urgent" {{ old('priority') === 'urgent' ? 'selected' : '' }}>{{ __('tickets.priority_urgent') }}</option>
                     </select>
                     @error('priority')
                         <p class="error-message">{{ $message }}</p>
@@ -222,12 +207,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="description">Description</label>
+                    <label class="form-label" for="description">{{ __('tickets.description') }}</label>
                     <textarea id="description" 
                               name="description" 
                               class="form-textarea" 
                               rows="6" 
-                              placeholder="Describe your issue in detail..."
+                              placeholder="{{ __('tickets.description_placeholder') }}"
                               required>{{ old('description') }}</textarea>
                     @error('description')
                         <p class="error-message">{{ $message }}</p>
@@ -235,14 +220,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Attachments (optional)</label>
+                    <label class="form-label">{{ __('tickets.attachments_optional') }}</label>
                     <label class="file-upload">
                         <input type="file" name="attachments[]" multiple style="display: none;" accept="image/*,.pdf,.doc,.docx,.txt">
                         <svg class="file-upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
-                        <p class="file-upload-text">Click to upload files</p>
-                        <p class="file-upload-hint">Images, PDF, DOC up to 10MB each</p>
+                        <p class="file-upload-text">{{ __('tickets.click_upload') }}</p>
+                        <p class="file-upload-hint">{{ __('tickets.upload_hint') }}</p>
                     </label>
                     @error('attachments.*')
                         <p class="error-message">{{ $message }}</p>
@@ -250,7 +235,7 @@
                 </div>
                 
                 <button type="submit" class="btn-submit">
-                    Create Ticket
+                    {{ __('tickets.create_ticket_btn') }}
                 </button>
             </form>
         </div>
