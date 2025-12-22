@@ -1,4 +1,11 @@
 /**
+ * Helper: get translation from window object
+ */
+function t(key, fallback = '') {
+    return window.wishlistTranslations?.[key] || fallback;
+}
+
+/**
  * Helper: update global Alpine store counts safely
  */
 function updateGlobalCount(type, n = 1) {
@@ -41,16 +48,19 @@ function wishlistPageFactory() {
                 message,
                 type,
                 productName,
-                show: true
+                show: true,
+                hiding: false
             };
 
             this.notifications.push(notification);
 
-            if (this.notifications.length > 5) {
+            // Limit to 4 visible notifications
+            if (this.notifications.length > 4) {
                 const oldestId = this.notifications[0].id;
                 this.removeNotification(oldestId);
             }
 
+            // Auto-remove after 4 seconds
             setTimeout(() => {
                 this.removeNotification(id);
             }, 4000);
@@ -58,11 +68,15 @@ function wishlistPageFactory() {
 
         removeNotification(id) {
             const index = this.notifications.findIndex(n => n.id === id);
-            if (index !== -1) {
+            if (index !== -1 && !this.notifications[index].hiding) {
+                // Mark as hiding to trigger exit animation
+                this.notifications[index].hiding = true;
                 this.notifications[index].show = false;
+                
+                // Remove from array after animation completes
                 setTimeout(() => {
                     this.notifications = this.notifications.filter(n => n.id !== id);
-                }, 500);
+                }, 400);
             }
         },
 
@@ -81,7 +95,7 @@ function wishlistPageFactory() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    this.showNotification('was removed from wishlist', 'info', productName);
+                    this.showNotification(t('removed', 'Removed from wishlist'), 'info', productName);
                     
                     // Плавно обновляем счётчик в navbar
                     if (typeof window.updateWishlistCount === 'function') {
@@ -106,15 +120,18 @@ function wishlistPageFactory() {
                                 // Показываем empty state без перезагрузки
                                 const container = document.querySelector('.wishlist-grid');
                                 if (container) {
+                                    const emptyTitle = t('empty_title', 'Your wishlist is empty');
+                                    const emptyText = t('empty_text', 'Start adding products you love!');
+                                    const browseBtn = t('browse_products', 'Browse Products');
                                     container.innerHTML = `
                                         <div class="col-span-full text-center py-16">
                                             <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                             </svg>
-                                            <h3 class="text-xl font-medium text-gray-500 mb-2">Your wishlist is empty</h3>
-                                            <p class="text-gray-400 mb-6">Start adding products you love!</p>
+                                            <h3 class="text-xl font-medium text-gray-500 mb-2">${emptyTitle}</h3>
+                                            <p class="text-gray-400 mb-6">${emptyText}</p>
                                             <a href="/products" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-                                                Browse Products
+                                                ${browseBtn}
                                             </a>
                                         </div>
                                     `;
@@ -123,11 +140,11 @@ function wishlistPageFactory() {
                         }, 300);
                     }
                 } else {
-                    this.showNotification(data.message || 'Failed to remove item', 'error', productName);
+                    this.showNotification(data.message || t('failed_remove', 'Failed to remove'), 'error', productName);
                 }
             } catch (error) {
                 console.error('Remove error:', error);
-                this.showNotification('Network error', 'error', productName);
+                this.showNotification(t('network_error', 'Network error'), 'error', productName);
             }
         },
 
@@ -151,18 +168,18 @@ function wishlistPageFactory() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    this.showNotification('was added to cart', 'success', productName);
+                    this.showNotification(t('added_to_cart', 'Added to cart'), 'success', productName);
                     
                     // Плавно обновляем счётчик корзины в navbar
                     if (typeof window.updateCartCount === 'function' && data.cartCount !== undefined) {
                         window.updateCartCount(data.cartCount);
                     }
                 } else {
-                    this.showNotification(data.message || 'Failed to add to cart', 'error', productName);
+                    this.showNotification(data.message || t('failed_add', 'Failed to add to cart'), 'error', productName);
                 }
             } catch (error) {
                 console.error('Add to cart error:', error);
-                this.showNotification('Error adding to cart', 'error', productName);
+                this.showNotification(t('error_adding_cart', 'Error adding to cart'), 'error', productName);
             } finally {
                 this.loading = false;
             }

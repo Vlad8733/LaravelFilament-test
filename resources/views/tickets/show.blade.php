@@ -13,10 +13,10 @@
         <!-- Header -->
         <div class="ticket-show-header">
             <div class="ticket-header-top">
-                <div style="flex: 1;">
+                <div class="ticket-header-info">
                     <div class="ticket-show-id">{{ __('tickets.ticket_number', ['id' => $ticket->id]) }}</div>
                     <h1 class="ticket-show-subject">{{ $ticket->subject }}</h1>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <div class="ticket-show-badges">
                         <span class="badge badge-status-{{ $ticket->status }}">
                             {{ __('tickets.status_' . $ticket->status) }}
                         </span>
@@ -31,7 +31,7 @@
                         <form action="{{ route('tickets.close', $ticket) }}" method="POST">
                             @csrf
                             <button type="submit" class="btn-action btn-action-close">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
                                 </svg>
@@ -42,7 +42,7 @@
                         <form action="{{ route('tickets.reopen', $ticket) }}" method="POST">
                             @csrf
                             <button type="submit" class="btn-action btn-action-reopen">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
                                     <path d="M21 3v5h-5"></path>
                                     <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
@@ -53,7 +53,7 @@
                         </form>
                     @endif
                     <a href="{{ route('tickets.index') }}" class="btn-action btn-action-back">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
                         </svg>

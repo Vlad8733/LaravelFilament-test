@@ -8,19 +8,17 @@
 
 @section('content')
 <div class="reviews-page">
-    <div class="max-w-3xl mx-auto px-4 py-8">
-        <div class="mb-6">
-            <a href="{{ route('reviews.index') }}" class="reviews-back-link">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-                {{ __('reviews.back_to_reviews') }}
-            </a>
-        </div>
+    <div class="reviews-container">
+        <a href="{{ route('reviews.index') }}" class="reviews-back-link">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            {{ __('reviews.back_to_reviews') }}
+        </a>
 
         @if(session('success'))
             <div class="reviews-alert success">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 {{ session('success') }}
@@ -29,7 +27,7 @@
 
         @if(session('error'))
             <div class="reviews-alert error">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
                 {{ session('error') }}
@@ -39,21 +37,21 @@
         <div class="reviews-card">
             <!-- Header -->
             <div class="reviews-card-header">
-                <div class="flex items-center gap-4">
+                <div class="reviews-card-header-info">
                     @if($review->product && $review->product->images->first())
                         <img src="{{ $review->product->images->first()->image_url }}" 
                              alt="{{ $review->product->name }}" 
                              class="reviews-product-image">
                     @else
                         <div class="reviews-product-placeholder">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                         </div>
                     @endif
-                    <div>
-                        <h1 class="reviews-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ $review->product->name ?? 'Product' }}</h1>
-                        <p class="reviews-subtitle">{{ __('order.order_prefix', ['number' => $review->order->order_number]) }}</p>
+                    <div class="reviews-product-info">
+                        <h1>{{ $review->product->name ?? 'Product' }}</h1>
+                        <p>{{ __('order.order_prefix', ['number' => $review->order->order_number]) }}</p>
                     </div>
                 </div>
                 <span class="reviews-status {{ $review->status }}">
@@ -75,7 +73,7 @@
                                 </svg>
                             @endfor
                         </div>
-                        <span style="font-size: 0.75rem; color: var(--text-dim);">{{ $review->created_at->translatedFormat('M d, Y') }}</span>
+                        <span class="reviews-overall-date">{{ $review->created_at->translatedFormat('M d, Y') }}</span>
                     </div>
                 </div>
             </div>
@@ -150,7 +148,7 @@
             @if($review->isPending())
                 <div class="reviews-actions">
                     <a href="{{ route('reviews.edit', $review) }}" class="reviews-btn reviews-btn-secondary">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
                         {{ __('reviews.edit_review_btn') }}
@@ -160,7 +158,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="reviews-btn reviews-btn-danger" style="width: 100%;">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
                             {{ __('reviews.delete_review') }}

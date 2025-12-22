@@ -20,4 +20,7 @@ return [
     'removed' => 'Removed from wishlist',
     'error_removing' => 'Failed to remove from wishlist',
     'error_adding_cart' => 'Failed to add to cart',
+    'network_error' => 'Network error',
+    'empty_title' => 'Your wishlist is empty',
+    'empty_subtitle' => 'Start adding products you love!',
 ];

@@ -51,12 +51,24 @@ return [
     
     // Statuses
     'status_pending' => 'Ожидает',
+    'status_pending_review' => 'На рассмотрении',
     'status_approved' => 'Одобрен',
     'status_rejected' => 'Отклонён',
     'status_completed' => 'Завершён',
+    'status_refunded' => 'Возвращено',
     'status_cancelled' => 'Отменён',
+    
+    // Status notes (default)
+    'note_pending' => 'Запрос на возврат отправлен клиентом.',
+    'note_approved' => 'Запрос на возврат одобрен.',
+    'note_approved_by_admin' => 'Возврат одобрен администратором.',
+    'note_rejected' => 'Запрос на возврат отклонён.',
+    'note_completed' => 'Возврат был обработан и завершён.',
+    'note_cancelled' => 'Запрос на возврат был отменён.',
+    'note_cancelled_by_customer' => 'Запрос на возврат отменён клиентом.',
     
     // Messages
     'request_submitted' => 'Запрос на возврат успешно отправлен',
     'request_cancelled' => 'Запрос на возврат отменён',
+    'error_only_pending_can_cancel' => 'Можно отменить только запросы со статусом "Ожидает".',
 ];

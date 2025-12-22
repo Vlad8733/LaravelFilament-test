@@ -79,10 +79,10 @@ class RefundController extends Controller
         ]);
 
         // Добавляем запись в историю
-        $refund->addStatusHistory('pending', 'Refund request submitted by customer.', Auth::id());
+        $refund->addStatusHistory('pending', __('refunds.note_pending'), Auth::id());
 
         return redirect()->route('refunds.show', $refund)
-            ->with('success', 'Your refund request has been submitted successfully.');
+            ->with('success', __('refunds.request_submitted'));
     }
 
     /**
@@ -110,13 +110,13 @@ class RefundController extends Controller
         }
 
         if (!$refund->isPending()) {
-            return back()->with('error', 'Only pending refund requests can be cancelled.');
+            return back()->with('error', __('refunds.error_only_pending_can_cancel'));
         }
 
         $refund->update(['status' => 'rejected']);
-        $refund->addStatusHistory('rejected', 'Refund request cancelled by customer.', Auth::id());
+        $refund->addStatusHistory('rejected', __('refunds.note_cancelled_by_customer'), Auth::id());
 
         return redirect()->route('refunds.index')
-            ->with('success', 'Refund request has been cancelled.');
+            ->with('success', __('refunds.request_cancelled'));
     }
 }

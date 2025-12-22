@@ -68,6 +68,7 @@
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- FILTER BACKDROP -->
             <div x-show="showFilters" 
+                 x-init="$watch('showFilters', value => { document.body.classList.toggle('filters-open', value) })"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0"
                  x-transition:enter-end="opacity-100"
@@ -179,14 +180,14 @@
                 <!-- Toolbar -->
                 <div class="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
                     <div class="flex items-center space-x-4">
-                        <button @click="showFilters = !showFilters" class="p-2 rounded bg-gray-800 text-white flex items-center gap-2" title="{{ __('products.filters') }}">
+                        <button @click="showFilters = !showFilters" class="filter-toggle-btn p-2 rounded bg-gray-800 text-white flex items-center gap-2" title="{{ __('products.filters') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="currentColor"><path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/></svg>
-                            <span class="hidden sm:inline text-sm">{{ __('products.filters') }}</span>
+                            <span class="filter-toggle-text hidden sm:inline text-sm">{{ __('products.filters') }}</span>
                         </button>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <label class="text-sm text-gray-600">{{ __('products.sort_by') }}:</label>
-                        <select x-model="filters.sort" @change="applyFilters()" class="border border-gray-300 rounded px-3 py-1 text-sm">
+                        <label class="toolbar-label text-sm text-gray-600">{{ __('products.sort_by') }}:</label>
+                        <select x-model="filters.sort" @change="applyFilters()" class="toolbar-select border border-gray-300 rounded px-3 py-1 text-sm">
                             <option value="">{{ __('products.featured') }}</option>
                             <option value="newest">{{ __('products.newest') }}</option>
                             <option value="price_asc">{{ __('products.price_low_high') }}</option>

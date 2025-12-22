@@ -55,6 +55,7 @@ return [
     
     // Messages
     'review_submitted' => 'Review submitted successfully',
+    'review_submitted_more' => 'Review submitted! You can review more products.',
     'review_updated' => 'Review updated successfully',
     'review_deleted' => 'Review deleted successfully',
 ];

@@ -13,7 +13,7 @@
         <div class="tickets-header">
             <h1 class="tickets-title">{{ __('tickets.title') }}</h1>
             <a href="{{ route('tickets.create') }}" class="btn-create-ticket">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
@@ -43,7 +43,10 @@
 
         <!-- Success Message -->
         @if(session('success'))
-            <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; color: #10b981;">
+            <div class="tickets-alert success">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
                 {{ session('success') }}
             </div>
         @endif
@@ -54,7 +57,7 @@
                 @foreach($tickets as $ticket)
                     <a href="{{ route('tickets.show', $ticket) }}" class="ticket-card">
                         <div class="ticket-card-header">
-                            <div style="flex: 1;">
+                            <div class="ticket-card-info">
                                 <div class="ticket-id">#{{ $ticket->id }}</div>
                                 <h3 class="ticket-subject">{{ $ticket->subject }}</h3>
                                 <p class="ticket-description">{{ Str::limit($ticket->description, 150) }}</p>
@@ -67,7 +70,7 @@
                                     {{ __('tickets.priority_' . $ticket->priority) }}
                                 </span>
                                 @if($ticket->unread_messages_for_user_count > 0)
-                                    <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                                    <span class="badge badge-unread">
                                         {{ __('tickets.new_messages', ['count' => $ticket->unread_messages_for_user_count]) }}
                                     </span>
                                 @endif
@@ -77,13 +80,13 @@
                         <div class="ticket-card-footer">
                             <div class="ticket-meta">
                                 <span class="ticket-meta-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                     </svg>
                                     {{ trans_choice('tickets.replies_count', $ticket->messages_count, ['count' => $ticket->messages_count]) }}
                                 </span>
                                 <span class="ticket-meta-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
@@ -104,8 +107,8 @@
             </div>
         @else
             <div class="empty-state">
-                <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                 </svg>
                 <h2 class="empty-state-title">{{ __('tickets.no_tickets') }}</h2>
                 <p class="empty-state-description">{{ __('tickets.no_tickets_text') }}</p>

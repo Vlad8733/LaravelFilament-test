@@ -168,7 +168,7 @@ class RefundRequestResource extends Resource
                             'processed_at' => now(),
                         ]);
 
-                        $record->addStatusHistory('approved', $data['admin_notes'] ?? 'Refund approved by admin.', auth()->id());
+                        $record->addStatusHistory('approved', $data['admin_notes'] ?? __('refunds.note_approved_by_admin'), auth()->id());
 
                         Notification::make()
                             ->title('Refund Approved')
@@ -232,7 +232,7 @@ class RefundRequestResource extends Resource
                             'processed_at' => now(),
                         ]);
 
-                        $record->addStatusHistory('completed', 'Refund has been processed and completed.', auth()->id());
+                        $record->addStatusHistory('completed', __('refunds.note_completed'), auth()->id());
 
                         Notification::make()
                             ->title('Refund Completed')

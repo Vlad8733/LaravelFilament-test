@@ -7,6 +7,17 @@
 
     <title>@yield('title', 'ShopLy')</title>
 
+    <!-- Apply theme before CSS loads to prevent flash -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('settings_theme') || 'dark';
+            if (theme === 'auto') {
+                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.classList.add('theme-' + theme);
+        })();
+    </script>
+
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     @stack('styles')
@@ -713,6 +724,174 @@
         
         .rotate-180 {
             transform: rotate(180deg);
+        }
+
+        /* ============================================
+           LIGHT THEME - NAVIGATION OVERRIDES
+           ============================================ */
+        html.theme-light #site-nav {
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95)) !important;
+            border-bottom-color: #e5e7eb !important;
+        }
+
+        html.theme-light .search-input {
+            background: #f5f5f5 !important;
+            border-color: #e5e7eb !important;
+            color: #18181b !important;
+        }
+
+        html.theme-light .search-input::placeholder {
+            color: #9ca3af !important;
+        }
+
+        html.theme-light .search-results {
+            background: #ffffff !important;
+            border-color: #e5e7eb !important;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
+        }
+
+        html.theme-light .search-result-item {
+            color: #18181b !important;
+        }
+
+        html.theme-light .search-result-item:hover,
+        html.theme-light .search-result-item.active {
+            background: #f5f5f5 !important;
+        }
+
+        html.theme-light .sr-name {
+            color: #18181b !important;
+        }
+
+        html.theme-light .sr-price {
+            color: #52525b !important;
+        }
+
+        /* Profile Dropdown - Light Theme */
+        html.theme-light .profile-dropdown {
+            background: #ffffff !important;
+            border-color: #e5e7eb !important;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
+        }
+
+        html.theme-light .profile-dropdown-header {
+            background: #fafafa !important;
+        }
+
+        html.theme-light .profile-dropdown-name {
+            color: #18181b !important;
+        }
+
+        html.theme-light .profile-dropdown-email {
+            color: #6b7280 !important;
+        }
+
+        html.theme-light .profile-dropdown-divider {
+            background: #e5e7eb !important;
+        }
+
+        html.theme-light .profile-dropdown-section-title {
+            color: #9ca3af !important;
+        }
+
+        html.theme-light .profile-dropdown-item {
+            color: #3f3f46 !important;
+        }
+
+        html.theme-light .profile-dropdown-item:hover {
+            background: #f5f5f5 !important;
+            color: #18181b !important;
+        }
+
+        html.theme-light .profile-dropdown-item.admin-link {
+            color: #7c3aed !important;
+        }
+
+        html.theme-light .profile-dropdown-item.admin-link:hover {
+            background: rgba(124, 58, 237, 0.08) !important;
+            color: #6d28d9 !important;
+        }
+
+        html.theme-light .profile-dropdown-item.logout-btn {
+            color: #ef4444 !important;
+        }
+
+        html.theme-light .profile-dropdown-item.logout-btn:hover {
+            background: rgba(239, 68, 68, 0.08) !important;
+            color: #dc2626 !important;
+        }
+
+        /* Notification Dropdown - Light Theme */
+        html.theme-light .notification-dropdown {
+            background: #ffffff !important;
+            border-color: #e5e7eb !important;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
+        }
+
+        html.theme-light .notification-dropdown-header {
+            background: #fafafa !important;
+            border-color: #e5e7eb !important;
+        }
+
+        html.theme-light .notification-dropdown-title {
+            color: #18181b !important;
+        }
+
+        html.theme-light .notification-item {
+            border-color: #e5e7eb !important;
+        }
+
+        html.theme-light .notification-item:hover {
+            background: #f5f5f5 !important;
+        }
+
+        html.theme-light .notification-title {
+            color: #18181b !important;
+        }
+
+        html.theme-light .notification-text {
+            color: #52525b !important;
+        }
+
+        html.theme-light .notification-time {
+            color: #9ca3af !important;
+        }
+
+        html.theme-light .notification-dropdown-empty {
+            color: #9ca3af !important;
+        }
+
+        /* Nav icons - Light Theme */
+        html.theme-light .nav-item-wrap {
+            color: #52525b !important;
+        }
+
+        html.theme-light .nav-item-wrap:hover {
+            color: #18181b !important;
+        }
+
+        /* User name in navbar - Light Theme */
+        html.theme-light .profile-btn .user-name,
+        html.theme-light .profile-btn span,
+        html.theme-light .nav-user-name {
+            color: #18181b !important;
+        }
+
+        html.theme-light .user-link {
+            color: #18181b !important;
+        }
+
+        html.theme-light .user-name {
+            color: #18181b !important;
+        }
+
+        html.theme-light .user-link .chevron-icon {
+            color: #71717a !important;
+        }
+
+        html.theme-light .checkout-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            color: #000 !important;
         }
     </style>
 </head>
