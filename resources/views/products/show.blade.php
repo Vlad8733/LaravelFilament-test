@@ -75,13 +75,16 @@
                 <!-- Price -->
                 <div class="flex items-center space-x-3">
                     @if($product->sale_price)
-                        <span class="text-3xl font-bold text-green-600">${{ number_format($product->sale_price, 2) }}</span>
-                        <span class="text-xl text-gray-500 line-through">${{ number_format($product->price, 2) }}</span>
-                        <span class="bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                        <span id="product-price" data-base-price="{{ $product->sale_price }}" class="text-3xl font-bold text-green-600">${{ number_format($product->sale_price, 2) }}</span>
+                        <span id="product-old-price" data-base-old="{{ $product->price }}" class="text-xl text-gray-500 line-through">${{ number_format($product->price, 2) }}</span>
+                        <span id="product-discount" data-off-text="{{ __('products.off') }}" class="bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded">
                             {{ $product->getDiscountPercentage() }}% {{ __('products.off') }}
                         </span>
                     @else
-                        <span class="text-3xl font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
+                        <span id="product-price" data-base-price="{{ $product->price }}" class="text-3xl font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
+                        <span id="product-old-price" class="text-xl text-gray-500 line-through hidden"></span>
+                        <span id="product-old-price" class="text-xl text-gray-500 line-through hidden"></span>
+                        <span id="product-discount" data-off-text="{{ __('products.off') }}" class="hidden bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded"></span>
                     @endif
                 </div>
 
@@ -119,6 +122,18 @@
 
                 <!-- Add to Cart -->
                 <div class="space-y-4">
+                    @if($product->variants && $product->variants->count() > 0)
+                        <div>
+                            <label class="text-sm font-medium text-gray-700">{{ __('products.variant') }}:</label>
+                            <select id="product-variant" x-model="selectedVariantId" @change="onVariantChange($event)" class="mt-2 block w-full rounded-lg border px-3 py-2 bg-white text-gray-900">
+                                <option value="">{{ __('products.default_variant') }}</option>
+                                @foreach($product->variants as $v)
+                                    @php $attrs = is_array($v->attributes) ? implode(', ', array_map(fn($k,$val) => "$k:$val", array_keys($v->attributes), $v->attributes)) : '' ; @endphp
+                                    <option value="{{ $v->id }}" data-price="{{ $v->price }}" data-sale="{{ $v->sale_price }}" data-stock="{{ $v->stock_quantity }}" data-sku="{{ $v->sku }}">{{ $v->sku }} {{ $attrs ? ' — ' . $attrs : '' }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                     <div class="flex items-center space-x-4">
                         <label class="text-sm font-medium text-gray-700">{{ __('products.quantity') }}:</label>
                         <div class="flex items-center border rounded-lg">

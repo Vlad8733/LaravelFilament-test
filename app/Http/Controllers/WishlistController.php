@@ -36,9 +36,12 @@ class WishlistController extends Controller
         $product = Product::find($productId);
         if (! $product) return response()->json(['success' => false, 'message' => 'Product not found'], 404);
 
+        $variantId = $request->input('variant_id');
+
         $created = WishlistItem::firstOrCreate([
             'user_id' => $userId,
             'product_id' => $productId,
+            'variant_id' => $variantId,
         ]);
 
         activity_log('added_to_wishlist:' . __('activity_log.log.added_to_wishlist', ['product' => $product->name]));

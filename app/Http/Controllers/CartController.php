@@ -32,10 +32,34 @@ class CartController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
         $qty = max(1, (int) $request->input('quantity', 1));
+        $variantId = $request->input('variant_id');
         $product = Product::findOrFail($productId);
-        $cartItem = CartItem::where('user_id', $userId)
-            ->where('product_id', $productId)
-            ->first();
+
+        $cartItemQuery = CartItem::where('user_id', $userId)
+            ->where('product_id', $productId);
+        if ($variantId) {
+            $cartItemQuery->where('variant_id', $variantId);
+        } else {
+            $cartItemQuery->whereNull('variant_id');
+        }
+        $cartItem = $cartItemQuery->first();
+        // Validate stock availability
+        $available = null;
+        if ($variantId) {
+            $variant = \App\Models\ProductVariant::find($variantId);
+            if (! $variant || $variant->product_id != $productId) {
+                return response()->json(['success' => false, 'message' => 'Invalid variant'], 400);
+            }
+            $available = $variant->stock_quantity;
+        } else {
+            $available = $product->stock_quantity;
+        }
+
+        $existingQty = $cartItem ? $cartItem->quantity : 0;
+        if (($existingQty + $qty) > $available) {
+            return response()->json(['success' => false, 'message' => 'Requested quantity not available'], 400);
+        }
+
         if ($cartItem) {
             $cartItem->quantity += $qty;
             $cartItem->save();
@@ -44,6 +68,7 @@ class CartController extends Controller
             CartItem::create([
                 'user_id' => $userId,
                 'product_id' => $productId,
+                'variant_id' => $variantId,
                 'quantity' => $qty,
                 'session_id' => session()->getId(),
             ]);
@@ -75,13 +100,17 @@ class CartController extends Controller
         $cartItem->save();
         activity_log('updated_cart:' . __('activity_log.log.updated_cart', ['product' => $cartItem->product->name, 'qty' => $qty]));
         // Пересчитываем итоги
-        $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
-        
+        $cartItems = CartItem::where('user_id', $userId)->with(['product', 'variant'])->get();
+
         $subtotal = $cartItems->sum(function ($item) {
-            return $item->product->getCurrentPrice() * $item->quantity;
+            $source = $item->variant ?? $item->product;
+            $price = $source->sale_price ?? $source->price ?? 0;
+            return $price * $item->quantity;
         });
 
-        $itemSubtotal = $cartItem->product->getCurrentPrice() * $qty;
+        // Use variant price when present
+        $priceSource = $cartItem->variant ?? $cartItem->product;
+        $itemSubtotal = ($priceSource->sale_price ?? $priceSource->price) * $qty;
 
         return response()->json([
             'success' => true,
@@ -129,7 +158,7 @@ class CartController extends Controller
     {
         $userId = Auth::id();
         
-        $cartItems = CartItem::with('product.images')
+        $cartItems = CartItem::with(['product.images', 'variant'])
             ->where('user_id', $userId)
             ->get();
 
@@ -168,9 +197,9 @@ class CartController extends Controller
             }
 
             // Получаем корзину
-            $cartItems = CartItem::with('product')
-                ->where('user_id', $userId)
-                ->get();
+                $cartItems = CartItem::with(['product', 'variant'])
+                    ->where('user_id', $userId)
+                    ->get();
 
             if ($cartItems->isEmpty()) {
                 return redirect()->route('cart.index')
@@ -236,15 +265,31 @@ class CartController extends Controller
             session(['last_order_id' => $order->id]);
 
             // Создаём items заказа
-            foreach ($cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'product_name' => $item->product->name,
-                    'quantity' => $item->quantity,
-                    'product_price' => $item->product->getCurrentPrice(),
-                    'total' => $item->product->getCurrentPrice() * $item->quantity,
-                ]);
+                // Сохраняем items заказа и уменьшаем склад
+                foreach ($cartItems as $item) {
+                    $variant = $item->variant;
+                    $price = $variant ? ($variant->sale_price ?? $variant->price) : $item->product->getCurrentPrice();
+
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $item->product_id,
+                        'variant_id' => $item->variant_id ?? null,
+                        'product_name' => $item->product->name,
+                        'quantity' => $item->quantity,
+                        'product_price' => $price,
+                        'total' => $price * $item->quantity,
+                    ]);
+
+                    // Уменьшаем stock на уровне варианта или продукта
+                    try {
+                        if ($variant) {
+                            $variant->decrement('stock_quantity', $item->quantity);
+                        } else {
+                            $item->product->decrement('stock_quantity', $item->quantity);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning('Failed to decrement stock: ' . $e->getMessage());
+                    }
             }
 
             // Добавляем запись в историю статусов

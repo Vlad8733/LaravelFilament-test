@@ -4,6 +4,7 @@ window.productPage = function() {
         quantity: 1,
         maxQuantity: 1,
         productId: null,
+        selectedVariantId: null,
         loading: false,
 
         init(maxQty = 1, productId = null) {
@@ -15,6 +16,70 @@ window.productPage = function() {
             if (q) {
                 q.value = String(this.quantity);
                 q.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        },
+
+        onVariantChange(e) {
+            // called when variant select changes
+            const sel = e && e.target ? e.target : document.getElementById('product-variant');
+            if (!sel) return;
+            const val = sel.value || null;
+            this.selectedVariantId = val || null;
+
+            const priceEl = document.getElementById('product-price');
+            const oldEl = document.getElementById('product-old-price');
+            const discEl = document.getElementById('product-discount');
+
+            if (!val) {
+                // reset to product-level price/stock (use data on add button)
+                const addBtn = document.querySelector('[data-add-to-cart]');
+                const max = addBtn ? Number(addBtn.getAttribute('data-max') || Infinity) : Infinity;
+                this.maxQuantity = isFinite(max) ? max : this.maxQuantity;
+                // price fallback: if oldEl has class hidden, use its text otherwise keep priceEl as-is
+                if (priceEl && priceEl.dataset && priceEl.dataset.basePrice) {
+                    priceEl.textContent = `$${Number(priceEl.dataset.basePrice).toFixed(2)}`;
+                }
+                if (oldEl) oldEl.classList.add('hidden');
+                if (discEl) discEl.classList.add('hidden');
+                return;
+            }
+
+            const option = sel.querySelector(`option[value="${val}"]`);
+            if (!option) return;
+            const vPrice = option.getAttribute('data-price');
+            const vSale = option.getAttribute('data-sale');
+            const vStock = option.getAttribute('data-stock');
+
+            // update displayed price
+            if (priceEl) {
+                const display = (vSale && vSale !== '0') ? Number(vSale) : Number(vPrice);
+                priceEl.textContent = `$${Number(display).toFixed(2)}`;
+            }
+
+            // show old price if sale exists and differs
+            if (vSale && Number(vSale) > 0 && oldEl) {
+                oldEl.textContent = `$${Number(vPrice).toFixed(2)}`;
+                oldEl.classList.remove('hidden');
+                if (discEl) {
+                    const perc = Math.round((1 - (Number(vSale) / Number(vPrice || vSale))) * 100);
+                    const offText = (discEl.dataset && discEl.dataset.offText) ? discEl.dataset.offText : 'off';
+                    discEl.textContent = `${perc}% ${offText}`;
+                    discEl.classList.remove('hidden');
+                }
+            } else if (oldEl) {
+                oldEl.classList.add('hidden');
+                if (discEl) discEl.classList.add('hidden');
+            }
+
+            // update max quantity
+            this.maxQuantity = (vStock !== null && vStock !== undefined && vStock !== '') ? Number(vStock) : this.maxQuantity;
+            // ensure quantity does not exceed new max
+            if (Number(this.quantity) > Number(this.maxQuantity)) this.quantity = this.maxQuantity;
+            const qEl = document.getElementById('product-quantity');
+            if (qEl) {
+                qEl.setAttribute('max', String(this.maxQuantity));
+                qEl.value = String(this.quantity);
+                qEl.dispatchEvent(new Event('input', { bubbles: true }));
             }
         },
 
@@ -41,7 +106,7 @@ window.productPage = function() {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ quantity: this.quantity })
+                    body: JSON.stringify({ quantity: this.quantity, variant_id: this.selectedVariantId })
                 });
 
                 const data = await response.json();
@@ -161,6 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.textContent = 'Adding...';
 
             try {
+                // include variant_id if present in select
+                const variantSelect = document.getElementById('product-variant');
+                const variantId = variantSelect ? variantSelect.value || null : null;
+
                 const response = await fetch(`/cart/add/${productId}`, {
                     method: 'POST',
                     headers: {
@@ -168,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ quantity: qty })
+                    body: JSON.stringify({ quantity: qty, variant_id: variantId })
                 });
                 const data = await response.json();
 

@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'variant' => 'Variant',
+    'default_variant' => 'Default variant',
+    'off' => 'off',
     'title' => 'Products',
     'discover' => 'Discover our collection of :count products',
     'home' => 'Home',
