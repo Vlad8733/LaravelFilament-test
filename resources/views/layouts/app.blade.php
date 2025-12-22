@@ -922,75 +922,11 @@
             color: #000 !important;
         }
 
-        /* EMERGENCY OVERRIDES: force profile dark when theme-dark is active */
-        html.theme-dark .profile-page,
-        body.theme-dark .profile-page,
-        html:not(.theme-light) .profile-page {
-            background: #030305 !important;
-            color: #fafafa !important;
-        }
-
-        html.theme-dark .profile-header,
-        body.theme-dark .profile-header,
-        html:not(.theme-light) .profile-header {
-            background: linear-gradient(180deg,#111114,#0a0a0c) !important;
-            border-color: rgba(255,255,255,0.06) !important;
-        }
-
-        html.theme-dark .profile-section,
-        body.theme-dark .profile-section,
-        html:not(.theme-light) .profile-section {
-            background: #111114 !important;
-            border-color: rgba(255,255,255,0.06) !important;
-            color: #fafafa !important;
-        }
-
-        html.theme-dark .form-input,
-        body.theme-dark .form-input,
-        html:not(.theme-light) .form-input {
-            background: #18181b !important;
-            border-color: rgba(255,255,255,0.06) !important;
-            color: #fafafa !important;
-        }
-
-        html.theme-dark .account-card,
-        body.theme-dark .account-card,
-        html:not(.theme-light) .account-card {
-            background: #18181b !important;
-            border-color: rgba(255,255,255,0.06) !important;
-        }
+        /* Theme overrides live in built CSS files; no emergency overrides here. */
     </style>
 </head>
 <body>
-    <script>
-        (function(){
-            try{
-                console.log('theme-debug:', localStorage.getItem('settings_theme'), document.documentElement.className, document.body.className);
-            }catch(e){}
-        })();
-    </script>
-
-    <div id="theme-debug-badge" style="position:fixed;right:8px;bottom:8px;z-index:99999;padding:6px 8px;background:rgba(0,0,0,0.6);color:#fff;border-radius:6px;font-size:12px;font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">Theme: <span id="theme-debug-val">...</span></div>
-    <script>
-        (function(){
-            try{
-                var el = document.getElementById('theme-debug-val');
-                if (!el) return;
-                var val = localStorage.getItem('settings_theme') || document.documentElement.className || document.body.className || '';
-                el.textContent = val;
-                var badge = document.getElementById('theme-debug-badge');
-                if (badge) {
-                    if (String(val).includes('dark')) {
-                        badge.style.background = 'rgba(3,3,5,0.9)'; badge.style.color = '#fafafa';
-                    } else if (String(val).includes('light')) {
-                        badge.style.background = 'rgba(250,250,250,0.95)'; badge.style.color = '#111';
-                    } else {
-                        badge.style.background = 'rgba(100,100,100,0.8)'; badge.style.color = '#fff';
-                    }
-                }
-            }catch(e){}
-        })();
-    </script>
+    
     <nav id="site-nav">
         <div class="nav-wrap">
             <a href="{{ url('/products') }}">

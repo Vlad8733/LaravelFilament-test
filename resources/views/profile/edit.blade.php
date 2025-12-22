@@ -4,36 +4,7 @@
 
 @push('styles')
     @vite('resources/css/profile/profileedit.css')
-    <style>
-        /* Force dark theme */
-        html.theme-dark .profile-page,
-        html:not(.theme-light) .profile-page {
-            background: #030305 !important;
-            color: #fafafa !important;
-        }
-        html.theme-dark .profile-header,
-        html:not(.theme-light) .profile-header {
-            background: linear-gradient(180deg, #111114, #0a0a0c) !important;
-            border-color: rgba(255,255,255,0.06) !important;
-        }
-        html.theme-dark .profile-section,
-        html:not(.theme-light) .profile-section {
-            background: #111114 !important;
-            border-color: rgba(255,255,255,0.06) !important;
-        }
-        html.theme-dark .form-input,
-        html:not(.theme-light) .form-input {
-            background: #18181b !important;
-            border-color: rgba(255,255,255,0.06) !important;
-            color: #fafafa !important;
-        }
-        html.theme-dark .action-btn,
-        html:not(.theme-light) .action-btn {
-            background: rgba(255,255,255,0.05) !important;
-            border-color: rgba(255,255,255,0.08) !important;
-            color: #fafafa !important;
-        }
-    </style>
+    
 @endpush
 
 @push('scripts')
@@ -46,7 +17,7 @@
 @endpush
 
 @section('content')
-<main class="profile-page" style="background:#030305;color:#fafafa;">
+<main class="profile-page">
   <div class="profile-container">
     {{-- Status Message --}}
     @if(session('status'))
@@ -229,27 +200,3 @@
 </main>
 @endsection
 
-@push('scripts')
-  <script>
-    // Fallback: ensure profile main uses dark styles when stored theme is dark or not light
-    (function(){
-      try{
-        var t = localStorage.getItem('settings_theme');
-        var main = document.querySelector('main.profile-page');
-        if (!main) return;
-        if (!t || t === 'dark' || t === 'auto') {
-          main.style.background = '#030305';
-          main.style.color = '#fafafa';
-          var headers = main.querySelectorAll('.profile-header, .profile-section, .account-card');
-          headers.forEach(function(h){
-            if (h) {
-              h.style.background = '#111114';
-              h.style.borderColor = 'rgba(255,255,255,0.06)';
-              h.style.color = '#fafafa';
-            }
-          });
-        }
-      }catch(e){ }
-    })();
-  </script>
-@endpush
