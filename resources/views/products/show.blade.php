@@ -171,11 +171,11 @@
                         <div class="border-b border-gray-200 pb-6 last:border-0">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
-                                        <span class="text-sm font-medium text-white">
-                                            {{ strtoupper(substr($review->user->name ?? 'U', 0, 1)) }}
-                                        </span>
-                                    </div>
+                                    {{-- Аватар пользователя --}}
+                                    @php $user = $review->user; @endphp
+                                     <img src="{{ $user?->avatar_url ?? asset('storage/logo/no_avatar.png') }}"
+                                         alt="{{ $user?->name ?? 'User' }}"
+                                         class="reviews-user-avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#f3f3f3;border:1px solid #e5e7eb;">
                                     <div>
                                         <h4 class="font-medium text-gray-900">{{ $review->user->name ?? 'Anonymous' }}</h4>
                                         <div class="flex items-center gap-1">

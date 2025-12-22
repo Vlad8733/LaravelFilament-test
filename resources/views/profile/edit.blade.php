@@ -31,11 +31,7 @@
       <div class="profile-header-content">
         <div class="profile-avatar-section">
           <div class="avatar-wrapper" id="avatarPreview">
-            @if($user->avatar)
-              <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}">
-            @else
-              <span class="avatar-initials">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
-            @endif
+            <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
             <label class="avatar-upload-btn" for="avatarInput" title="{{ __('profile.change_avatar') }}">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </label>
@@ -167,7 +163,7 @@
                 onclick="switchAccount({{ $acc->id }})"
                 @if($acc->id === $user->id) disabled @endif>
                 <img class="account-avatar"
-                  src="{{ $acc->avatar ? asset('storage/' . $acc->avatar) : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($acc->email))) . '?s=56&d=identicon' }}"
+                  src="{{ $acc->avatar_url ?? asset('storage/logo/no_avatar.png') }}"
                   alt="{{ $acc->name }}">
                 <div class="account-info">
                   <span class="account-name">

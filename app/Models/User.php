@@ -262,6 +262,18 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         return $this->hasMany(CustomerReview::class);
     }
 
+    /**
+     * Получить URL аватара пользователя или дефолтную заглушку
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar && \Storage::disk('public')->exists($this->avatar)) {
+            return \Storage::url($this->avatar);
+        }
+        // Новая заглушка
+        return asset('storage/logo/no_avatar.png');
+    }
+
     // =========================================================
     // BOOT METHOD - PROTECTION
     // =========================================================

@@ -1007,7 +1007,7 @@
                     <!-- Profile Dropdown -->
                     <div class="relative" x-data="{ profileOpen: false }" @click.away="profileOpen = false">
                         <button @click="profileOpen = !profileOpen" class="user-link" style="background: none; border: none; cursor: pointer;">
-                            <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim(auth()->user()->email))).'?s=40&d=identicon' }}" class="nav-avatar" alt="avatar">
+                            <img src="{{ auth()->user()?->avatar_url ?? asset('storage/logo/no_avatar.png') }}" class="nav-avatar" alt="avatar">
                             <span class="user-name">{{ auth()->user()->name }}</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron-icon" :class="{ 'rotate-180': profileOpen }" style="transition: transform 0.2s;">
                                 <path d="M6 9l6 6 6-6"/>
@@ -1025,7 +1025,7 @@
                             
                             <!-- User Info Header -->
                             <div class="profile-dropdown-header">
-                                <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim(auth()->user()->email))).'?s=60&d=identicon' }}" class="profile-dropdown-avatar" alt="avatar">
+                                <img src="{{ auth()->user()?->avatar_url ?? asset('storage/logo/no_avatar.png') }}" class="profile-dropdown-avatar" alt="avatar">
                                 <div class="profile-dropdown-info">
                                     <div class="profile-dropdown-name">{{ auth()->user()->name }}</div>
                                     <div class="profile-dropdown-email">{{ auth()->user()->email }}</div>
