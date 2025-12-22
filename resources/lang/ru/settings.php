@@ -45,6 +45,9 @@ return [
     'theme_light' => 'Светлая',
     'theme_auto' => 'Системная',
     
+    // Analytics
+    'nav_analytics' => 'Аналитика',
+    
     // Common
     'back_to_profile' => 'Вернуться в профиль',
     'save_changes' => 'Сохранить изменения',

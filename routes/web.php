@@ -157,6 +157,19 @@ Route::middleware(['auth'])->prefix('settings')->name('settings.')->group(functi
     Route::post('/locale', [App\Http\Controllers\SettingsController::class, 'updateLocale'])->name('locale');
 });
 
+// Analytics Routes
+Route::middleware(['auth'])->prefix('analytics')->name('analytics.')->group(function () {
+    Route::get('/', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('index');
+    Route::get('/data', [App\Http\Controllers\AnalyticsController::class, 'getData'])->name('data');
+});
+
+// Invoice Routes (публичный доступ по номеру заказа, защищённый по ID)
+Route::prefix('invoice')->name('invoice.')->group(function () {
+    Route::get('/order/{orderNumber}', [App\Http\Controllers\InvoiceController::class, 'downloadByNumber'])->name('download.number');
+    Route::get('/{order}/download', [App\Http\Controllers\InvoiceController::class, 'download'])->name('download');
+    Route::get('/{order}/view', [App\Http\Controllers\InvoiceController::class, 'view'])->name('view');
+});
+
 // Language switch route
 Route::get('/language/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'ru'])) {

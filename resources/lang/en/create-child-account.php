@@ -15,11 +15,11 @@ return [
     'password' => 'Password',
     'password_confirmation' => 'Confirm password',
     'username' => 'Username (optional)',
-    'username_help' => 'Optional handle for the child account.',
     
     // Actions
     'create_btn' => 'Create linked account',
     'cancel' => 'Cancel',
+    'back_to_profile' => 'Back to Profile',
     
     // Messages
     'created_success' => 'Child account created successfully',

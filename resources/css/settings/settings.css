@@ -219,6 +219,36 @@
     opacity: 1;
 }
 
+/* Nav Divider */
+.settings-nav-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 8px 12px;
+}
+
+/* Nav Link (for external navigation) */
+.settings-nav-link {
+    position: relative;
+}
+
+.settings-nav-arrow {
+    width: 16px;
+    height: 16px;
+    margin-left: auto;
+    opacity: 0.5;
+    transition: var(--transition-smooth);
+}
+
+.settings-nav-link:hover .settings-nav-arrow {
+    opacity: 1;
+    transform: translateX(3px);
+}
+
+.settings-nav-link:hover {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+    color: var(--accent);
+}
+
 /* ============================================
    CONTENT AREA
    ============================================ */

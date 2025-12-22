@@ -45,6 +45,9 @@ return [
     'theme_light' => 'Light',
     'theme_auto' => 'System',
     
+    // Analytics
+    'nav_analytics' => 'Analytics Dashboard',
+    
     // Common
     'back_to_profile' => 'Back to Profile',
     'save_changes' => 'Save Changes',

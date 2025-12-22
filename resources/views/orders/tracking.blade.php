@@ -195,6 +195,25 @@
                     @endif
                 @endauth
 
+                <!-- Download Invoice Card -->
+                <div class="tracking-card-small invoice-card">
+                    <div class="card-header">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--success);">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <h3 class="card-title">{{ __('invoice.title') }}</h3>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">{{ __('order.invoice_description') }}</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="{{ route('invoice.download.number', $order->order_number) }}" class="btn-action green">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            {{ __('invoice.download') }}
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Order Details -->
                 <div class="tracking-card-small">
                     <h3 class="card-title" style="margin-bottom: 16px;">{{ __('order.order_details') }}</h3>

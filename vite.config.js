@@ -24,6 +24,7 @@ export default defineConfig({
                 'resources/css/orders/tracking.css',
                 'resources/css/reviews/reviews.css',
                 'resources/css/settings/settings.css',
+                'resources/css/analytics/analytics.css',
             ],
             refresh: true,
         }),

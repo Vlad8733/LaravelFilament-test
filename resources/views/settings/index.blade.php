@@ -65,6 +65,19 @@
                         </svg>
                         {{ __('settings.nav_appearance') }}
                     </button>
+                    
+                    <!-- Analytics Link -->
+                    <div class="settings-nav-divider"></div>
+                    
+                    <a href="{{ route('analytics.index') }}" class="settings-nav-item settings-nav-link">
+                        <svg class="settings-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        {{ __('settings.nav_analytics') }}
+                        <svg class="settings-nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
                 </nav>
             </aside>
 

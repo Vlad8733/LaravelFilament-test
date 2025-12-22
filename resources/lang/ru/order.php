@@ -50,6 +50,9 @@ return [
     'reviewed_all' => 'Вы оставили отзывы на все товары в этом заказе.',
     'view_my_reviews' => 'Мои отзывы',
     
+    // Invoice Section
+    'invoice_description' => 'Скачайте счёт-фактуру для вашего заказа в формате PDF.',
+    
     // Order Details
     'order_details' => 'Детали заказа',
     'order_date' => 'Дата заказа',

@@ -50,6 +50,9 @@ return [
     'reviewed_all' => "You've reviewed all products in this order.",
     'view_my_reviews' => 'View My Reviews',
     
+    // Invoice Section
+    'invoice_description' => 'Download the invoice for your order in PDF format.',
+    
     // Order Details
     'order_details' => 'Order Details',
     'order_date' => 'Order Date',

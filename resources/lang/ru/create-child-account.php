@@ -15,11 +15,11 @@ return [
     'password' => 'Пароль',
     'password_confirmation' => 'Подтверждение пароля',
     'username' => 'Имя пользователя (необязательно)',
-    'username_help' => 'Необязательный никнейм для дочернего аккаунта.',
     
     // Actions
     'create_btn' => 'Создать связанный аккаунт',
     'cancel' => 'Отмена',
+    'back_to_profile' => 'Вернуться в профиль',
     
     // Messages
     'created_success' => 'Дочерний аккаунт успешно создан',

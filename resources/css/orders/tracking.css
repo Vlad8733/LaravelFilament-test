@@ -377,6 +377,29 @@
     background: #facc15;
 }
 
+.btn-action.green {
+    background: #10b981;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-action.green:hover {
+    background: #059669;
+}
+
+/* Invoice card styles */
+.invoice-card {
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    background: linear-gradient(165deg, rgba(16, 185, 129, 0.05) 0%, transparent 50%), var(--surface);
+}
+
+.invoice-card .card-header svg {
+    width: 24px;
+    height: 24px;
+}
+
 /* --- Current Status Card --- */
 .status-card {
     display: flex;
