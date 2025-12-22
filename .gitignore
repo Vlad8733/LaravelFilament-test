@@ -1,3 +1,13 @@
+/.idea
+/vendor
+/node_modules
+/storage/*.key
+/storage/debugbar
+/public/storage
+/vendor
+.env
+.env.*
+/.phpunit.result.cache
 *.log
 .DS_Store
 .env
