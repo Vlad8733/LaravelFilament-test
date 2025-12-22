@@ -41,6 +41,8 @@ class WishlistController extends Controller
             'product_id' => $productId,
         ]);
 
+        activity_log('added_to_wishlist:' . __('activity_log.log.added_to_wishlist', ['product' => $product->name]));
+
         $count = WishlistItem::where('user_id', $userId)->count();
 
         return response()->json([
@@ -55,8 +57,15 @@ class WishlistController extends Controller
     public function remove(Request $request, $productId)
     {
         $userId = auth()->id();
+        if (! $userId) return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+
+        $product = Product::find($productId);
+        if (! $product) return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+
         WishlistItem::where('user_id', $userId)->where('product_id', $productId)->delete();
-        
+
+        activity_log('removed_from_wishlist:' . __('activity_log.log.removed_from_wishlist', ['product' => $product->name]));
+
         $count = $userId ? WishlistItem::where('user_id', $userId)->count() : 0;
         
         return response()->json([

@@ -31,18 +31,15 @@ class CartController extends Controller
         if (!$userId) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
-
         $qty = max(1, (int) $request->input('quantity', 1));
-
         $product = Product::findOrFail($productId);
-
         $cartItem = CartItem::where('user_id', $userId)
             ->where('product_id', $productId)
             ->first();
-
         if ($cartItem) {
             $cartItem->quantity += $qty;
             $cartItem->save();
+            activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
         } else {
             CartItem::create([
                 'user_id' => $userId,
@@ -50,10 +47,9 @@ class CartController extends Controller
                 'quantity' => $qty,
                 'session_id' => session()->getId(),
             ]);
+            activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
         }
-
         $count = CartItem::where('user_id', $userId)->sum('quantity');
-
         return response()->json([
             'success' => true,
             'message' => 'Product added to cart',
@@ -68,20 +64,16 @@ class CartController extends Controller
         if (!$userId) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
-
         $qty = max(1, (int) $request->input('quantity', 1));
-
         $cartItem = CartItem::where('id', $itemId)
             ->where('user_id', $userId)
             ->first();
-
         if (!$cartItem) {
             return response()->json(['success' => false, 'message' => 'Item not found'], 404);
         }
-
         $cartItem->quantity = $qty;
         $cartItem->save();
-
+        activity_log('updated_cart:' . __('activity_log.log.updated_cart', ['product' => $cartItem->product->name, 'qty' => $qty]));
         // Пересчитываем итоги
         $cartItems = CartItem::where('user_id', $userId)->with('product')->get();
         
@@ -100,21 +92,21 @@ class CartController extends Controller
     }
 
     // Remove item from cart
-    public function remove($itemId)
+    public function remove(Request $request, $itemId)
     {
         $userId = auth()->id();
         if (!$userId) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
-
-        $deleted = CartItem::where('id', $itemId)
+        $cartItem = CartItem::where('id', $itemId)
             ->where('user_id', $userId)
-            ->delete();
-
-        if (!$deleted) {
+            ->first();
+        if (!$cartItem) {
             return response()->json(['success' => false, 'message' => 'Item not found'], 404);
         }
-
+        $productName = $cartItem->product->name;
+        $cartItem->delete();
+        activity_log('removed_from_cart:' . __('activity_log.log.removed_from_cart', ['product' => $productName]));
         $cartCount = CartItem::where('user_id', $userId)->sum('quantity');
 
         return response()->json([
@@ -160,6 +152,8 @@ class CartController extends Controller
     // Place order
     public function placeOrder(Request $request)
     {
+        $userId = auth()->id();
+        // activity_log('Оформил заказ'); // Перемещено ниже, после успешного создания заказа
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
@@ -275,6 +269,8 @@ class CartController extends Controller
             CartItem::where('user_id', $userId)->delete();
             session()->forget('coupon');
 
+            activity_log('placed_order:' . __('activity_log.log.placed_order')); // Перемещено сюда, после успешного создания заказа
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order placed successfully',
@@ -377,12 +373,12 @@ class CartController extends Controller
      */
     public function applyCoupon(Request $request)
     {
+        $userId = auth()->id();
         try {
             $request->validate([
                 'code' => 'required|string|max:20',
             ]);
 
-            $userId = auth()->id();
             if (!$userId) {
                 return response()->json([
                     'success' => false,
@@ -466,6 +462,8 @@ class CartController extends Controller
 
             $total = $subtotal - $discount;
 
+            activity_log('applied_coupon:' . __('activity_log.log.applied_coupon', ['coupon' => $request->input('code')]));
+
             return response()->json([
                 'success' => true,
                 'message' => 'Coupon applied successfully!',
@@ -489,8 +487,9 @@ class CartController extends Controller
     /**
      * Удалить купон из корзины
      */
-    public function removeCoupon()
+    public function removeCoupon(Request $request)
     {
+        $userId = auth()->id();
         session()->forget('coupon');
 
         $userId = auth()->id();
@@ -499,6 +498,8 @@ class CartController extends Controller
         $subtotal = $cartItems->sum(function ($item) {
             return $item->product->getCurrentPrice() * $item->quantity;
         });
+
+        activity_log('removed_coupon:' . __('activity_log.log.removed_coupon'));
 
         return response()->json([
             'success' => true,

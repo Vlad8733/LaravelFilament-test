@@ -177,3 +177,8 @@ Route::get('/language/{locale}', function (string $locale) {
     }
     return redirect()->back();
 })->name('language.switch');
+
+// Журнал активности пользователя (прямое подключение middleware)
+Route::middleware(['auth', \App\Http\Middleware\LogUserActivity::class])->group(function () {
+    Route::get('/activity-log', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity_log.index');
+});

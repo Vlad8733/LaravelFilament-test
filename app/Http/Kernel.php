@@ -1,13 +1,22 @@
 <?php
-// ...existing code...
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
 class Kernel extends HttpKernel
 {
-    // ...existing code...
 
-    protected $routeMiddleware = [
-        // ...existing middleware ...
-        'seller' => \App\Http\Middleware\EnsureSeller::class,
+    /**
+     * Глобальные middleware для всего приложения
+     */
+    protected $middleware = [
+        // ...existing global middleware...
+        \App\Http\Middleware\LogUserActivity::class,
     ];
 
-    // ...existing code...
+    protected $routeMiddleware = [
+        'seller' => \App\Http\Middleware\EnsureSeller::class,
+        'activitylog' => \App\Http\Middleware\LogUserActivity::class,
+    ];
 }
