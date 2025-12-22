@@ -16,23 +16,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const themeToggle = document.getElementById('themeToggle');
 
-    function applyTheme(t) {
+    function normalizeAndApplyTheme(t) {
+        var chosen = t;
+        if (!chosen) chosen = 'dark';
+        if (chosen === 'auto') {
+            chosen = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // remove any existing theme-* classes
         document.documentElement.classList.remove('theme-light', 'theme-dark');
-        document.documentElement.classList.add(t === 'dark' ? 'theme-dark' : 'theme-light');
-        localStorage.setItem('site_theme', t);
-        if (themeToggle) themeToggle.textContent = 'Theme: ' + t;
+        document.body.classList.remove('theme-light', 'theme-dark');
+
+        document.documentElement.classList.add(chosen === 'dark' ? 'theme-dark' : 'theme-light');
+        document.body.classList.add(chosen === 'dark' ? 'theme-dark' : 'theme-light');
+
+        // normalize storage keys so other scripts see same value
+        try {
+            localStorage.setItem('site_theme', chosen);
+            localStorage.setItem('settings_theme', chosen);
+            localStorage.setItem('theme', chosen);
+        } catch (e) {}
+
+        if (themeToggle) themeToggle.textContent = 'Theme: ' + chosen;
     }
 
-    const stored = localStorage.getItem('site_theme');
-    if (stored) applyTheme(stored);
+    // Prefer canonical keys if present
+    const stored = localStorage.getItem('settings_theme') || localStorage.getItem('theme') || localStorage.getItem('site_theme');
+    if (stored) normalizeAndApplyTheme(stored);
 
     if (themeToggle) {
-        const cur = localStorage.getItem('site_theme') || 'light';
+        const cur = localStorage.getItem('settings_theme') || localStorage.getItem('site_theme') || 'light';
         themeToggle.textContent = 'Theme: ' + cur;
         themeToggle.addEventListener('click', () => {
-            const current = localStorage.getItem('site_theme') || 'light';
+            const current = localStorage.getItem('settings_theme') || localStorage.getItem('site_theme') || 'light';
             const next = current === 'dark' ? 'light' : 'dark';
-            applyTheme(next);
+            normalizeAndApplyTheme(next);
         });
     }
 });
