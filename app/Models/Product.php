@@ -126,6 +126,16 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->orderBy('id');
+    }
+
+    public function activityLogs()
+    {
+        return $this->morphMany(\App\Models\ActivityLog::class, 'subject');
+    }
+
     // =========================================================
     // SELLER HELPERS
     // =========================================================

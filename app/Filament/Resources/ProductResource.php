@@ -17,6 +17,12 @@ use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\ProductResource\RelationManagers\ImagesRelationManager;
+use App\Filament\Resources\ProductResource\RelationManagers\ActivityLogsRelationManager;
+use App\Filament\Resources\ProductResource\RelationManagers\VariantsRelationManager;
+use Filament\Notifications\Notification;
+use App\Jobs\ImportProductsJob;
 
 class ProductResource extends Resource
 {
@@ -249,6 +255,42 @@ class ProductResource extends Resource
                     ->query(fn ($query) => $query->where('stock_quantity', '<=', 10))
                     ->label('Low Stock'),
             ])
+            ->headerActions([
+                \Filament\Tables\Actions\Action::make('import')
+                    ->label('Import CSV')
+                    ->icon('heroicon-m-arrow-up-tray')
+                    ->form([
+                        \Filament\Forms\Components\FileUpload::make('csv')
+                            ->label('CSV file')
+                            ->required()
+                            ->acceptedFileTypes(['text/csv', 'text/plain'])
+                            ->disk('local')
+                            ->directory('imports'),
+                    ])
+                    ->action(function (array $data) {
+                        if (!isset($data['csv'])) {
+                            Notification::make()->danger()->title('No file uploaded')->send();
+                            return;
+                        }
+
+                        // $data['csv'] will be the stored path when using FileUpload with disk
+                        $path = $data['csv'];
+
+                        // Create an ImportJob record so admin can configure mapping before dispatch
+                        $import = \App\Models\ImportJob::create([
+                            'uuid' => (string) \Illuminate\Support\Str::uuid(),
+                            'user_id' => auth()->id() ?? null,
+                            'file_path' => $path,
+                        ]);
+
+                        // redirect to configure page
+                        return redirect(\App\Filament\Resources\ImportJobResource::getUrl('configure', ['record' => $import->id]));
+                    }),
+                \Filament\Tables\Actions\Action::make('export')
+                    ->label('Export CSV')
+                    ->icon('heroicon-m-arrow-down-tray')
+                    ->url(fn () => route('products.export')),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
@@ -263,7 +305,9 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ImagesRelationManager::class,
+            VariantsRelationManager::class,
+            ActivityLogsRelationManager::class,
         ];
     }
 
@@ -275,5 +319,10 @@ class ProductResource extends Resource
             'view' => Pages\ViewProduct::route('/{record}'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['category', 'images']);
     }
 }

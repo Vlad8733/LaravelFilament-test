@@ -14,6 +14,8 @@ class ActivityLog extends Model
         'action',
         'ip_address',
         'user_agent',
+        'subject_type',
+        'subject_id',
         'created_at',
     ];
 
@@ -22,6 +24,11 @@ class ActivityLog extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function subject()
+    {
+        return $this->morphTo();
     }
 
     public function getCreatedAtAttribute($value)

@@ -19,10 +19,10 @@ use App\Livewire\AdminTicketChat;
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.global');
 
-// Главная
+// Home
 Route::get('/', fn() => view('welcome'))->name('home');
 
-// Гостевые маршруты: регистрация / вход
+// Guest routes: registration / login
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('register', [RegisteredUserController::class, 'store']);
@@ -34,18 +34,18 @@ Route::middleware('guest')->group(function () {
     Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 });
 
-// Выход
+// Logout
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
-// Подтверждение пароля (auth)
+// Password confirmation (auth)
 Route::middleware('auth')->group(function () {
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'showConfirmForm'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'confirm']);
 });
 
-// Профиль пользователя
+// User profile
 Route::middleware('auth')->group(function () {
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -56,16 +56,50 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/accounts/switch', [AccountController::class, 'switchAccount'])->name('profile.accounts.switch');
 });
 
-// Продукты
+// Products
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+// Admin CSV export for products (protected by auth + EnsureUserIsAdmin)
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->get('/admin/products/export', [\App\Http\Controllers\Admin\ProductExportController::class, 'export'])
+    ->name('admin.products.export');
+
+// Alternate export route outside Filament prefix to avoid panel route conflicts
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->get('/products/export', [\App\Http\Controllers\Admin\ProductExportController::class, 'export'])
+    ->name('products.export');
+
+// Admin CSV import for products (form + POST)
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->get('/admin/products/import', [\App\Http\Controllers\Admin\ProductImportController::class, 'showForm'])
+    ->name('admin.products.import.form');
+
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->post('/admin/products/import', [\App\Http\Controllers\Admin\ProductImportController::class, 'import'])
+    ->name('admin.products.import');
+
+// Alternate import routes outside Filament prefix to avoid panel route conflicts
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->get('/products/import', [\App\Http\Controllers\Admin\ProductImportController::class, 'showForm'])
+    ->name('products.import.form');
+
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->post('/products/import', [\App\Http\Controllers\Admin\ProductImportController::class, 'import'])
+    ->name('products.import');
+
+// Download failed import CSV
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->get('/admin/imports/{import}/download-failed', [\App\Http\Controllers\Admin\ImportJobDownloadController::class, 'download'])
+    ->name('admin.imports.download_failed');
+
 Route::prefix('products')->name('products.')->group(function () {
     Route::get('/{product:slug}', [ProductController::class, 'show'])->name('show');
 });
 
-// Категории
+// Categories
 Route::get('/category/{category:slug}', [ProductController::class, 'category'])->name('category.show');
 
-// Корзина - ВСЕ маршруты в одном месте
+// Cart - all routes in one place
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add/{productId}', [CartController::class, 'add'])->name('add');
@@ -87,10 +121,10 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
 Route::get('/checkout/verify/{orderId}', [CartController::class, 'verifyOrder'])->name('checkout.verify');
 Route::post('/checkout/verify/{orderId}', [CartController::class, 'verifyOrderPost'])->name('checkout.verify.post');
 
-// Отзывы
+// Reviews
 Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('product.reviews.store');
 
-// API для купонов
+// Coupons API
 Route::post('/api/coupons/validate', [CouponController::class, 'validateCoupon'])->name('coupons.validate');
 
 // Wishlist
@@ -163,7 +197,7 @@ Route::middleware(['auth'])->prefix('analytics')->name('analytics.')->group(func
     Route::get('/data', [App\Http\Controllers\AnalyticsController::class, 'getData'])->name('data');
 });
 
-// Invoice Routes (публичный доступ по номеру заказа, защищённый по ID)
+// Invoice Routes (public access by order number, protected by ID)
 Route::prefix('invoice')->name('invoice.')->group(function () {
     Route::get('/order/{orderNumber}', [App\Http\Controllers\InvoiceController::class, 'downloadByNumber'])->name('download.number');
     Route::get('/{order}/download', [App\Http\Controllers\InvoiceController::class, 'download'])->name('download');
@@ -178,7 +212,8 @@ Route::get('/language/{locale}', function (string $locale) {
     return redirect()->back();
 })->name('language.switch');
 
-// Журнал активности пользователя (прямое подключение middleware)
+// User activity log (middleware attached)
 Route::middleware(['auth', \App\Http\Middleware\LogUserActivity::class])->group(function () {
     Route::get('/activity-log', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity_log.index');
 });
+

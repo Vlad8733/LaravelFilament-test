@@ -84,7 +84,7 @@ class ImportJobResource extends Resource
                     ->visible(fn ($record) => in_array($record->status, ['failed', 'cancelled'])),
                 Action::make('re_run')
                     ->label('Re-run as new import')
-                    ->icon('heroicon-m-arrow-circle-right')
+                    ->icon('heroicon-m-arrow-path')
                     ->requiresConfirmation()
                     ->action(function (ImportJobModel $record) {
                         $new = ImportJobModel::create([
