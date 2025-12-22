@@ -18,8 +18,8 @@
 
 /* Base */
 .profile-page {
-    background: var(--bg-primary);
-    color: var(--text-primary);
+    background: #030305 !important;
+    color: #fafafa !important;
     min-height: 100vh;
     padding: 40px 0 80px;
     -webkit-font-smoothing: antialiased;
@@ -244,6 +244,39 @@ html.theme-light {
     --text-primary: #18181b;
     --text-secondary: #52525b;
     --text-muted: #71717a;
+}
+
+/* Force dark theme when theme-dark class is present */
+html.theme-dark .profile-page {
+    background: #030305 !important;
+    color: #fafafa !important;
+}
+
+html.theme-dark .profile-header {
+    background: linear-gradient(180deg, #111114, #0a0a0c) !important;
+    border-color: rgba(255,255,255,0.06) !important;
+}
+
+html.theme-dark .profile-section {
+    background: #111114 !important;
+    border-color: rgba(255,255,255,0.06) !important;
+}
+
+html.theme-dark .form-input {
+    background: #18181b !important;
+    border-color: rgba(255,255,255,0.06) !important;
+    color: #fafafa !important;
+}
+
+html.theme-dark .action-btn {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    color: #fafafa !important;
+}
+
+html.theme-dark .account-card {
+    background: #18181b !important;
+    border-color: rgba(255,255,255,0.06) !important;
 }
 
 html.theme-light .profile-page {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data>
+<html lang="en" x-data class="theme-dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,10 +10,15 @@
     <!-- Apply theme before CSS loads to prevent flash -->
     <script>
         (function() {
-            var theme = localStorage.getItem('settings_theme') || 'dark';
+            var theme = localStorage.getItem('settings_theme');
+            // Force dark if not explicitly light
+            if (theme !== 'light') {
+                theme = 'dark';
+            }
             if (theme === 'auto') {
                 theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
+            document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
             document.documentElement.classList.add('theme-' + theme);
         })();
     </script>

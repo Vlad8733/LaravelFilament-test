@@ -4,6 +4,36 @@
 
 @push('styles')
     @vite('resources/css/profile/profileedit.css')
+    <style>
+        /* Force dark theme */
+        html.theme-dark .profile-page,
+        html:not(.theme-light) .profile-page {
+            background: #030305 !important;
+            color: #fafafa !important;
+        }
+        html.theme-dark .profile-header,
+        html:not(.theme-light) .profile-header {
+            background: linear-gradient(180deg, #111114, #0a0a0c) !important;
+            border-color: rgba(255,255,255,0.06) !important;
+        }
+        html.theme-dark .profile-section,
+        html:not(.theme-light) .profile-section {
+            background: #111114 !important;
+            border-color: rgba(255,255,255,0.06) !important;
+        }
+        html.theme-dark .form-input,
+        html:not(.theme-light) .form-input {
+            background: #18181b !important;
+            border-color: rgba(255,255,255,0.06) !important;
+            color: #fafafa !important;
+        }
+        html.theme-dark .action-btn,
+        html:not(.theme-light) .action-btn {
+            background: rgba(255,255,255,0.05) !important;
+            border-color: rgba(255,255,255,0.08) !important;
+            color: #fafafa !important;
+        }
+    </style>
 @endpush
 
 @push('scripts')

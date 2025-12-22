@@ -7,6 +7,7 @@ return [
     'user_agent' => 'User Agent',
     'date' => 'Date',
     'empty' => 'No activity records.',
+    'empty_description' => 'Your activity will appear here as you use the site.',
     'alltypes' => 'All Types',
     'search' => 'Search',
     'reset' => 'Reset',
