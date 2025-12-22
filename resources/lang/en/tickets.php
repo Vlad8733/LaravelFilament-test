@@ -31,6 +31,10 @@ return [
     'priority_urgent' => 'Urgent',
     'select_priority' => 'Select priority',
     
+    // Language notice
+    'language_notice_title' => 'Please write in English',
+    'language_notice_text' => 'Our support team primarily communicates in English. To ensure faster and more accurate assistance, please submit your ticket in English.',
+
     // Form
     'subject' => 'Subject',
     'subject_placeholder' => 'Brief description of your issue',

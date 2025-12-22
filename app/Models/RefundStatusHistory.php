@@ -34,10 +34,11 @@ class RefundStatusHistory extends Model
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
-            'pending' => 'Pending Review',
-            'approved' => 'Approved',
-            'rejected' => 'Rejected',
-            'completed' => 'Refunded',
+            'pending' => __('refunds.status_pending_review'),
+            'approved' => __('refunds.status_approved'),
+            'rejected' => __('refunds.status_rejected'),
+            'completed' => __('refunds.status_refunded'),
+            'cancelled' => __('refunds.status_cancelled'),
             default => ucfirst($this->status),
         };
     }

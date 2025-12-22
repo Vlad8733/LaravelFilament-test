@@ -55,6 +55,7 @@ return [
     
     // Messages
     'review_submitted' => 'Отзыв успешно отправлен',
+    'review_submitted_more' => 'Отзыв отправлен! Вы можете оставить отзывы на другие товары.',
     'review_updated' => 'Отзыв успешно обновлён',
     'review_deleted' => 'Отзыв удалён',
 ];

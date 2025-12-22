@@ -1,259 +1,214 @@
-/* =========================================================
-   Product Show Page – Dark Premium Style
-   Scoped ONLY to .product-page
-   ========================================================= */
-
 .product-page {
-    --bg: #0b0b0b;
-    --card: #171717;
-    --border: #2a2a2a;
-    --text: #e5e7eb;
-    --muted: #9ca3af;
+    --bg-primary: #030305;
+    --bg-secondary: #0a0a0c;
+    --surface: #111114;
+    --surface-elevated: #18181b;
+    --border: rgba(255,255,255,0.06);
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
     --accent: #f59e0b;
+    --accent-glow: rgba(245,158,11,0.15);
     --danger: #ef4444;
+    --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 
-    background: radial-gradient(ellipse at center, #111 0%, #000 70%);
-    color: var(--text);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     min-height: 100vh;
-
+    padding-top: 48px;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-
-    /* Push page content slightly down from the top */
-    padding-top: 48px; /* adjust value as needed (e.g. 32px / 48px / 64px) */
 }
 
-/* =========================================================
-   Headings
-   ========================================================= */
-
-.product-page h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--text);
-}
-
-.product-page h2,
-.product-page h3,
-.product-page h4 {
-    color: var(--text);
-    font-weight: 600;
-}
-
-/* =========================================================
-   Cards (bg-white override)
-   ========================================================= */
+.product-page h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); }
+.product-page h2, .product-page h3, .product-page h4 { color: var(--text-primary); font-weight: 600; }
+.product-page p { color: var(--text-secondary); line-height: 1.65; }
+.product-page .prose { color: var(--text-primary); line-height: 1.7; }
+.product-page .prose strong { color: #fff; }
+.product-page .prose p { margin-bottom: 0.75rem; }
+.product-page img { display: block; max-width: 100%; }
 
 .product-page .bg-white {
-    background: linear-gradient(180deg, #1a1a1a, #141414) !important;
+    background: linear-gradient(180deg, var(--surface), var(--bg-secondary)) !important;
     border: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: 0 30px 80px rgba(0,0,0,.75);
-    color: var(--text);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    color: var(--text-primary);
 }
 
-/* =========================================================
-   Product Images
-   ========================================================= */
-
 .product-page .aspect-square {
-    background: #0f0f0f !important;
+    background: var(--bg-secondary) !important;
     border: 1px solid var(--border);
     border-radius: 18px;
     overflow: hidden;
 }
+.product-page .aspect-square img { transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
+.product-page .aspect-square:hover img { transform: scale(1.04); }
 
-.product-page .aspect-square img {
-    transition: transform .45s ease;
-}
-
-.product-page .aspect-square:hover img {
-    transform: scale(1.04);
-}
-
-/* Thumbnails */
 .product-page .thumb-btn {
-    background: #0f0f0f !important;
+    background: var(--bg-secondary) !important;
     border: 1px solid var(--border);
     border-radius: 12px;
-    opacity: .65;
-    transition: all .2s ease;
+    opacity: 0.65;
+    transition: all 0.2s;
 }
+.product-page .thumb-btn:hover, .product-page .thumb-btn.active { opacity: 1; border-color: var(--accent); }
 
-.product-page .thumb-btn:hover {
-    opacity: 1;
-    border-color: var(--accent);
-}
+.product-page svg.text-yellow-400 { filter: drop-shadow(0 0 6px var(--accent-glow)); }
+.product-page .text-3xl.font-bold { color: var(--accent); font-weight: 800; }
+.product-page .line-through { color: var(--text-muted); }
+.product-page .border-b { border-color: var(--border) !important; }
 
-.product-page .thumb-btn.active {
-    opacity: 1;
-    border-color: var(--accent);
-}
-
-/* =========================================================
-   Rating
-   ========================================================= */
-
-.product-page svg.text-yellow-400 {
-    filter: drop-shadow(0 0 6px rgba(245,158,11,.35));
-}
-
-/* =========================================================
-   Price
-   ========================================================= */
-
-.product-page .text-3xl.font-bold {
-    color: var(--accent);
-    font-weight: 800;
-}
-
-.product-page .line-through {
-    color: var(--muted);
-}
-
-/* Discount badge */
 .product-page .bg-red-100 {
-    background: rgba(239,68,68,.15) !important;
+    background: rgba(239,68,68,0.15) !important;
     color: #ff6b6b !important;
-    border: 1px solid rgba(239,68,68,.35);
+    border: 1px solid rgba(239,68,68,0.35);
+    border-radius: 8px;
 }
-
-/* =========================================================
-   Stock Status
-   ========================================================= */
-
 .product-page .bg-green-100 {
-    background: rgba(34,197,94,.12) !important;
+    background: rgba(34,197,94,0.12) !important;
     color: #22c55e !important;
-    border: 1px solid rgba(34,197,94,.35);
+    border: 1px solid rgba(34,197,94,0.35);
+    border-radius: 8px;
 }
-
-.product-page .bg-red-100.text-red-800 {
-    background: rgba(239,68,68,.12) !important;
-    color: #ff6b6b !important;
-    border: 1px solid rgba(239,68,68,.35);
-}
-
-/* =========================================================
-   Description & Details
-   ========================================================= */
-
-.product-page p {
-    color: var(--muted);
-    line-height: 1.65;
-}
-
-.product-page .prose {
-    color: var(--text);
-    line-height: 1.7;
-}
-
-.product-page .prose strong {
-    color: #fff;
-}
-
-.product-page .prose p {
-    margin-bottom: .75rem;
-}
-
-/* =========================================================
-   Quantity Selector
-   ========================================================= */
 
 .product-page .flex.items-center.border {
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
-    background: #0f0f0f;
+    background: var(--bg-secondary);
 }
-
-.product-page [data-qty-action] {
-    background: transparent;
-    color: var(--text);
-    transition: background .15s ease;
-}
-
-.product-page [data-qty-action]:hover {
-    background: rgba(255,255,255,.05);
-}
-
-.product-page input[type="number"] {
-    background: transparent;
-    color: var(--text);
-    border: none;
-    text-align: center;
-}
-
-.product-page input[type="number"]:focus {
-    outline: none;
-}
-
-/* =========================================================
-   Add to Cart Button
-   ========================================================= */
+.product-page [data-qty-action] { background: transparent; color: var(--text-primary); transition: background 0.15s; }
+.product-page [data-qty-action]:hover { background: rgba(255,255,255,0.05); }
+.product-page input[type="number"] { background: transparent; color: var(--text-primary); border: none; text-align: center; }
+.product-page input[type="number"]:focus { outline: none; }
 
 .product-page .bg-blue-600 {
-    background: var(--accent) !important;
+    background: var(--gradient-amber) !important;
     color: #000 !important;
     font-weight: 700;
     font-size: 1.1rem;
     border-radius: 16px;
     height: 56px;
-    box-shadow: 0 10px 30px rgba(245,158,11,.35);
-    transition: all .2s ease;
+    box-shadow: 0 8px 32px var(--accent-glow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.product-page .bg-blue-600:hover { transform: translateY(-2px); box-shadow: 0 12px 40px var(--accent-glow); }
+.product-page .bg-blue-600:disabled { opacity: 0.5; box-shadow: none; }
 
-.product-page .bg-blue-600:hover {
-    filter: brightness(1.05);
-    transform: translateY(-1px);
-}
-
-.product-page .bg-blue-600:disabled {
-    opacity: .5;
-    box-shadow: none;
-}
-
-/* =========================================================
-   Reviews
-   ========================================================= */
-
-.product-page .border-b {
-    border-color: var(--border) !important;
-}
-
-.product-page .w-10.h-10.bg-gray-300 {
-    background: #222 !important;
-    color: var(--text);
-}
-
-/* =========================================================
-   Related Products
-   ========================================================= */
+.product-page .w-10.h-10.bg-gray-300 { background: var(--surface) !important; color: var(--text-primary); }
 
 .product-page .shadow-sm {
-    box-shadow: 0 10px 30px rgba(0,0,0,.6);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.product-page .shadow-sm:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
+
+#toast-container { z-index: 99999; }
+
+/* ============================================
+   LIGHT THEME OVERRIDES
+   ============================================ */
+html.theme-light .product-page {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --surface: #ffffff;
+    --surface-elevated: #fafafa;
+    --border: rgba(0,0,0,0.08);
+    --text-primary: #18181b;
+    --text-secondary: #52525b;
+    --text-muted: #71717a;
+    
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
 }
 
-.product-page .shadow-sm:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 25px 60px rgba(0,0,0,.8);
-    transition: all .25s ease;
+html.theme-light .product-page h1,
+html.theme-light .product-page h2,
+html.theme-light .product-page h3,
+html.theme-light .product-page h4 {
+    color: #18181b !important;
 }
 
-/* =========================================================
-   Toast
-   ========================================================= */
-
-#toast-container {
-    z-index: 99999;
+html.theme-light .product-page p {
+    color: #52525b !important;
 }
 
-/* =========================================================
-   Images
-   ========================================================= */
+html.theme-light .product-page .bg-white {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
+    color: #18181b !important;
+}
 
-.product-page img {
-    display: block;
-    max-width: 100%;
+html.theme-light .product-page .aspect-square {
+    background: #f9fafb !important;
+    border-color: #e5e7eb !important;
+}
+
+html.theme-light .product-page .thumb-btn {
+    background: #f9fafb !important;
+    border-color: #e5e7eb !important;
+}
+
+html.theme-light .product-page .thumb-btn:hover,
+html.theme-light .product-page .thumb-btn.active {
+    border-color: var(--accent) !important;
+}
+
+html.theme-light .product-page .text-3xl.font-bold {
+    color: var(--accent) !important;
+}
+
+html.theme-light .product-page .border-b {
+    border-color: #e5e7eb !important;
+}
+
+html.theme-light .product-page .bg-red-100 {
+    background: rgba(239,68,68,0.1) !important;
+    color: #dc2626 !important;
+    border-color: rgba(239,68,68,0.25) !important;
+}
+
+html.theme-light .product-page .bg-green-100 {
+    background: rgba(34,197,94,0.1) !important;
+    color: #16a34a !important;
+    border-color: rgba(34,197,94,0.25) !important;
+}
+
+html.theme-light .product-page .flex.items-center.border {
+    background: #f9fafb !important;
+    border-color: #e5e7eb !important;
+}
+
+html.theme-light .product-page [data-qty-action] {
+    color: #18181b !important;
+}
+
+html.theme-light .product-page [data-qty-action]:hover {
+    background: rgba(0,0,0,0.05) !important;
+}
+
+html.theme-light .product-page input[type="number"] {
+    color: #18181b !important;
+}
+
+html.theme-light .product-page .w-10.h-10.bg-gray-300 {
+    background: #f5f5f5 !important;
+    color: #18181b !important;
+}
+
+html.theme-light .product-page .shadow-sm {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
+}
+
+html.theme-light .product-page .shadow-sm:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important;
+}
+
+html.theme-light .product-page .prose {
+    color: #18181b !important;
+}
+
+html.theme-light .product-page .prose strong {
+    color: #18181b !important;
 }

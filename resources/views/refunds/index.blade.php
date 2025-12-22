@@ -8,9 +8,9 @@
 
 @section('content')
 <div class="refunds-page">
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <div class="flex items-center justify-between mb-6">
-            <div>
+    <div class="refunds-container">
+        <div class="refunds-header">
+            <div class="refunds-header-info">
                 <h1 class="refunds-title">{{ __('refunds.my_requests') }}</h1>
                 <p class="refunds-subtitle">{{ __('refunds.track_status') }}</p>
             </div>
@@ -24,7 +24,7 @@
 
         @if(session('success'))
             <div class="refunds-alert success">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 {{ session('success') }}
@@ -46,7 +46,7 @@
                 @foreach($refunds as $refund)
                     <a href="{{ route('refunds.show', $refund) }}" class="refunds-item">
                         <div class="refunds-item-header">
-                            <div class="flex items-center gap-3">
+                            <div class="refunds-item-info">
                                 <span class="refunds-item-order">{{ __('order.order_prefix', ['number' => $refund->order->order_number]) }}</span>
                                 <span class="refunds-status {{ $refund->status }}">
                                     <span class="refunds-status-dot"></span>

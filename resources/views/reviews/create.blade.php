@@ -8,19 +8,17 @@
 
 @section('content')
 <div class="reviews-page">
-    <div class="max-w-2xl mx-auto px-4 py-8">
-        <div class="mb-6">
-            <a href="{{ route('orders.tracking.show', $order->order_number) }}" class="reviews-back-link">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-                {{ __('reviews.back_to_order') }}
-            </a>
-        </div>
+    <div class="reviews-container">
+        <a href="{{ route('orders.tracking.show', $order->order_number) }}" class="reviews-back-link">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            {{ __('reviews.back_to_order') }}
+        </a>
 
         @if(session('success'))
             <div class="reviews-alert success">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 {{ session('success') }}
@@ -29,7 +27,7 @@
 
         @if(session('error'))
             <div class="reviews-alert error">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
                 {{ session('error') }}
@@ -38,9 +36,9 @@
 
         <div class="reviews-card">
             <div class="reviews-card-header">
-                <div>
-                    <h1 class="reviews-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ __('reviews.write_review') }}</h1>
-                    <p class="reviews-subtitle">{{ __('order.order_prefix', ['number' => $order->order_number]) }}</p>
+                <div class="reviews-product-info">
+                    <h1>{{ __('reviews.write_review') }}</h1>
+                    <p>{{ __('order.order_prefix', ['number' => $order->order_number]) }}</p>
                 </div>
             </div>
 
@@ -73,7 +71,7 @@
                                                  class="reviews-item-image">
                                         @else
                                             <div class="reviews-item-placeholder">
-                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                                 </svg>
                                             </div>
@@ -97,12 +95,12 @@
                                  class="reviews-product-image">
                         @else
                             <div class="reviews-product-placeholder">
-                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                             </div>
                         @endif
-                        <div class="reviews-product-info">
+                        <div>
                             <div class="reviews-product-name">{{ $item->product_name }}</div>
                             <div class="reviews-product-price">${{ number_format($item->total, 2) }}</div>
                         </div>

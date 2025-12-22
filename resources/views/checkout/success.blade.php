@@ -12,44 +12,64 @@
 @endpush
 
 @section('content')
-<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="success-card">
-        <div class="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-6">
-            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-        </div>
-        
-        <h1 class="text-2xl font-bold mb-4">{{ __('checkout.order_placed') }}</h1>
-        
-        <div class="success-details">
-            <p class="text-lg mb-2">
-                {{ __('checkout.thank_you', ['name' => $order->customer_name]) }}
-            </p>
-            <p class="text-gray-400 mb-4">
-                {{ __('checkout.order_received') }}
-            </p>
-            <div class="space-y-2 text-sm">
-                <p><strong>{{ __('checkout.order_number') }}:</strong> {{ $order->order_number }}</p>
-                <p><strong>{{ __('checkout.total') }}:</strong> ${{ number_format($order->total, 2) }}</p>
-                <p><strong>{{ __('checkout.email') }}:</strong> {{ $order->customer_email }}</p>
-                <p><strong>{{ __('checkout.status') }}:</strong> <span class="text-green-600 font-semibold">{{ ucfirst($order->order_status) }}</span></p>
+<div class="success-page">
+    <div class="success-container">
+        <div class="success-card">
+            <div class="success-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
             </div>
-        </div>
-        
-        <div class="space-y-3 mt-6">
-            <p class="text-gray-400">
-                {{ __('checkout.confirmation_email') }}
-            </p>
-            <a href="{{ route('products.index') }}" 
-               class="btn-continue">
-                {{ __('checkout.continue_shopping') }}
-            </a>
-
-            <a href="{{ route('orders.tracking.show', ['orderNumber' => $order->order_number]) }}" 
-               class="inline-block bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors mt-3">
-                {{ __('checkout.track_order') }}
-            </a>
+            
+            <h1 class="success-title">{{ __('checkout.order_placed') }}</h1>
+            <p class="success-subtitle">{{ __('checkout.thank_you', ['name' => $order->customer_name]) }}</p>
+            <p class="success-message">{{ __('checkout.order_received') }}</p>
+            
+            <div class="order-details">
+                <div class="detail-row">
+                    <span class="detail-label">{{ __('checkout.order_number') }}</span>
+                    <span class="detail-value highlight">{{ $order->order_number }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">{{ __('checkout.total') }}</span>
+                    <span class="detail-value">${{ number_format($order->total, 2) }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">{{ __('checkout.email') }}</span>
+                    <span class="detail-value">{{ $order->customer_email }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">{{ __('checkout.status') }}</span>
+                    <span class="status-badge">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {{ ucfirst($order->order_status) }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="email-notice">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <p>{{ __('checkout.confirmation_email') }}</p>
+            </div>
+            
+            <div class="success-actions">
+                <a href="{{ route('products.index') }}" class="btn-primary">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                    </svg>
+                    {{ __('checkout.continue_shopping') }}
+                </a>
+                <a href="{{ route('orders.tracking.show', ['orderNumber' => $order->order_number]) }}" class="btn-secondary">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    {{ __('checkout.track_order') }}
+                </a>
+            </div>
         </div>
     </div>
 </div>

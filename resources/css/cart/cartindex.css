@@ -1,155 +1,81 @@
 :root {
-    --bg: #0b0b0b;
-    --card: #171717;
-    --border: #2a2a2a;
-    --text: #e5e7eb;
-    --muted: #9ca3af;
+    --bg-primary: #030305;
+    --bg-secondary: #0a0a0c;
+    --surface: #111114;
+    --surface-elevated: #18181b;
+    --border: rgba(255,255,255,0.06);
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
     --accent: #f59e0b;
+    --accent-glow: rgba(245,158,11,0.15);
     --danger: #ef4444;
-    --content-max-w: 1120px;
-    --content-gap-top: 28px;
-    --content-side-pad: 16px;
+    --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 }
 
-/* Page background */
 body {
-    background: radial-gradient(ellipse at center, #111 0%, #000 70%);
-    color: var(--text);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
 }
 
-/* Headings */
-h1, h2, h3 {
-    color: var(--text);
-}
+h1, h2, h3 { color: var(--text-primary); }
+hr, svg { color: var(--text-muted); border-color: var(--border); }
 
-/* Card base */
 .bg-white {
-    background: linear-gradient(180deg, #1a1a1a, #141414) !important;
+    background: linear-gradient(180deg, var(--surface), var(--bg-secondary)) !important;
     border: 1px solid var(--border);
-    box-shadow: 0 30px 80px rgba(0,0,0,.8);
-    color: var(--text);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    color: var(--text-primary);
 }
 
-/* Empty cart */
-.text-gray-500,
-.text-gray-600,
-.text-gray-700,
-.text-gray-900 {
-    color: var(--muted) !important;
-}
+.text-gray-500, .text-gray-600, .text-gray-700, .text-gray-900 { color: var(--text-secondary) !important; }
+.text-red-500 { color: var(--danger) !important; }
+.text-red-500:hover { color: #ff6b6b !important; }
+.text-green-600, .text-green-700 { color: var(--accent) !important; }
 
-/* Product image placeholder */
-.bg-gray-200 {
-    background: #0f0f0f !important;
+.bg-gray-200, button.bg-gray-200 {
+    background: var(--bg-secondary) !important;
     border: 1px solid var(--border);
+    color: var(--text-primary);
+    transition: all 0.2s;
 }
+button.bg-gray-200:hover { border-color: rgba(255,255,255,0.1); }
 
-/* Quantity buttons */
-button.bg-gray-200 {
-    background: #0f0f0f !important;
-    border: 1px solid var(--border);
-    color: var(--text);
-}
-
-button.bg-gray-200:hover {
-    border-color: var(--accent);
-}
-
-/* Remove button */
-.text-red-500 {
-    color: var(--danger) !important;
-}
-
-.text-red-500:hover {
-    color: #ff6b6b !important;
-}
-
-/* Order summary divider */
-hr {
-    border-color: var(--border);
-}
-
-/* Coupon input */
 input[type="text"] {
-    background: #0f0f0f;
+    background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
+    border-radius: 12px;
+    color: var(--text-primary);
+    transition: all 0.2s;
 }
-
 input[type="text"]:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, .4);
+    box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
-/* Buttons */
-.bg-blue-600,
-.bg-gray-600 {
-    background: var(--accent) !important;
+.bg-blue-600, .bg-gray-600, a.bg-blue-600 {
+    background: var(--gradient-amber) !important;
     color: #000 !important;
     font-weight: 600;
     border-radius: 12px;
-}
-
-.bg-blue-600:hover,
-.bg-gray-600:hover {
-    filter: brightness(1.05);
-}
-
-/* Coupon applied box */
-.bg-green-50 {
-    background: rgba(245, 158, 11, 0.1) !important;
-    border: 1px solid var(--accent);
-}
-
-.text-green-600,
-.text-green-700 {
-    color: var(--accent) !important;
-}
-
-/* Checkout button */
-a.bg-blue-600 {
     text-align: center;
+    box-shadow: 0 8px 32px var(--accent-glow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bg-blue-600:hover, .bg-gray-600:hover { transform: translateY(-2px); box-shadow: 0 12px 40px var(--accent-glow); }
+
+.bg-green-50 {
+    background: var(--accent-glow) !important;
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 12px;
 }
 
-/* Icons */
-svg {
-    color: var(--muted);
-}
+.flex.space-x-2 input, .flex.space-x-2 .flex-1 { min-width: 0; }
+.flex.space-x-2 button { flex: 0 0 auto; }
 
-/* Ensure coupon input can shrink inside flex and button doesn't grow */
-.flex.space-x-2 input,
-.flex.space-x-2 .flex-1 {
-    min-width: 0;
-}
-
-.flex.space-x-2 button {
-    flex: 0 0 auto;
-}
-
-/* Center page content and add top spacing (applies only on cart page since файл подключён только там) */
-.cart-page,
-.cart-container,
-.cart-content,
-main.cart,
-main#cart {
-    max-width: 1120px;
-    margin: 28px auto 48px;
-    padding: 0 16px;
-    box-sizing: border-box;
-}
-
-/* Strong centering override для страницы корзины */
-body .cart-page,
-body .cart-container,
-body .cart-content,
-body main.cart,
-body main#cart,
-body .shopping-cart,
-body #cart,
-body .cart-wrapper,
-body .page-cart {
+body > *:not(header):not(footer):not(nav) {
     max-width: 1120px !important;
     margin: 28px auto 48px !important;
     padding: 0 16px !important;
@@ -157,23 +83,77 @@ body .page-cart {
     width: 100% !important;
 }
 
-/* Фallback — если контент не имеет специфичных классов */
-body > .container,
-body > main,
-.container.cart,
-.container--cart {
-    max-width: 1120px !important;
-    margin: 28px auto 48px !important;
-    padding: 0 16px !important;
-    box-sizing: border-box !important;
+/* ============================================
+   LIGHT THEME OVERRIDES
+   ============================================ */
+html.theme-light {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --surface: #ffffff;
+    --surface-elevated: #fafafa;
+    --border: rgba(0,0,0,0.08);
+    --text-primary: #18181b;
+    --text-secondary: #52525b;
+    --text-muted: #71717a;
 }
 
-body > *:not(#site-nav):not(header):not(footer) {
-    /* применяется только когда этот css подключён (т.е. на странице корзины) */
-    max-width: var(--content-max-w) !important;
-    margin: var(--content-gap-top) auto 48px !important;
-    padding: 0 var(--content-side-pad) !important;
-    box-sizing: border-box !important;
-    width: 100% !important;
+html.theme-light body {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
 }
 
+html.theme-light h1,
+html.theme-light h2,
+html.theme-light h3 {
+    color: #18181b !important;
+}
+
+html.theme-light .bg-white {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
+    color: #18181b !important;
+}
+
+html.theme-light .text-gray-500,
+html.theme-light .text-gray-600,
+html.theme-light .text-gray-700,
+html.theme-light .text-gray-900 {
+    color: #52525b !important;
+}
+
+html.theme-light .bg-gray-200,
+html.theme-light button.bg-gray-200 {
+    background: #f5f5f5 !important;
+    border-color: #e5e7eb !important;
+    color: #18181b !important;
+}
+
+html.theme-light button.bg-gray-200:hover {
+    background: #ebebeb !important;
+}
+
+html.theme-light input[type="text"] {
+    background: #f9fafb !important;
+    border-color: #e5e7eb !important;
+    color: #18181b !important;
+}
+
+html.theme-light input[type="text"]:focus {
+    border-color: var(--accent) !important;
+    background: #ffffff !important;
+}
+
+html.theme-light .bg-green-50 {
+    background: rgba(245, 158, 11, 0.08) !important;
+    border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+html.theme-light .text-green-600,
+html.theme-light .text-green-700 {
+    color: #b45309 !important;
+}
+
+html.theme-light hr {
+    border-color: #e5e7eb !important;
+}

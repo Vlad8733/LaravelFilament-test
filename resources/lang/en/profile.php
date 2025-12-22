@@ -3,6 +3,9 @@
 return [
     'title' => 'Profile',
     'my_profile' => 'My Profile',
+    'member_since' => 'Member since',
+    'account_settings' => 'Account Settings',
+    'danger_zone' => 'Deleting an account',
     
     // Avatar
     'change_avatar' => 'Change avatar',
@@ -25,7 +28,7 @@ return [
     // Account info
     'name' => 'Name',
     'email' => 'Email',
-    'new_password' => 'New password (leave blank to keep)',
+    'new_password' => 'New password',
     'confirm_password' => 'Confirm password',
     'save_account' => 'Save account',
     

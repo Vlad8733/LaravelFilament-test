@@ -3,6 +3,9 @@
 return [
     'title' => 'Профиль',
     'my_profile' => 'Мой профиль',
+    'member_since' => 'Участник с',
+    'account_settings' => 'Настройки аккаунта',
+    'danger_zone' => 'Удаление аккаунта',
     
     // Avatar
     'change_avatar' => 'Изменить аватар',
@@ -25,7 +28,7 @@ return [
     // Account info
     'name' => 'Имя',
     'email' => 'Email',
-    'new_password' => 'Новый пароль (оставьте пустым, чтобы не менять)',
+    'new_password' => 'Новый пароль',
     'confirm_password' => 'Подтвердите пароль',
     'save_account' => 'Сохранить',
     

@@ -8,19 +8,17 @@
 
 @section('content')
 <div class="refunds-page">
-    <div class="max-w-3xl mx-auto px-4 py-8">
-        <div class="mb-6">
-            <a href="{{ route('refunds.index') }}" class="refunds-back-link">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-                {{ __('refunds.back_to_requests') }}
-            </a>
-        </div>
+    <div class="refunds-container">
+        <a href="{{ route('refunds.index') }}" class="refunds-back-link">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            {{ __('refunds.back_to_requests') }}
+        </a>
 
         @if(session('success'))
             <div class="refunds-alert success">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 {{ session('success') }}
@@ -29,7 +27,7 @@
 
         @if(session('error'))
             <div class="refunds-alert error">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
                 {{ session('error') }}
@@ -39,9 +37,9 @@
         <div class="refunds-card">
             <!-- Header -->
             <div class="refunds-card-header">
-                <div>
-                    <h1 class="refunds-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ __('refunds.title') }}</h1>
-                    <p class="refunds-subtitle">{{ __('order.order_prefix', ['number' => $refund->order->order_number]) }}</p>
+                <div class="refunds-card-header-info">
+                    <h1 class="refunds-card-title">{{ __('refunds.title') }}</h1>
+                    <p class="refunds-card-subtitle">{{ __('order.order_prefix', ['number' => $refund->order->order_number]) }}</p>
                 </div>
                 <span class="refunds-status {{ $refund->status }}">
                     <span class="refunds-status-dot"></span>
@@ -53,7 +51,7 @@
             <div class="refunds-details-grid">
                 <div class="refunds-detail-item">
                     <div class="refunds-detail-label">{{ __('refunds.refund_type') }}</div>
-                    <div class="refunds-detail-value" style="text-transform: capitalize;">{{ $refund->type === 'full' ? __('refunds.full_refund') : __('refunds.partial_refund') }}</div>
+                    <div class="refunds-detail-value">{{ $refund->type === 'full' ? __('refunds.full_refund') : __('refunds.partial_refund') }}</div>
                 </div>
                 <div class="refunds-detail-item">
                     <div class="refunds-detail-label">{{ __('refunds.amount') }}</div>
@@ -90,7 +88,7 @@
 
             <!-- Status History -->
             <div class="refunds-timeline">
-                <div class="refunds-section-label" style="margin-bottom: 1rem;">{{ __('refunds.status_history') }}</div>
+                <div class="refunds-section-label">{{ __('refunds.status_history') }}</div>
                 <div class="refunds-timeline-list">
                     @foreach($refund->statusHistory as $history)
                         <div class="refunds-timeline-item">
@@ -119,7 +117,7 @@
                       onsubmit="return confirm('{{ __('refunds.cancel_confirm') }}')">
                     @csrf
                     <button type="submit" class="refunds-btn refunds-btn-danger">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                         {{ __('refunds.cancel_request') }}
@@ -142,7 +140,7 @@
                              class="refunds-order-item-image">
                     @else
                         <div class="refunds-order-item-placeholder">
-                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                         </div>

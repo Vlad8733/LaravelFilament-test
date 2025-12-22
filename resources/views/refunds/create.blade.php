@@ -8,21 +8,19 @@
 
 @section('content')
 <div class="refunds-page">
-    <div class="max-w-2xl mx-auto px-4 py-8">
-        <div class="mb-6">
-            <a href="{{ route('orders.tracking.show', $order->order_number) }}" class="refunds-back-link">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-                {{ __('refunds.back_to_order') }}
-            </a>
-        </div>
+    <div class="refunds-container">
+        <a href="{{ route('orders.tracking.show', $order->order_number) }}" class="refunds-back-link">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            {{ __('refunds.back_to_order') }}
+        </a>
 
         <div class="refunds-card">
             <div class="refunds-card-header">
-                <div>
-                    <h1 class="refunds-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">{{ __('refunds.request_refund') }}</h1>
-                    <p class="refunds-subtitle">{{ __('order.order_prefix', ['number' => $order->order_number]) }}</p>
+                <div class="refunds-card-header-info">
+                    <h1 class="refunds-card-title">{{ __('refunds.request_refund') }}</h1>
+                    <p class="refunds-card-subtitle">{{ __('order.order_prefix', ['number' => $order->order_number]) }}</p>
                 </div>
             </div>
 

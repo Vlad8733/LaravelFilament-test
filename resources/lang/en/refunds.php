@@ -51,12 +51,24 @@ return [
     
     // Statuses
     'status_pending' => 'Pending',
+    'status_pending_review' => 'Pending Review',
     'status_approved' => 'Approved',
     'status_rejected' => 'Rejected',
     'status_completed' => 'Completed',
+    'status_refunded' => 'Refunded',
     'status_cancelled' => 'Cancelled',
+    
+    // Status notes (default)
+    'note_pending' => 'Refund request submitted by customer.',
+    'note_approved' => 'Refund request has been approved.',
+    'note_approved_by_admin' => 'Refund approved by admin.',
+    'note_rejected' => 'Refund request has been rejected.',
+    'note_completed' => 'Refund has been processed and completed.',
+    'note_cancelled' => 'Refund request was cancelled.',
+    'note_cancelled_by_customer' => 'Refund request cancelled by customer.',
     
     // Messages
     'request_submitted' => 'Refund request submitted successfully',
     'request_cancelled' => 'Refund request cancelled',
+    'error_only_pending_can_cancel' => 'Only pending refund requests can be cancelled.',
 ];
