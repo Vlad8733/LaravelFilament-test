@@ -17,6 +17,10 @@ class WishlistController extends Controller
             ->get()
             ->map(function($wi) {
                 $p = $wi->product;
+                // Ensure category is loaded
+                if ($p && !$p->relationLoaded('category')) {
+                    $p->load('category');
+                }
                 return (object)[
                     'id' => $wi->id,
                     'product' => $p,

@@ -229,14 +229,26 @@
                                         {{ __('products.out_of_stock') }}
                                     </div>
                                 @endif
-                                <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                    :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
-                                    class="products-wish absolute top-2 right-2"
-                                    type="button">
-                                    <svg class="wish-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                    </svg>
-                                </button>
+                                <div class="product-actions-overlay absolute top-2 right-2 flex flex-col gap-2">
+                                    <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                        :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
+                                        class="products-wish"
+                                        type="button"
+                                        title="{{ __('wishlist.add_to_wishlist') }}">
+                                        <svg class="wish-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                        </svg>
+                                    </button>
+                                    <button @click="toggleCompare({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                        :class="isInCompare({{ $product->id }}) ? 'active' : ''"
+                                        class="products-compare"
+                                        type="button"
+                                        title="{{ __('compare.add_to_compare') }}">
+                                        <svg class="compare-icon" viewBox="0 -960 960 960" fill="currentColor">
+                                            <path d="M400-40v-80H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h200v-80h80v880h-80ZM200-240h200v-240L200-240Zm360 120v-360l200 240v-520H560v-80h200q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H560Z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <div class="p-4">
                                 <div class="mb-2">
@@ -288,14 +300,26 @@
                                         </div>
                                     @endif
                                 </a>
-                                <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                        :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
-                                        class="products-wish absolute top-2 right-2"
-                                        type="button">
-                                    <svg class="wish-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                    </svg>
-                                </button>
+                                <div class="product-actions-overlay absolute top-2 right-2 flex flex-col gap-2">
+                                    <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                            :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
+                                            class="products-wish"
+                                            type="button"
+                                            title="{{ __('wishlist.add_to_wishlist') }}">
+                                        <svg class="wish-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                        </svg>
+                                    </button>
+                                    <button @click="toggleCompare({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                            :class="isInCompare({{ $product->id }}) ? 'active' : ''"
+                                            class="products-compare"
+                                            type="button"
+                                            title="{{ __('compare.add_to_compare') }}">
+                                        <svg class="compare-icon" viewBox="0 -960 960 960" fill="currentColor">
+                                            <path d="M400-40v-80H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h200v-80h80v880h-80ZM200-240h200v-240L200-240Zm360 120v-360l200 240v-520H560v-80h200q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H560Z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <div class="flex-1">
                                 <div class="flex justify-between items-start mb-2">
@@ -366,6 +390,8 @@ document.addEventListener('alpine:init', () => {
         cartCount: 0,
         wishlistCount: 0,
         wishlistItems: [],
+        compareItems: [],
+        compareCount: 0,
         loading: false,
         filterLoading: false,
         notifications: [],
@@ -374,6 +400,9 @@ document.addEventListener('alpine:init', () => {
             added_to_cart: '{{ __('products.added_to_cart') }}',
             add_to_wishlist: '{{ __('products.add_to_wishlist') }}',
             removed_from_wishlist: '{{ __('products.removed_from_wishlist') }}',
+            added_to_compare: '{{ __('compare.added') }}',
+            removed_from_compare: '{{ __('compare.removed') }}',
+            compare_limit: '{{ __('compare.limit_reached') }}',
             error: '{{ __('common.error') }}',
             network_error: '{{ __('common.network_error') }}'
         },
@@ -390,10 +419,52 @@ document.addEventListener('alpine:init', () => {
             this.updateCartCount();
             this.updateWishlistCount();
             this.loadWishlistItems();
+            this.loadCompareItems();
         },
 
         isInWishlist(productId) {
             return this.wishlistItems.includes(Number(productId));
+        },
+
+        isInCompare(productId) {
+            return this.compareItems.includes(Number(productId));
+        },
+
+        async loadCompareItems() {
+            try {
+                const res = await fetch('/compare/items', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                this.compareItems = Array.isArray(data.items) ? data.items.map(i => Number(i)) : [];
+                this.compareCount = data.count ?? this.compareItems.length;
+            } catch (e) { console.warn('Failed loading compare', e); }
+        },
+
+        async toggleCompare(productId, productName = 'Product') {
+            const id = Number(productId);
+            const already = this.isInCompare(id);
+            
+            try {
+                const resp = await fetch(`/compare/toggle/${id}`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+                });
+                const json = await resp.json();
+                if (json.success) {
+                    if (json.action === 'added') {
+                        this.compareItems.push(id);
+                        this.showNotification(this.translations.added_to_compare, 'success', productName);
+                    } else {
+                        this.compareItems = this.compareItems.filter(x => x !== id);
+                        this.showNotification(this.translations.removed_from_compare, 'success', productName);
+                    }
+                    this.compareCount = json.count ?? this.compareItems.length;
+                } else {
+                    this.showNotification(json.message || this.translations.compare_limit, 'error', productName);
+                }
+            } catch (err) {
+                this.showNotification(this.translations.network_error, 'error', productName);
+            }
         },
 
         async loadWishlistItems() {

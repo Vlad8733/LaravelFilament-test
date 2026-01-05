@@ -91,7 +91,7 @@
 
                         <div class="card-body">
                             <h3><a href="{{ route('products.show', $item->product) }}">{{ $item->product->name }}</a></h3>
-                            <p class="card-category">{{ $item->product->category->name ?? __('wishlist.uncategorized') }}</p>
+                            <p class="card-category">{{ $item->product->category?->name ?? ($item->product->category()->first()?->name ?? __('wishlist.uncategorized')) }}</p>
 
                             @if($item->variant)
                                 @php

@@ -136,6 +136,17 @@ Route::prefix('wishlist')->name('wishlist.')->group(function () {
     Route::delete('/remove/{productId}', [WishlistController::class, 'remove'])->name('remove');
 });
 
+// Compare Products
+Route::prefix('compare')->name('compare.')->group(function () {
+    Route::get('/', [App\Http\Controllers\CompareController::class, 'index'])->name('index');
+    Route::get('/items', [App\Http\Controllers\CompareController::class, 'items'])->name('items');
+    Route::get('/count', [App\Http\Controllers\CompareController::class, 'count'])->name('count');
+    Route::post('/add/{productId}', [App\Http\Controllers\CompareController::class, 'add'])->name('add');
+    Route::post('/toggle/{productId}', [App\Http\Controllers\CompareController::class, 'toggle'])->name('toggle');
+    Route::delete('/remove/{productId}', [App\Http\Controllers\CompareController::class, 'remove'])->name('remove');
+    Route::delete('/clear', [App\Http\Controllers\CompareController::class, 'clear'])->name('clear');
+});
+
 // Support Tickets Routes
 Route::middleware(['auth'])->prefix('support')->name('tickets.')->group(function () {
     Route::get('/', [TicketController::class, 'index'])->name('index');
