@@ -62,6 +62,14 @@ input:focus, select:focus, textarea:focus {
 }
 .bg-blue-600:hover, .bg-gray-600:hover { transform: translateY(-2px); box-shadow: 0 12px 40px var(--accent-glow); }
 
+/* Small cart icon used in product list buttons */
+.cart-icon-sm {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    object-fit: contain;
+}
+
 .bg-green-50 { background: var(--accent-glow) !important; border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; }
 .badge-sale, .badge-outofstock { border-radius: 8px; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; }
 .flex.space-x-2 input, .flex.space-x-2 .flex-1 { min-width: 0; }

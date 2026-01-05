@@ -12,7 +12,7 @@ class WishlistController extends Controller
     public function index()
     {
         $userId = auth()->id();
-        $wishlistItems = WishlistItem::with(['product.images', 'product.category'])
+        $wishlistItems = WishlistItem::with(['product.images', 'product.category', 'variant'])
             ->where('user_id', $userId)
             ->get()
             ->map(function($wi) {
@@ -20,6 +20,8 @@ class WishlistController extends Controller
                 return (object)[
                     'id' => $wi->id,
                     'product' => $p,
+                    'variant' => $wi->variant, // include variant relation for views
+                    'variant_id' => $wi->variant_id,
                     'created_at' => $wi->created_at,
                 ];
             });
@@ -38,21 +40,38 @@ class WishlistController extends Controller
 
         $variantId = $request->input('variant_id');
 
-        $created = WishlistItem::firstOrCreate([
-            'user_id' => $userId,
-            'product_id' => $productId,
-            'variant_id' => $variantId,
-        ]);
+        // Ensure we don't violate historic unique index on (user_id, product_id)
+        $existingAny = WishlistItem::where('user_id', $userId)->where('product_id', $productId)->first();
+        if ($existingAny) {
+            // If an item exists, update variant_id if missing or different to reflect selection
+            if (is_null($existingAny->variant_id) && $variantId) {
+                $existingAny->variant_id = $variantId;
+                $existingAny->save();
+            } else if ($existingAny->variant_id && $variantId && $existingAny->variant_id != $variantId) {
+                // keep behaviour simple: update to latest chosen variant
+                $existingAny->variant_id = $variantId;
+                $existingAny->save();
+            }
+            $created = $existingAny;
+            $wasCreated = false;
+        } else {
+            $created = WishlistItem::create([
+                'user_id' => $userId,
+                'product_id' => $productId,
+                'variant_id' => $variantId,
+            ]);
+            $wasCreated = true;
+        }
 
         activity_log('added_to_wishlist:' . __('activity_log.log.added_to_wishlist', ['product' => $product->name]));
 
         $count = WishlistItem::where('user_id', $userId)->count();
 
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'message' => 'Added to wishlist',
             'count' => $count,
-            'added' => $created->wasRecentlyCreated
+            'added' => $wasCreated ?? ($created->wasRecentlyCreated ?? false)
         ]);
     }
 

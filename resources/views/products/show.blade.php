@@ -3,7 +3,7 @@
 @section('title', $product->name)
 
 @push('styles')
-    @vite('resources/css/products/show.css')
+    @vite(['resources/css/products/show.css','resources/css/products/productindex.css'])
 @endpush
 
 @push('scripts')
@@ -12,38 +12,82 @@
 
 @section('content')
 <div x-data="productPage()" x-init="init({{ $product->stock_quantity }}, {{ $product->id }})" class="product-page">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Toast Notifications Container (same as products index) -->
+    <div class="toast-container">
+        <template x-for="(notification, index) in notifications.slice().reverse()" :key="notification.id">
+            <div x-show="notification.show"
+                 x-transition:enter="toast-enter"
+                 x-transition:leave="toast-leave"
+                 :class="{
+                     'success': notification.type === 'success',
+                     'error': notification.type === 'error',
+                     'info': notification.type === 'info'
+                 }"
+                 class="toast-notification">
+                <div class="toast-icon">
+                    <svg x-show="notification.type === 'success'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <svg x-show="notification.type === 'error'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <svg x-show="notification.type === 'info'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-product-name" x-text="notification.productName"></div>
+                    <div class="toast-message" x-text="notification.message"></div>
+                </div>
+                <button @click="removeNotification(notification.id)" class="toast-close">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <div class="toast-progress"></div>
+            </div>
+        </template>
+    </div>
+    <div class="container">
+        <!-- Breadcrumbs -->
+        <nav class="breadcrumbs">
+            <a href="{{ route('products.index') }}">{{ __('products.home') }}</a>
+            <span>/</span>
+            @if($product->category)
+                <a href="{{ route('products.index', ['category' => $product->category->id]) }}">{{ $product->category->name }}</a>
+                <span>/</span>
+            @endif
+            <span>{{ $product->name }}</span>
+        </nav>
+
         <!-- Product Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
-            <!-- Product Images -->
-            <div class="space-y-4">
+        <div class="product-grid">
+            <!-- Product Gallery -->
+            <div class="product-gallery">
                 @php $primary = ($product->images && $product->images->count() > 0) ? $product->images->first() : null; @endphp
-                <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden relative">
+                <div class="gallery-main">
                     @if($primary)
                         <img id="main-product-image"
                              src="{{ asset('storage/' . $primary->image_path) }}"
-                             alt="{{ $primary->alt_text ?? $product->name }}"
-                             class="w-full h-full object-cover">
+                             alt="{{ $primary->alt_text ?? $product->name }}">
                     @else
-                        <div class="w-full h-full flex items-center justify-center">
-                            <svg class="w-32 h-32 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="gallery-placeholder">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                         </div>
                     @endif
                 </div>
 
-                <!-- Thumbnail Images -->
                 @if($product->images && $product->images->count() > 1)
-                    <div class="flex space-x-2 overflow-x-auto mt-2">
+                    <div class="gallery-thumbs">
                         @foreach($product->images as $index => $image)
                             <button type="button"
                                     data-thumb-src="{{ asset('storage/' . $image->image_path) }}"
                                     data-thumb-index="{{ $index }}"
-                                    class="thumb-btn flex-shrink-0 w-20 h-20 bg-gray-200 rounded-lg overflow-hidden border-2 hover:border-blue-300 transition-colors">
+                                    class="thumb-btn {{ $index === 0 ? 'active' : '' }}">
                                 <img src="{{ asset('storage/' . $image->image_path) }}"
-                                     alt="{{ $image->alt_text ?? $product->name }}"
-                                     class="w-full h-full object-cover">
+                                     alt="{{ $image->alt_text ?? $product->name }}">
                             </button>
                         @endforeach
                     </div>
@@ -51,21 +95,21 @@
             </div>
 
             <!-- Product Info -->
-            <div class="space-y-6">
+            <div class="product-info">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">{{ $product->name }}</h1>
+                    <h1 class="product-title">{{ $product->name }}</h1>
                     
                     <!-- Rating -->
-                    <div class="flex items-center mt-2">
-                        <div class="flex items-center">
+                    <div class="product-rating">
+                        <div class="stars">
                             @for($i = 1; $i <= 5; $i++)
-                                <svg class="w-5 h-5 {{ $i <= round($product->average_rating ?? 0) ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                <svg class="{{ $i <= round($product->average_rating ?? 0) ? 'filled' : 'empty' }}" 
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                                 </svg>
                             @endfor
                         </div>
-                        <span class="ml-2 text-sm text-gray-600">
+                        <span class="rating-text">
                             {{ number_format($product->average_rating ?? 0, 1) }} 
                             ({{ trans_choice('products.reviews_count', $product->reviews_count, ['count' => $product->reviews_count]) }})
                         </span>
@@ -73,79 +117,114 @@
                 </div>
 
                 <!-- Price -->
-                <div class="flex items-center space-x-3">
+                <div class="product-price">
                     @if($product->sale_price)
-                        <span id="product-price" data-base-price="{{ $product->sale_price }}" class="text-3xl font-bold text-green-600">${{ number_format($product->sale_price, 2) }}</span>
-                        <span id="product-old-price" data-base-old="{{ $product->price }}" class="text-xl text-gray-500 line-through">${{ number_format($product->price, 2) }}</span>
-                        <span id="product-discount" data-off-text="{{ __('products.off') }}" class="bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                        <span id="product-price" data-base-price="{{ $product->sale_price }}" class="price-current">${{ number_format($product->sale_price, 2) }}</span>
+                        <span id="product-old-price" data-base-old="{{ $product->price }}" class="price-old">${{ number_format($product->price, 2) }}</span>
+                        <span id="product-discount" data-off-text="{{ __('products.off') }}" class="price-badge">
                             {{ $product->getDiscountPercentage() }}% {{ __('products.off') }}
                         </span>
                     @else
-                        <span id="product-price" data-base-price="{{ $product->price }}" class="text-3xl font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
-                        <span id="product-old-price" class="text-xl text-gray-500 line-through hidden"></span>
-                        <span id="product-old-price" class="text-xl text-gray-500 line-through hidden"></span>
-                        <span id="product-discount" data-off-text="{{ __('products.off') }}" class="hidden bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded"></span>
+                        <span id="product-price" data-base-price="{{ $product->price }}" class="price-current">${{ number_format($product->price, 2) }}</span>
+                        <span id="product-old-price" class="price-old" style="display:none;"></span>
+                        <span id="product-discount" data-off-text="{{ __('products.off') }}" class="price-badge" style="display:none;"></span>
                     @endif
                 </div>
 
                 <!-- Stock Status -->
-                <div class="flex items-center">
+                <div>
                     @if($product->stock_quantity > 0)
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <span class="stock-badge in-stock">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                             </svg>
                             {{ $product->stock_quantity }} {{ __('products.in_stock') }}
                         </span>
                     @else
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <span class="stock-badge out-of-stock">
                             {{ __('products.out_of_stock') }}
                         </span>
                     @endif
                 </div>
 
                 <!-- Description -->
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">{{ __('products.description') }}</h3>
-                    <p class="text-gray-600">{{ $product->description }}</p>
+                <div class="product-description">
+                    <h3>{{ __('products.description') }}</h3>
+                    <p>{{ $product->description }}</p>
                 </div>
 
                 <!-- Long Description -->
                 @if($product->long_description)
-                    <div>
-                        <h3 class="text-lg font-semibold mb-2">{{ __('products.details') }}</h3>
-                        <div class="text-gray-600 prose max-w-none">
+                    <div class="product-description">
+                        <h3>{{ __('products.details') }}</h3>
+                        <div class="prose">
                             {!! nl2br(e($product->long_description)) !!}
                         </div>
                     </div>
                 @endif
 
-                <!-- Add to Cart -->
-                <div class="space-y-4">
-                    @if($product->variants && $product->variants->count() > 0)
-                        <div>
-                            <label class="text-sm font-medium text-gray-700">{{ __('products.variant') }}:</label>
-                            <select id="product-variant" x-model="selectedVariantId" @change="onVariantChange($event)" class="mt-2 block w-full rounded-lg border px-3 py-2 bg-white text-gray-900">
-                                <option value="">{{ __('products.default_variant') }}</option>
-                                @foreach($product->variants as $v)
-                                    @php $attrs = is_array($v->attributes) ? implode(', ', array_map(fn($k,$val) => "$k:$val", array_keys($v->attributes), $v->attributes)) : '' ; @endphp
-                                    <option value="{{ $v->id }}" data-price="{{ $v->price }}" data-sale="{{ $v->sale_price }}" data-stock="{{ $v->stock_quantity }}" data-sku="{{ $v->sku }}">{{ $v->sku }} {{ $attrs ? ' — ' . $attrs : '' }}</option>
-                                @endforeach
-                            </select>
+                <!-- Variants -->
+                @if($product->variants && $product->variants->count() > 0)
+                    <div class="product-variants">
+                        <div class="variants-label">{{ __('products.variant') }}:</div>
+                        <div id="product-variant-buttons" class="variants-grid">
+                            @foreach($product->variants as $v)
+                                @php
+                                    $attrs = is_array($v->attributes) ? collect($v->attributes)->map(fn($val,$k) => "$k: $val")->join(', ') : null;
+                                @endphp
+                                <button type="button"
+                                        class="variant-btn"
+                                        data-variant-id="{{ $v->id }}"
+                                        data-price="{{ $v->price }}"
+                                        data-sale="{{ $v->sale_price }}"
+                                        data-stock="{{ $v->stock_quantity }}"
+                                        data-sku="{{ $v->sku }}"
+                                        data-attrs="{{ e($attrs) }}">
+                                    <div class="variant-icon">✦</div>
+                                    <div class="variant-details">
+                                        <div class="variant-name">{{ $attrs ?: $v->sku }}</div>
+                                    </div>
+                                    <div class="variant-meta">
+                                        <div class="variant-price">${{ number_format($v->sale_price ?? $v->price ?? 0, 2) }}</div>
+                                        <div class="variant-stock {{ $v->stock_quantity <= 0 ? 'out' : '' }}">
+                                            @if($v->stock_quantity > 0) 
+                                                {{ $v->stock_quantity }} {{ __('products.in_stock') }} 
+                                            @else 
+                                                {{ __('products.out_of_stock') }} 
+                                            @endif
+                                        </div>
+                                    </div>
+                                </button>
+                            @endforeach
                         </div>
-                    @endif
-                    <div class="flex items-center space-x-4">
-                        <label class="text-sm font-medium text-gray-700">{{ __('products.quantity') }}:</label>
-                        <div class="flex items-center border rounded-lg">
-                            <button type="button" data-qty-action="decrement"
-                                    class="px-3 py-2 hover:bg-gray-100 transition-colors" aria-label="Decrease quantity">-</button>
-                            <input id="product-quantity" name="quantity" type="number" x-model.number="quantity"
-                                   min="1" :max="maxQuantity" value="1"
-                                   class="w-16 text-center border-none focus:ring-0 text-white" aria-label="Product quantity" />
-                            <button type="button" data-qty-action="increment"
-                                    class="px-3 py-2 hover:bg-gray-100 transition-colors" aria-label="Increase quantity">+</button>
-                        </div>
+                        <div id="product-variant-info" class="variant-info"></div>
                     </div>
+                @endif
+
+                <!-- Quantity -->
+                <div class="quantity-row">
+                    <span class="quantity-label">{{ __('products.quantity') }}:</span>
+                    <div class="quantity-control">
+                        <button type="button" data-qty-action="decrement" aria-label="Decrease quantity">−</button>
+                        <input id="product-quantity" name="quantity" type="number" x-model.number="quantity"
+                            min="1" :max="maxQuantity" value="1" aria-label="Product quantity" />
+                        <button type="button" data-qty-action="increment" aria-label="Increase quantity">+</button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="button"
+                            data-add-to-wishlist
+                            data-product-id="{{ $product->id }}"
+                            @click="addToWishlist({{ $product->id }})"
+                            :disabled="loading"
+                            class="btn-wishlist">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        {{ __('products.added_to_wishlist') ?? 'Add to Wishlist' }}
+                    </button>
 
                     <button type="button"
                             data-add-to-cart
@@ -153,147 +232,173 @@
                             data-max="{{ $product->stock_quantity }}"
                             @click="addToCart({{ $product->id }})"
                             :disabled="!canAddToCart || loading"
-                            class="w-full bg-blue-600 text-white text-lg py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            class="btn-cart">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
                         {{ __('products.add_to_cart') }}
                     </button>
-                 </div>
+                </div>
             </div>
         </div>
 
         <!-- Customer Reviews -->
-        <div class="mb-12">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-semibold">{{ __('products.customer_reviews') }}</h3>
+        <div class="section-card">
+            <div class="section-header">
+                <h3 class="section-title">{{ __('products.customer_reviews') }}</h3>
                 @if($product->reviews_count > 0)
-                    <div class="flex items-center gap-2">
-                        <div class="flex items-center">
+                    <div class="product-rating">
+                        <div class="stars">
                             @for($i = 1; $i <= 5; $i++)
-                                <svg class="w-5 h-5 {{ $i <= round($product->average_rating ?? 0) ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                <svg class="{{ $i <= round($product->average_rating ?? 0) ? 'filled' : 'empty' }}" 
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                 </svg>
                             @endfor
                         </div>
-                        <span class="text-gray-600 font-medium">{{ $product->average_rating ?? 0 }}</span>
-                        <span class="text-gray-400">({{ trans_choice('products.reviews_count', $product->reviews_count, ['count' => $product->reviews_count]) }})</span>
+                        <span class="rating-text">{{ $product->average_rating ?? 0 }} ({{ trans_choice('products.reviews_count', $product->reviews_count, ['count' => $product->reviews_count]) }})</span>
                     </div>
                 @endif
             </div>
             
             @if($product->approvedReviews->count() > 0)
-                <div class="space-y-6">
+                <div class="reviews-list">
                     @foreach($product->approvedReviews as $review)
-                        <div class="border-b border-gray-200 pb-6 last:border-0">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center space-x-3">
-                                    {{-- Аватар пользователя --}}
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="review-author">
                                     @php $user = $review->user; @endphp
-                                     <img src="{{ $user?->avatar_url ?? asset('storage/logo/no_avatar.png') }}"
+                                    <img src="{{ $user?->avatar_url ?? asset('storage/logo/no_avatar.png') }}"
                                          alt="{{ $user?->name ?? 'User' }}"
-                                         class="reviews-user-avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#f3f3f3;border:1px solid #e5e7eb;">
-                                    <div>
-                                        <h4 class="font-medium text-gray-900">{{ $review->user->name ?? 'Anonymous' }}</h4>
-                                        <div class="flex items-center gap-1">
+                                         class="review-avatar">
+                                    <div class="review-author-info">
+                                        <h4>{{ $review->user->name ?? 'Anonymous' }}</h4>
+                                        <div class="review-rating">
                                             @for($i = 1; $i <= 5; $i++)
-                                                <svg class="w-4 h-4 {{ $i <= round($review->overall_rating) ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                                <svg class="{{ $i <= round($review->overall_rating) ? 'filled' : 'empty' }}" 
                                                      fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                </svg>
                                             @endfor
-                                            <span class="text-sm text-gray-500 ml-1">{{ $review->overall_rating }}/5</span>
+                                            <span>{{ $review->overall_rating }}/5</span>
                                         </div>
                                     </div>
                                 </div>
-                                <span class="text-sm text-gray-500">{{ $review->created_at->translatedFormat('M j, Y') }}</span>
+                                <span class="review-date">{{ $review->created_at->translatedFormat('M j, Y') }}</span>
                             </div>
                             
-                            <!-- Rating breakdown -->
-                            <div class="mt-3 flex flex-wrap gap-4 text-sm">
-                                <div class="flex items-center gap-1">
-                                    <span class="text-gray-500">{{ __('products.delivery') }}:</span>
-                                    <div class="flex">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <svg class="w-3 h-3 {{ $i <= $review->delivery_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
-                                                 fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                            </svg>
-                                        @endfor
-                                    </div>
+                            <div class="review-breakdown">
+                                <div class="breakdown-item">
+                                    <span>{{ __('products.delivery') }}:</span>
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <svg class="{{ $i <= $review->delivery_rating ? 'filled' : 'empty' }}" 
+                                             fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                    @endfor
                                 </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="text-gray-500">{{ __('products.packaging') }}:</span>
-                                    <div class="flex">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <svg class="w-3 h-3 {{ $i <= $review->packaging_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
-                                                 fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                            </svg>
-                                        @endfor
-                                    </div>
+                                <div class="breakdown-item">
+                                    <span>{{ __('products.packaging') }}:</span>
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <svg class="{{ $i <= $review->packaging_rating ? 'filled' : 'empty' }}" 
+                                             fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                    @endfor
                                 </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="text-gray-500">{{ __('products.product') }}:</span>
-                                    <div class="flex">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <svg class="w-3 h-3 {{ $i <= $review->product_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
-                                                 fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                            </svg>
-                                        @endfor
-                                    </div>
+                                <div class="breakdown-item">
+                                    <span>{{ __('products.product') }}:</span>
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <svg class="{{ $i <= $review->product_rating ? 'filled' : 'empty' }}" 
+                                             fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                    @endfor
                                 </div>
                             </div>
                             
                             @if($review->comment)
-                                <p class="mt-3 text-gray-600">{{ $review->comment }}</p>
+                                <p class="review-comment">{{ $review->comment }}</p>
                             @endif
                         </div>
                     @endforeach
                 </div>
             @else
-                <div class="text-center py-12 bg-gray-50 rounded-lg">
-                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                    </svg>
-                    <p class="text-gray-500 text-lg mb-2">{{ __('products.no_reviews_yet') }}</p>
-                    <p class="text-gray-400 text-sm">{{ __('products.be_first_review') }}</p>
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                    </div>
+                    <h4>{{ __('products.no_reviews_yet') }}</h4>
+                    <p>{{ __('products.be_first_review') }}</p>
                 </div>
             @endif
         </div>
 
         <!-- Related Products -->
         @if(isset($relatedProducts) && $relatedProducts->count() > 0)
-            <div class="mb-12">
-                <h3 class="text-2xl font-semibold mb-6">{{ __('products.related_products') }}</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="section-card">
+                <div class="section-header">
+                    <h3 class="section-title">{{ __('products.related_products') }}</h3>
+                </div>
+                <div class="related-grid">
                     @foreach($relatedProducts as $relatedProduct)
-                        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                            <div class="aspect-square bg-gray-200">
+                        <a href="{{ route('products.show', $relatedProduct) }}" class="related-card">
+                            <div class="related-thumb">
                                 @if($relatedProduct->getPrimaryImage())
                                     <img src="{{ asset('storage/' . $relatedProduct->getPrimaryImage()->image_path) }}" 
-                                         alt="{{ $relatedProduct->name }}"
-                                         class="w-full h-full object-cover">
+                                         alt="{{ $relatedProduct->name }}">
                                 @endif
                             </div>
-                            <div class="p-4">
-                                <h4 class="font-semibold text-gray-900 mb-2">{{ $relatedProduct->name }}</h4>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-lg font-bold text-green-600">
-                                        ${{ number_format($relatedProduct->getCurrentPrice(), 2) }}
-                                    </span>
-                                    <a href="{{ route('products.show', $relatedProduct) }}" 
-                                       class="text-blue-600 hover:text-blue-800 text-sm">
-                                        {{ __('products.view_details') }}
-                                    </a>
+                            <div class="related-body">
+                                <h4 class="related-name">{{ $relatedProduct->name }}</h4>
+                                <div class="related-footer">
+                                    <span class="related-price">${{ number_format($relatedProduct->getCurrentPrice(), 2) }}</span>
+                                    <span class="related-link">{{ __('products.view_details') }}</span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
             </div>
         @endif
     </div>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    <!-- Toast Notifications (Alpine) -->
+    <div class="toast-container">
+        <template x-for="(notification, index) in notifications.slice().reverse()" :key="notification.id">
+            <div x-show="notification.show"
+                 x-transition:enter="toast-enter"
+                 x-transition:leave="toast-leave"
+                 :class="{
+                     'success': notification.type === 'success',
+                     'error': notification.type === 'error'
+                 }"
+                 class="toast-notification">
+                <div class="toast-icon">
+                    <svg x-show="notification.type === 'success'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <svg x-show="notification.type === 'error'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <svg x-show="notification.type === 'info'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-product-name" x-text="notification.productName"></div>
+                    <div class="toast-message" x-text="notification.message"></div>
+                </div>
+                <button @click="removeNotification(notification.id)" class="toast-close">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                <div class="toast-progress"></div>
+            </div>
+        </template>
+    </div>
 </div>
 @endsection

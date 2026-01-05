@@ -93,13 +93,23 @@
                             <h3><a href="{{ route('products.show', $item->product) }}">{{ $item->product->name }}</a></h3>
                             <p class="card-category">{{ $item->product->category->name ?? __('wishlist.uncategorized') }}</p>
 
+                            @if($item->variant)
+                                @php
+                                    $v = $item->variant;
+                                    $attrs = is_array($v->attributes) ? collect($v->attributes)->map(fn($val,$k) => "$k: $val")->join(', ') : null;
+                                    $variantLabel = $attrs ? $attrs : ($v->sku ?? '');
+                                @endphp
+                                <p class="text-sm text-gray-500">{{ $variantLabel }}</p>
+                            @endif
+
                             <div class="price-row">
                                 <div class="price">
-                                    @if($item->product->sale_price)
-                                        <span class="price-current price-sale">${{ number_format($item->product->sale_price, 2) }}</span>
-                                        <span class="price-old">${{ number_format($item->product->price, 2) }}</span>
+                                    @php $priceSource = $item->variant ?? $item->product; @endphp
+                                    @if($priceSource->sale_price)
+                                        <span class="price-current price-sale">${{ number_format($priceSource->sale_price, 2) }}</span>
+                                        <span class="price-old">${{ number_format($priceSource->price, 2) }}</span>
                                     @else
-                                        <span class="price-current">${{ number_format($item->product->price, 2) }}</span>
+                                        <span class="price-current">${{ number_format($priceSource->price ?? 0, 2) }}</span>
                                     @endif
                                 </div>
                                 <span class="badge-stock {{ $item->product->stock_quantity > 0 ? 'in' : 'out' }}">
@@ -109,10 +119,10 @@
 
                             <div class="card-actions">
                                 <button type="button" 
-                                        @click.prevent="addToCart({{ $item->product->id }}, '{{ addslashes($item->product->name) }}')"
+                                        @click.prevent="addToCart({{ $item->product->id }}, '{{ addslashes($item->product->name) }}', '{{ addslashes($variantLabel ?? '') }}', {{ $item->variant_id ?? 'null' }})"
                                         :disabled="loading"
                                         class="btn-cart"
-                                        {{ $item->product->stock_quantity <= 0 ? 'disabled' : '' }}>
+                                        {{ ($item->variant ? ($item->variant->stock_quantity <= 0) : ($item->product->stock_quantity <= 0)) ? 'disabled' : '' }}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>

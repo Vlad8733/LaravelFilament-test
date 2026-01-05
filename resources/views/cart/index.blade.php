@@ -45,7 +45,18 @@
 
                                 <div class="flex-1">
                                     <h3 class="font-semibold text-gray-900">{{ $item->product->name }}</h3>
-                                    <p class="text-gray-600">${{ number_format($item->product->getCurrentPrice(), 2) }}</p>
+                                    @if($item->variant)
+                                        @php
+                                            $v = $item->variant;
+                                            $attrs = is_array($v->attributes) ? collect($v->attributes)->map(fn($val,$k) => "$k: $val")->join(', ') : null;
+                                            $priceSource = $v;
+                                            $variantLabel = $attrs ?: ($v->sku ?? '');
+                                        @endphp
+                                        <p class="text-sm text-gray-600">{{ $variantLabel }}</p>
+                                        <p class="text-gray-600">${{ number_format($priceSource->sale_price ?? $priceSource->price ?? 0, 2) }}</p>
+                                    @else
+                                        <p class="text-gray-600">${{ number_format($item->product->getCurrentPrice(), 2) }}</p>
+                                    @endif
                                 </div>
 
                                 <div class="flex items-center space-x-2">

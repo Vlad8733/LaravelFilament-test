@@ -35,6 +35,7 @@ return [
     'add_to_cart' => 'В корзину',
     'added_to_cart' => 'Добавлено в корзину',
     'add_to_wishlist' => 'Добавлен в избранное',
+    'added_to_wishlist' => 'В избранное',
     'remove_from_wishlist' => 'Удалить из избранного',
     'out_of_stock' => 'Нет в наличии',
     'featured' => 'Рекомендуем',
@@ -44,7 +45,7 @@ return [
     'review' => 'отзыв',
     'no_reviews' => 'Нет отзывов',
     'network_error' => 'Ошибка сети',
-    'removed_from_wishlist' => 'Удалён из избранного',
+    'removed_from_wishlist' => 'Удалено из избранного',
     
     // Product page
     'description' => 'Описание',

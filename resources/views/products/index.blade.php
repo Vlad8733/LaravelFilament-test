@@ -228,9 +228,9 @@
                                     </div>
                                 @endif
                                 <button @click="toggleWishlist({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                        :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
-                                        class="products-wish absolute top-2 right-2"
-                                        type="button">
+                                    :class="isInWishlist({{ $product->id }}) ? 'active' : ''"
+                                    class="products-wish absolute top-2 right-2"
+                                    type="button">
                                     <svg class="wish-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                     </svg>
@@ -270,7 +270,8 @@
                                 </div>
                                 <button @click="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}')"
                                         :disabled="!{{ $product->isInStock() ? 'true' : 'false' }} || loading"
-                                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center">
+                                    <img src="{{ asset('images/icons/cart-sm.svg') }}" alt="{{ __('products.add_to_cart') }}" class="cart-icon-sm mr-2">
                                     <span x-show="!loading">
                                         {{ $product->isInStock() ? __('products.add_to_cart') : __('products.out_of_stock') }}
                                     </span>
@@ -336,11 +337,12 @@
                                         <span class="text-sm text-gray-500 ml-1">({{ $product->reviews_count }} {{ __('products.reviews') }})</span>
                                     </div>
                                     <div class="flex items-center space-x-3">
-                                        <button @click="addToCart({{ $product->id }})" 
-                                                :disabled="!{{ $product->isInStock() ? 'true' : 'false' }} || loading"
-                                                class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
-                                            {{ $product->isInStock() ? __('products.add_to_cart') : __('products.out_of_stock') }}
-                                        </button>
+                                                                                <button @click="addToCart({{ $product->id }})" 
+                                                                                                :disabled="!{{ $product->isInStock() ? 'true' : 'false' }} || loading"
+                                                                                                class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors inline-flex items-center">
+                                                                                                <img src="{{ asset('images/icons/cart-sm.svg') }}" alt="{{ __('products.add_to_cart') }}" class="cart-icon-sm mr-2">
+                                                                                        {{ $product->isInStock() ? __('products.add_to_cart') : __('products.out_of_stock') }}
+                                                                                </button>
                                     </div>
                                 </div>
                             </div>

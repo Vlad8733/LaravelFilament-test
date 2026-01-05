@@ -148,12 +148,15 @@ function wishlistPageFactory() {
             }
         },
 
-        async addToCart(productId, productName = 'Product') {
+        async addToCart(productId, productName = 'Product', variantLabel = '', variantId = null) {
             if (this.loading) return;
             
             this.loading = true;
 
             try {
+                const payload = { quantity: 1 };
+                if (variantId) payload.variant_id = variantId;
+
                 const response = await fetch(`/cart/add/${productId}`, {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -162,13 +165,14 @@ function wishlistPageFactory() {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ quantity: 1 })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
                 
                 if (data.success) {
-                    this.showNotification(t('added_to_cart', 'Added to cart'), 'success', productName);
+                    const what = variantLabel ? ` (${variantLabel})` : '';
+                    this.showNotification((t('added_to_cart', 'Added to cart') + what), 'success', productName + what);
                     
                     // Плавно обновляем счётчик корзины в navbar
                     if (typeof window.updateCartCount === 'function' && data.cartCount !== undefined) {

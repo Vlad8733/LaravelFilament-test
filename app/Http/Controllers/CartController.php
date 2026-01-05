@@ -65,14 +65,44 @@ class CartController extends Controller
             $cartItem->save();
             activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
         } else {
-            CartItem::create([
-                'user_id' => $userId,
-                'product_id' => $productId,
-                'variant_id' => $variantId,
-                'quantity' => $qty,
-                'session_id' => session()->getId(),
-            ]);
-            activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
+            // If a cart row exists for this user+product but with different variant (or null),
+            // we must handle it because older schema had unique(user_id,product_id).
+            $existingAny = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
+            if ($existingAny) {
+                // Prefer to merge into existing row: if existing has no variant, set it to the incoming variant.
+                // If existing has a different variant, we merge quantities and set variant to the incoming one
+                // to reflect the user's latest choice (avoids unique constraint failure).
+                $existingAny->quantity += $qty;
+                if (is_null($existingAny->variant_id) && $variantId) {
+                    $existingAny->variant_id = $variantId;
+                } elseif ($existingAny->variant_id && $variantId && $existingAny->variant_id != $variantId) {
+                    $existingAny->variant_id = $variantId;
+                }
+                $existingAny->save();
+                activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
+            } else {
+                try {
+                    CartItem::create([
+                        'user_id' => $userId,
+                        'product_id' => $productId,
+                        'variant_id' => $variantId,
+                        'quantity' => $qty,
+                        'session_id' => session()->getId(),
+                    ]);
+                    activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
+                } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                    // Fallback: merge into any existing row to avoid duplicate key error
+                    $fallback = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
+                    if ($fallback) {
+                        $fallback->quantity += $qty;
+                        if (is_null($fallback->variant_id) && $variantId) $fallback->variant_id = $variantId;
+                        $fallback->save();
+                    } else {
+                        // rethrow if somehow still not resolvable
+                        throw $e;
+                    }
+                }
+            }
         }
         $count = CartItem::where('user_id', $userId)->sum('quantity');
         return response()->json([
