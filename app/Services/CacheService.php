@@ -12,16 +12,22 @@ class CacheService
      * Cache TTL constants (in seconds)
      */
     public const TTL_SHORT = 300;      // 5 minutes
+
     public const TTL_MEDIUM = 1800;    // 30 minutes
+
     public const TTL_LONG = 3600;      // 1 hour
+
     public const TTL_DAY = 86400;      // 24 hours
 
     /**
      * Cache key prefixes
      */
     public const PREFIX_CATEGORIES = 'categories';
+
     public const PREFIX_PRODUCTS = 'products';
+
     public const PREFIX_FEATURED = 'featured';
+
     public const PREFIX_STATS = 'stats';
 
     /**
