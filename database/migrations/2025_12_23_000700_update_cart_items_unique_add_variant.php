@@ -6,11 +6,44 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
 return new class extends Migration {
+    /**
+     * Check if an index exists on a table (cross-database compatible)
+     */
+    private function indexExists(string $table, string $indexName): bool
+    {
+        $driver = Schema::getConnection()->getDriverName();
+        
+        if ($driver === 'sqlite') {
+            $indexes = DB::select("PRAGMA index_list('$table')");
+            foreach ($indexes as $index) {
+                if ($index->name === $indexName) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // MySQL / MariaDB
+        if ($driver === 'mysql' || $driver === 'mariadb') {
+            $result = DB::select("SHOW INDEX FROM `$table` WHERE Key_name = ?", [$indexName]);
+            return count($result) > 0;
+        }
+        
+        // PostgreSQL
+        if ($driver === 'pgsql') {
+            $result = DB::select("SELECT indexname FROM pg_indexes WHERE tablename = ? AND indexname = ?", [$table, $indexName]);
+            return count($result) > 0;
+        }
+        
+        // Fallback: assume it doesn't exist
+        return false;
+    }
+
     public function up(): void
     {
         if (Schema::hasTable('cart_items')) {
             // First, check if the new unique index already exists
-            $indexExists = collect(DB::select("SHOW INDEX FROM cart_items WHERE Key_name = 'cart_items_user_product_variant_unique'"))->isNotEmpty();
+            $indexExists = $this->indexExists('cart_items', 'cart_items_user_product_variant_unique');
             
             if (!$indexExists) {
                 Schema::table('cart_items', function (Blueprint $table) {
@@ -22,8 +55,7 @@ return new class extends Migration {
                 
                 // Try to drop old unique index if it exists and is not needed by FK
                 try {
-                    // Check if the old unique index exists
-                    $oldIndexExists = collect(DB::select("SHOW INDEX FROM cart_items WHERE Key_name = 'cart_items_user_id_product_id_unique'"))->isNotEmpty();
+                    $oldIndexExists = $this->indexExists('cart_items', 'cart_items_user_id_product_id_unique');
                     
                     if ($oldIndexExists) {
                         // Drop foreign keys that might depend on this index first
