@@ -13,6 +13,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\TwoFactorChallengeController;
+use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +29,10 @@ Route::get('/recently-viewed', [PageController::class, 'recentlyViewed'])->name(
 
 // Home
 Route::get('/', fn () => view('welcome'))->name('home');
+
+// Two-Factor Authentication Challenge (for login flow)
+Route::get('two-factor-challenge', [TwoFactorChallengeController::class, 'show'])->name('two-factor.challenge');
+Route::post('two-factor-challenge', [TwoFactorChallengeController::class, 'verify'])->name('two-factor.verify');
 
 // Guest routes: registration / login
 Route::middleware('guest')->group(function () {
@@ -49,6 +55,15 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::middleware('auth')->group(function () {
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'showConfirmForm'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'confirm']);
+});
+
+// Two-Factor Authentication Settings
+Route::middleware('auth')->prefix('two-factor')->name('two-factor.')->group(function () {
+    Route::get('/', [TwoFactorController::class, 'index'])->name('index');
+    Route::get('/setup', [TwoFactorController::class, 'setup'])->name('setup');
+    Route::post('/enable', [TwoFactorController::class, 'enable'])->name('enable');
+    Route::delete('/disable', [TwoFactorController::class, 'disable'])->name('disable');
+    Route::post('/regenerate', [TwoFactorController::class, 'regenerateCodes'])->name('regenerate');
 });
 
 // User profile

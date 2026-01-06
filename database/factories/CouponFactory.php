@@ -22,6 +22,7 @@ class CouponFactory extends Factory
             'starts_at' => now()->subDay(),
             'expires_at' => now()->addMonth(),
             'is_active' => true,
+            'applies_to' => 'all',
         ];
     }
 
