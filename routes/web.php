@@ -27,6 +27,9 @@ Route::get('/contact', [PageController::class, 'contact'])->name('pages.contact'
 Route::post('/contact', [PageController::class, 'sendContact'])->name('pages.contact.send');
 Route::get('/faq', [PageController::class, 'faq'])->name('pages.faq');
 Route::get('/recently-viewed', [PageController::class, 'recentlyViewed'])->name('pages.recently-viewed');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('pages.privacy');
+Route::get('/terms', [PageController::class, 'terms'])->name('pages.terms');
+Route::get('/cookies', [PageController::class, 'cookies'])->name('pages.cookies');
 
 // Home
 Route::get('/', fn () => view('welcome'))->name('home');

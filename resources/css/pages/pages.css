@@ -801,3 +801,113 @@
         padding: 2rem 1.5rem;
     }
 }
+
+/* =====================================================
+   Legal Pages (Privacy, Terms, Cookies)
+   ===================================================== */
+
+.legal-page {
+    padding: 1rem 0 4rem;
+}
+
+.legal-page .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.legal-content {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 3rem;
+    border: 1px solid var(--border);
+}
+
+.legal-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.legal-updated {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.legal-section {
+    margin-bottom: 2rem;
+}
+
+.legal-section:last-child {
+    margin-bottom: 0;
+}
+
+.legal-section h2 {
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+}
+
+.legal-section h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.legal-section p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.legal-section ul {
+    margin: 0.75rem 0 1rem 1.5rem;
+    padding: 0;
+}
+
+.legal-section li {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.legal-section li::marker {
+    color: var(--primary);
+}
+
+.legal-section a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.legal-section a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* Legal Pages Responsive */
+@media (max-width: 768px) {
+    .legal-content {
+        padding: 1.5rem;
+    }
+
+    .legal-title {
+        font-size: 1.75rem;
+    }
+
+    .legal-section h2 {
+        font-size: 1.25rem;
+    }
+}
+

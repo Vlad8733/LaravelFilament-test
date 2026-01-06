@@ -55,4 +55,28 @@ class PageController extends Controller
     {
         return view('pages.recently-viewed');
     }
+
+    /**
+     * Privacy Policy page
+     */
+    public function privacy()
+    {
+        return view('pages.privacy');
+    }
+
+    /**
+     * Terms of Service page
+     */
+    public function terms()
+    {
+        return view('pages.terms');
+    }
+
+    /**
+     * Cookie Policy page
+     */
+    public function cookies()
+    {
+        return view('pages.cookies');
+    }
 }

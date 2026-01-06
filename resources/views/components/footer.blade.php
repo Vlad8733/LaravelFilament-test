@@ -111,9 +111,9 @@
                 <p>&copy; {{ date('Y') }} ShopLy. {{ __('footer.all_rights') }}</p>
             </div>
             <div class="footer-bottom-right">
-                <a href="#">{{ __('footer.privacy_policy') }}</a>
-                <a href="#">{{ __('footer.terms') }}</a>
-                <a href="#">{{ __('footer.cookies') }}</a>
+                <a href="{{ route('pages.privacy') }}">{{ __('footer.privacy_policy') }}</a>
+                <a href="{{ route('pages.terms') }}">{{ __('footer.terms') }}</a>
+                <a href="{{ route('pages.cookies') }}">{{ __('footer.cookies') }}</a>
             </div>
         </div>
     </div>
