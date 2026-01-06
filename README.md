@@ -1,230 +1,376 @@
-<div align="center">
+<![CDATA[<div align="center">
+
+<!-- Hero Section -->
+<img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">
+
+<br><br>
 
 # 🛒 ShopLy
 
-### Modern E-Commerce Platform
+### ✨ Modern E-Commerce Platform ✨
 
+<p align="center">
+  <strong>Full-featured marketplace with seller companies, admin panel & customer storefront</strong>
+</p>
+
+<br>
+
+<!-- Badges Row 1 - Main Technologies -->
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![Filament](https://img.shields.io/badge/Filament-3.2-FDAE4B?style=for-the-badge&logo=laravel&logoColor=white)](https://filamentphp.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
 [![Tests](https://img.shields.io/badge/Tests-84%20passed-22C55E?style=for-the-badge&logo=phpunit&logoColor=white)](#-testing)
 
+<!-- Badges Row 2 - Frontend -->
+<br>
+
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=flat-square&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Vite](https://img.shields.io/badge/Vite-7.x-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
 [![Livewire](https://img.shields.io/badge/Livewire-3.x-FB70A9?style=flat-square&logo=livewire&logoColor=white)](https://livewire.laravel.com)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://mysql.com)
 
----
+<br>
 
-**Full-stack e-commerce platform with admin panel, seller dashboard, and customer storefront**
+<!-- Quick Links -->
+[📖 Documentation](#-table-of-contents) •
+[🚀 Quick Start](#-quick-start) •
+[✨ Features](#-features) •
+[🧪 Testing](#-testing)
 
 </div>
 
----
+<br>
+
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+<br>
 
 ## 📋 Table of Contents
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Installation](#-installation)
-- [Development](#-development)
-- [Project Structure](#-project-structure)
-- [Admin Panel](#-admin-panel)
-- [API Endpoints](#-api-endpoints)
-- [Testing](#-testing)
-- [Configuration](#-configuration)
+<details open>
+<summary><b>Click to expand</b></summary>
 
----
+- [✨ Features](#-features)
+  - [🛍️ Customer Storefront](#️-customer-storefront)
+  - [🏢 Company System](#-company-system)
+  - [🎛️ Admin Panel](#️-admin-panel)
+  - [👨‍💼 Seller Panel](#-seller-panel)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 Quick Start](#-quick-start)
+- [💻 Development](#-development)
+- [📁 Project Structure](#-project-structure)
+- [🔌 API Reference](#-api-reference)
+- [🧪 Testing](#-testing)
+- [⚙️ Configuration](#️-configuration)
+
+</details>
+
+<br>
+
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+<br>
 
 ## ✨ Features
 
+<div align="center">
+
+### 🏗️ Platform Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        🌐 ShopLy Platform                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐            │
+│   │  👤 Buyer   │    │  🏪 Seller  │    │  👑 Admin   │            │
+│   │  Storefront │    │    Panel    │    │    Panel    │            │
+│   └──────┬──────┘    └──────┬──────┘    └──────┬──────┘            │
+│          │                  │                  │                    │
+│          ▼                  ▼                  ▼                    │
+│   ┌─────────────────────────────────────────────────────┐          │
+│   │              🏢 Company-Based Architecture           │          │
+│   │  ┌─────────┐  ┌─────────┐  ┌─────────┐              │          │
+│   │  │Company A│  │Company B│  │Company C│  ...         │          │
+│   │  │📦📦📦   │  │📦📦     │  │📦📦📦📦 │              │          │
+│   │  └─────────┘  └─────────┘  └─────────┘              │          │
+│   └─────────────────────────────────────────────────────┘          │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+</div>
+
+<br>
+
 ### 🛍️ Customer Storefront
 
-| Feature | Description |
-|---------|-------------|
-| **Product Catalog** | Browse products with filtering by categories, search, and sorting |
-| **Product Variants** | Support for product variations (size, color, etc.) with separate stock |
-| **Shopping Cart** | Add/remove items, update quantities, apply discount coupons |
-| **Wishlist** | Save products for later with easy add-to-cart |
-| **Product Comparison** | Compare multiple products side-by-side |
-| **Reviews & Ratings** | Submit product reviews with moderation system |
-| **Order Tracking** | Track order status by order number |
-| **Recently Viewed** | Quick access to previously viewed products |
+<table>
+<tr>
+<td width="50%">
 
-### 🎛️ Admin Panel (Filament)
+#### 🔍 Discovery
+- **Product Catalog** with filters & search
+- **Category Navigation** with hierarchy
+- **Company Directory** — browse all sellers
+- **Recently Viewed** products
 
-| Resource | Capabilities |
-|----------|--------------|
-| **Products** | CRUD, variants, images, categories, CSV import/export, company assignment |
-| **Companies** | Verify/unverify seller companies, view company details |
-| **Orders** | Status management, order history, status transitions |
-| **Customers** | User management, account details |
-| **Coupons** | Fixed/percentage discounts, validity periods, usage limits |
-| **Reviews** | Moderate customer reviews (approve/reject) |
-| **Tickets** | Customer support with real-time chat |
-| **Refunds** | Process refund requests with status history |
-| **Import Jobs** | Monitor bulk product imports with error tracking |
+</td>
+<td width="50%">
 
-### 👨‍💼 Seller Panel
+#### 🛒 Shopping
+- **Shopping Cart** with quantity management
+- **Wishlist** for saving favorites
+- **Product Comparison** side-by-side
+- **Discount Coupons** support
 
-Dedicated dashboard for sellers to manage their companies and products:
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-| Feature | Description |
-|---------|-------------|
-| **Company Profile** | Create and manage your company (name, description, logo, banner) |
-| **Products** | Full product management with automatic company assignment |
-| **Public Storefront** | Customers can visit `/companies/{slug}` to see company profile |
-| **Followers** | Customers can follow companies to stay updated |
+#### ⭐ Engagement
+- **Product Reviews** & ratings
+- **Follow Companies** you love
+- **Order Tracking** by number
+- **Support Tickets** system
+
+</td>
+<td width="50%">
+
+#### 🎨 Experience
+- **Dark/Light Theme** toggle
+- **Multi-language** (EN, RU, LV)
+- **Responsive Design** mobile-first
+- **Fast Search** products & companies
+
+</td>
+</tr>
+</table>
+
+<br>
 
 ### 🏢 Company System
 
+> **New!** Role-based seller system with company profiles
+
+<table>
+<tr>
+<td align="center" width="25%">
+<br>
+<img width="60" src="https://cdn-icons-png.flaticon.com/512/1299/1299949.png" alt="Company">
+<br><br>
+<b>Company Profiles</b>
+<br>
+<sub>Logo, banner, description, contacts</sub>
+<br><br>
+</td>
+<td align="center" width="25%">
+<br>
+<img width="60" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Follow">
+<br><br>
+<b>Follow System</b>
+<br>
+<sub>Users can follow favorite sellers</sub>
+<br><br>
+</td>
+<td align="center" width="25%">
+<br>
+<img width="60" src="https://cdn-icons-png.flaticon.com/512/6941/6941697.png" alt="Verified">
+<br><br>
+<b>Verification</b>
+<br>
+<sub>Admin-verified trusted companies</sub>
+<br><br>
+</td>
+<td align="center" width="25%">
+<br>
+<img width="60" src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Products">
+<br><br>
+<b>Product Ownership</b>
+<br>
+<sub>All products belong to companies</sub>
+<br><br>
+</td>
+</tr>
+</table>
+
+```
+📍 /companies          → Browse all companies with search & filters
+📍 /companies/{slug}   → Company profile page with products
+📍 /seller             → Seller panel to manage your company
+```
+
+<br>
+
+### 🎛️ Admin Panel
+
+> Access at `/admin` — Full control over the platform
+
+<table>
+<tr>
+<th>📦 Catalog</th>
+<th>📋 Orders</th>
+<th>👥 Users</th>
+<th>🔧 System</th>
+</tr>
+<tr>
+<td valign="top">
+
+- Products (CRUD, import/export)
+- Product variants & images
+- Categories management
+- Companies moderation
+
+</td>
+<td valign="top">
+
+- Order management
+- Status transitions
+- Order history
+- Refund requests
+
+</td>
+<td valign="top">
+
+- Customer accounts
+- Role management
+- Activity logs
+- Support tickets
+
+</td>
+<td valign="top">
+
+- Import jobs monitor
+- Coupon management
+- Review moderation
+- Company verification
+
+</td>
+</tr>
+</table>
+
+<br>
+
+### 👨‍💼 Seller Panel
+
+> Access at `/seller` — Dedicated dashboard for sellers
+
 | Feature | Description |
-|---------|-------------|
-| **Company Profiles** | Each seller can create one company with public profile page |
-| **Company Directory** | Browse all companies at `/companies` with search and filters |
-| **Follow System** | Users can follow companies they like |
-| **Verified Badge** | Admins can verify trusted companies |
-| **Product Ownership** | All products belong to a specific company |
+|:-------:|-------------|
+| 🏪 | **Company Profile** — Create your company with logo, banner, description |
+| 📦 | **Product Management** — Full CRUD with variants and images |
+| 📊 | **Dashboard** — Overview of your company stats |
+| 🔗 | **Public Storefront** — Customers visit `/companies/your-slug` |
 
-### 🔔 System Features
+<br>
 
-| Feature | Description |
-|---------|-------------|
-| **Notifications** | In-app and email notifications for orders, tickets, status changes |
-| **Support Tickets** | Built-in ticketing system with attachments and replies |
-| **Activity Log** | Track user actions across the platform |
-| **Multi-language** | English, Russian, and Latvian (en, ru, lv) |
-| **PDF Invoices** | Generate downloadable invoices using DomPDF |
-| **Dark/Light Theme** | User preference for theme switching |
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
----
+<br>
 
 ## 🛠️ Tech Stack
 
+<div align="center">
+
 ### Backend
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **PHP** | 8.2+ | Runtime |
-| **Laravel** | 12.x | Framework |
-| **Filament** | 3.2 | Admin panel |
-| **Livewire** | 3.x | Reactive components |
-| **DomPDF** | 3.1 | PDF generation |
+| | Technology | Version | Purpose |
+|:-:|:-----------|:-------:|:--------|
+| <img width="20" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-plain.svg"> | **PHP** | 8.2+ | Runtime |
+| <img width="20" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-original.svg"> | **Laravel** | 12.x | Framework |
+| 🟠 | **Filament** | 3.2 | Admin Panel |
+| 💜 | **Livewire** | 3.x | Reactive Components |
+| 📄 | **DomPDF** | 3.1 | PDF Generation |
 
 ### Frontend
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Alpine.js** | 3.x | JavaScript framework |
-| **Tailwind CSS** | 3.x | Utility-first CSS |
-| **Vite** | 7.x | Build tool with HMR |
+| | Technology | Version | Purpose |
+|:-:|:-----------|:-------:|:--------|
+| <img width="20" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/alpinejs/alpinejs-original.svg"> | **Alpine.js** | 3.x | JavaScript Framework |
+| <img width="20" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"> | **Tailwind CSS** | 3.x | Utility-first CSS |
+| <img width="20" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg"> | **Vite** | 7.x | Build Tool + HMR |
 
 ### Database
 
-- **MySQL** 8.0+ (recommended for production)
-- **SQLite** (supported for development/testing)
-- **PostgreSQL** 14+ (supported)
+| | Technology | Version | Notes |
+|:-:|:-----------|:-------:|:------|
+| <img width="20" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg"> | **MySQL** | 8.0+ | Recommended |
+| <img width="20" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg"> | **PostgreSQL** | 14+ | Supported |
+| <img width="20" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg"> | **SQLite** | 3.x | Development |
 
----
+</div>
 
-## 🚀 Installation
+<br>
 
-### Prerequisites
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
-- PHP 8.2 or higher
-- Composer 2.x
-- Node.js 18+ with npm
-- MySQL 8.0+ / PostgreSQL 14+ / SQLite
+<br>
 
-**Or use Docker** (recommended for quick start):
-- Docker & Docker Compose
+## 🚀 Quick Start
 
----
+<div align="center">
 
-### 🐳 Docker Installation (Recommended)
+### Choose Your Installation Method
 
-The fastest way to get started:
+</div>
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🐳 Docker (Recommended)
 
 ```bash
-# Clone and enter directory
+# Clone repository
 git clone <repository-url>
 cd filament-test
 
-# Copy Docker environment
+# Start everything with one command
 cp .env.docker .env
-
-# Build and start everything
 make init
 ```
 
-This will:
-1. Build PHP 8.3 container with all extensions
-2. Start MySQL 8.0 and Redis containers
-3. Install Composer dependencies
-4. Generate app key and run migrations
-5. Build frontend assets
+**🌐 Access:** http://localhost:8080
 
-**Access the app at:** http://localhost:8080
-
-#### Docker Commands
+<details>
+<summary><b>📋 Docker Commands</b></summary>
 
 | Command | Description |
 |---------|-------------|
-| `make up` | Start all containers |
-| `make down` | Stop all containers |
-| `make shell` | Open shell in app container |
-| `make logs` | View container logs |
+| `make up` | Start containers |
+| `make down` | Stop containers |
+| `make shell` | Open app shell |
+| `make logs` | View logs |
 | `make test` | Run tests |
-| `make fresh` | Fresh migration with seeders |
-| `make mysql` | Open MySQL CLI |
-| `make redis` | Open Redis CLI |
-| `make pint` | Run code style fixer |
+| `make fresh` | Fresh migration |
+| `make pint` | Fix code style |
 
-#### Docker Services
+</details>
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **nginx** | 8080 | Web server |
-| **mysql** | 3306 | Database |
-| **redis** | 6379 | Cache & sessions |
-| **queue** | — | Background jobs |
+</td>
+<td width="50%" valign="top">
 
----
-
-### Quick Setup (without Docker)
+### 💻 Local Setup
 
 ```bash
-# Clone and enter directory
+# Clone repository
 git clone <repository-url>
 cd filament-test
 
-# Run automated setup
+# Automated setup
 composer setup
-```
 
-The `composer setup` script will:
-1. Install PHP dependencies
-2. Create `.env` file if missing
-3. Generate application key
-4. Run migrations
-5. Install Node.js dependencies
-6. Build frontend assets
-
-### Manual Installation
-
-```bash
-# Install dependencies
-composer install
-npm install
-
-# Environment configuration
+# Or manual:
+composer install && npm install
 cp .env.example .env
 php artisan key:generate
-
-# Database setup
 php artisan migrate --seed
-
-# Build assets and create storage link
 npm run build
 php artisan storage:link
 
@@ -232,239 +378,236 @@ php artisan storage:link
 php artisan serve
 ```
 
----
+**🌐 Access:** http://localhost:8000
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+<br>
 
 ## 💻 Development
 
-### Start Development Server
-
-Use the composer dev script to run all services concurrently:
+### 🔥 Start Development Server
 
 ```bash
 composer dev
 ```
 
-This starts:
-- 🌐 **Laravel server** at `http://localhost:8000`
-- ⚡ **Vite** with hot module replacement
-- 📋 **Queue worker** for background jobs
-- 📝 **Pail** for real-time log tailing
+<details>
+<summary><b>This starts all services concurrently:</b></summary>
 
-### Individual Services
+| Service | Description |
+|---------|-------------|
+| 🌐 **Laravel** | Development server at `localhost:8000` |
+| ⚡ **Vite** | Hot Module Replacement |
+| 📋 **Queue** | Background job processing |
+| 📝 **Pail** | Real-time log tailing |
 
-```bash
-# Laravel development server
-php artisan serve
+</details>
 
-# Vite with HMR
-npm run dev
-
-# Queue worker (for imports, notifications)
-php artisan queue:work
-
-# Real-time logs
-php artisan pail
-```
-
-### Build for Production
+### 🏗️ Build for Production
 
 ```bash
 npm run build
 ```
 
----
+<br>
+
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+<br>
 
 ## 📁 Project Structure
 
 ```
-app/
-├── Filament/
-│   ├── Resources/           # Admin CRUD resources
-│   │   ├── ProductResource  # Products management & moderation
-│   │   ├── CompanyResource  # Company verification & moderation
-│   │   ├── OrderResource    # Orders management
-│   │   ├── CouponResource   # Discount coupons
-│   │   ├── UserResource     # Customer accounts
-│   │   ├── TicketResource   # Support tickets
+📦 shoply/
+├── 🎨 app/
+│   ├── Filament/
+│   │   ├── Resources/              # 👑 Admin panel resources
+│   │   │   ├── ProductResource     #    Products (moderation)
+│   │   │   ├── CompanyResource     #    Company verification
+│   │   │   ├── OrderResource       #    Order management
+│   │   │   └── ...
+│   │   └── Seller/                 # 🏪 Seller panel
+│   │       └── Resources/
+│   │           ├── CompanyResource #    Own company management
+│   │           └── ProductResource #    Company products
+│   │
+│   ├── Http/Controllers/           # 🌐 Web controllers
+│   │   ├── CompanyController       #    Company pages & follow
+│   │   ├── ProductController       #    Product catalog
+│   │   ├── CartController          #    Shopping cart
 │   │   └── ...
-│   └── Seller/              # Seller panel
-│       └── Resources/       # Seller-specific resources
-│           ├── CompanyResource  # Manage own company
-│           └── ProductResource  # Manage company products
-├── Http/
-│   ├── Controllers/         # Web controllers
-│   │   ├── CartController   # Shopping cart operations
-│   │   ├── ProductController
-│   │   ├── CompanyController # Company pages & follow
-│   │   ├── WishlistController
-│   │   ├── TicketController
+│   │
+│   ├── Models/                     # 📊 Eloquent models (20+)
+│   │   ├── Company                 #    Seller companies
+│   │   ├── CompanyFollow           #    Follow relationships
+│   │   ├── Product                 #    Products (→ Company)
+│   │   ├── Order                   #    Customer orders
 │   │   └── ...
-│   ├── Livewire/            # Livewire components
-│   └── Middleware/          # Custom middleware
-├── Models/                  # Eloquent models (20+)
-│   ├── Product, ProductVariant, ProductImage
-│   ├── Company, CompanyFollow
-│   ├── Order, OrderItem, OrderStatus
-│   ├── User, CartItem, WishlistItem
-│   ├── Coupon, Review, Ticket
-│   └── ...
-├── Notifications/           # Email & database notifications
-├── Observers/               # Model event observers
-├── Policies/                # Authorization policies
-└── Jobs/                    # Queue jobs (ImportProductsJob)
-
-database/
-├── factories/               # Model factories for testing
-│   ├── ProductFactory, CategoryFactory
-│   ├── OrderFactory, CouponFactory
-│   └── ...
-├── migrations/              # Database schema
-└── seeders/                 # Sample data
-
-resources/
-├── css/                     # Modular stylesheets
-├── js/                      # Alpine.js components
-├── lang/                    # Translations (en, ru, lv)
-│   ├── en/
-│   ├── ru/
-│   └── lv/
-└── views/                   # Blade templates
-
-tests/
-├── Feature/                 # Feature tests
-│   ├── AuthTest            # Authentication tests
-│   ├── CartTest            # Shopping cart tests
-│   ├── OrderTest           # Checkout & orders
-│   ├── ProductTest         # Product catalog
-│   ├── WishlistTest        # Wishlist functionality
-│   ├── CouponTest          # Discount codes
-│   └── ReviewTest          # Customer reviews
-└── Unit/                    # Unit tests
+│   │
+│   ├── Notifications/              # 📧 Email & in-app notifications
+│   ├── Observers/                  # 👀 Model event observers
+│   ├── Policies/                   # 🔐 Authorization policies
+│   └── Jobs/                       # ⚙️ Background jobs
+│
+├── 🗄️ database/
+│   ├── factories/                  # Test data factories
+│   ├── migrations/                 # Database schema
+│   └── seeders/                    # Sample data
+│
+├── 🎨 resources/
+│   ├── css/                        # Modular stylesheets
+│   ├── js/                         # Alpine.js components
+│   ├── lang/                       # Translations (en, ru, lv)
+│   └── views/                      # Blade templates
+│
+└── 🧪 tests/
+    ├── Feature/                    # Feature tests (84 tests)
+    └── Unit/                       # Unit tests
 ```
 
----
+<br>
 
-## 🎛️ Admin Panel
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
-Access the admin panel at `/admin` after logging in with an admin account.
+<br>
 
-### Available Resources
+## 🔌 API Reference
 
-| Resource | Features |
-|----------|----------|
-| **Products** | Create/edit products, manage variants, upload images, import/export CSV, assign to companies |
-| **Companies** | Verify/unverify seller companies, moderate company profiles |
-| **Orders** | View order details, update status, view status history |
-| **Order Statuses** | Define custom order statuses |
-| **Users** | Manage customer accounts |
-| **Coupons** | Create discount codes (fixed/percentage), set validity, usage limits |
-| **Customer Reviews** | Approve/reject product reviews |
-| **Tickets** | Respond to support tickets, change status |
-| **Refund Requests** | Process customer refund requests |
-| **Import Jobs** | Monitor CSV imports, download failed rows |
-
----
-
-## 🔌 API Endpoints
-
-### Products
+<details open>
+<summary><b>🏢 Companies</b></summary>
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/products` | Product listing |
-| GET | `/products/{slug}` | Product details |
-| GET | `/category/{slug}` | Products by category |
-| GET | `/search` | Global search (products & companies) |
+|:------:|----------|-------------|
+| `GET` | `/companies` | Browse all companies |
+| `GET` | `/companies/{slug}` | Company profile with products |
+| `POST` | `/companies/{company}/follow` | Follow/unfollow company |
 
-### Companies
+</details>
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/companies` | Browse all companies |
-| GET | `/companies/{slug}` | Company profile with products |
-| POST | `/companies/{company}/follow` | Follow/unfollow company |
-
-### Cart
+<details>
+<summary><b>📦 Products</b></summary>
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/cart` | View cart |
-| POST | `/cart/add/{productId}` | Add to cart |
-| PATCH | `/cart/update/{itemId}` | Update quantity |
-| DELETE | `/cart/remove/{itemId}` | Remove item |
-| GET | `/cart/count` | Get cart count |
-| POST | `/cart/coupon/apply` | Apply coupon |
-| DELETE | `/cart/coupon/remove` | Remove coupon |
+|:------:|----------|-------------|
+| `GET` | `/products` | Product listing |
+| `GET` | `/products/{slug}` | Product details |
+| `GET` | `/category/{slug}` | Products by category |
+| `GET` | `/search` | Global search (products & companies) |
 
-### Wishlist
+</details>
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/wishlist` | View wishlist |
-| POST | `/wishlist/add/{productId}` | Add product |
-| DELETE | `/wishlist/remove/{productId}` | Remove product |
-| GET | `/wishlist/count` | Get count |
-
-### Orders
+<details>
+<summary><b>🛒 Cart</b></summary>
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/checkout` | Checkout page |
-| POST | `/checkout` | Place order |
-| GET | `/track-order` | Order tracking form |
-| POST | `/track-order` | Search by order number |
-| GET | `/track-order/{orderNumber}` | View order status |
+|:------:|----------|-------------|
+| `GET` | `/cart` | View cart |
+| `POST` | `/cart/add/{productId}` | Add to cart |
+| `PATCH` | `/cart/update/{itemId}` | Update quantity |
+| `DELETE` | `/cart/remove/{itemId}` | Remove item |
+| `POST` | `/cart/coupon/apply` | Apply coupon |
+| `DELETE` | `/cart/coupon/remove` | Remove coupon |
 
-### Support
+</details>
+
+<details>
+<summary><b>❤️ Wishlist</b></summary>
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/support` | List tickets |
-| POST | `/support` | Create ticket |
-| GET | `/support/{ticket}` | View ticket |
-| POST | `/support/{ticket}/reply` | Reply to ticket |
+|:------:|----------|-------------|
+| `GET` | `/wishlist` | View wishlist |
+| `POST` | `/wishlist/add/{productId}` | Add product |
+| `DELETE` | `/wishlist/remove/{productId}` | Remove product |
 
----
+</details>
+
+<details>
+<summary><b>📋 Orders</b></summary>
+
+| Method | Endpoint | Description |
+|:------:|----------|-------------|
+| `GET` | `/checkout` | Checkout page |
+| `POST` | `/checkout` | Place order |
+| `GET` | `/track-order` | Order tracking form |
+| `POST` | `/track-order` | Search by order number |
+
+</details>
+
+<details>
+<summary><b>🎫 Support</b></summary>
+
+| Method | Endpoint | Description |
+|:------:|----------|-------------|
+| `GET` | `/support` | List tickets |
+| `POST` | `/support` | Create ticket |
+| `GET` | `/support/{ticket}` | View ticket |
+| `POST` | `/support/{ticket}/reply` | Reply to ticket |
+
+</details>
+
+<br>
+
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+<br>
 
 ## 🧪 Testing
 
-The project includes a comprehensive test suite with **84 tests** covering all major features.
+<div align="center">
 
-### Run Tests
+### ✅ 84 Tests Passing
+
+</div>
 
 ```bash
 # Run all tests
 php artisan test
 
-# Run with verbose output
-php artisan test -v
-
-# Run specific test suite
+# Run specific suite
 php artisan test --filter=CartTest
-php artisan test --filter=OrderTest
 
-# Using composer script
+# Using composer
 composer test
 ```
 
-### Test Coverage
+<details>
+<summary><b>📊 Test Coverage by Suite</b></summary>
 
 | Suite | Tests | Coverage |
-|-------|-------|----------|
-| AuthTest | 14 | Registration, login, logout, profile, password |
-| CartTest | 12 | Add, update, remove, stock validation |
-| OrderTest | 9 | Checkout, order placement, tracking |
-| ProductTest | 11 | Listing, details, slug generation |
-| WishlistTest | 9 | Add, remove, user isolation |
-| CouponTest | 14 | Validation, calculation, apply/remove |
-| ReviewTest | 7 | Submit, moderation, queries |
-| Import Tests | 6 | Bulk import, failures, variants |
+|:------|:-----:|:---------|
+| 🔐 **AuthTest** | 14 | Registration, login, logout, profile |
+| 🛒 **CartTest** | 12 | Add, update, remove, stock validation |
+| 📦 **OrderTest** | 9 | Checkout, order placement, tracking |
+| 🏷️ **ProductTest** | 11 | Listing, details, slug generation |
+| ❤️ **WishlistTest** | 9 | Add, remove, user isolation |
+| 🎟️ **CouponTest** | 14 | Validation, calculation, apply/remove |
+| ⭐ **ReviewTest** | 7 | Submit, moderation, queries |
+| 📥 **ImportTest** | 6 | Bulk import, failures, variants |
 
----
+</details>
+
+<br>
+
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+<br>
 
 ## ⚙️ Configuration
 
-### Environment Variables
+<details>
+<summary><b>📝 Environment Variables</b></summary>
 
 ```env
 # Application
@@ -481,59 +624,76 @@ DB_DATABASE=shoply
 DB_USERNAME=root
 DB_PASSWORD=
 
-# Queue (required for imports & notifications)
+# Queue (for imports & notifications)
 QUEUE_CONNECTION=database
 
 # Mail
 MAIL_MAILER=smtp
 MAIL_HOST=mailpit
 MAIL_PORT=1025
-MAIL_FROM_ADDRESS="shop@example.com"
-MAIL_FROM_NAME="${APP_NAME}"
 
 # Session & Cache
 SESSION_DRIVER=database
 CACHE_STORE=database
 ```
 
-### Queue Configuration
+</details>
 
-Background jobs are used for:
-- Bulk product imports
-- Email notifications
-- Order status notifications
+<details>
+<summary><b>🌍 Languages</b></summary>
+
+Supported: **English** (en), **Russian** (ru), **Latvian** (lv)
+
+Change via URL: `/language/{locale}`
+
+</details>
+
+<details>
+<summary><b>⚡ Queue Worker</b></summary>
+
+Required for background processing:
 
 ```bash
-# Start queue worker
 php artisan queue:work
-
-# Or use the dev script which includes queue
-composer dev
 ```
 
-### Language Configuration
+Used for:
+- 📥 Bulk product imports
+- 📧 Email notifications
+- 🔔 Order status notifications
 
-Supported languages: **English** (en), **Russian** (ru), **Latvian** (lv)
+</details>
 
-Change language via:
-- URL: `/language/{locale}` (en, ru, lv)
-- Session-based preference
+<br>
 
----
+<!-- Divider -->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+
+<br>
 
 ## 📝 License
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
----
+<br>
 
+<!-- Footer -->
 <div align="center">
 
-### Built with
+### 🛠️ Built With Love Using
+
+<br>
 
 [![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![Filament](https://img.shields.io/badge/Filament-FDAE4B?style=for-the-badge&logo=laravel&logoColor=white)](https://filamentphp.com)
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
 [![Tailwind](https://img.shields.io/badge/Tailwind-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
+<br>
+
+---
+
+<sub>Made with ❤️ by the ShopLy Team</sub>
+
 </div>
+]]>
