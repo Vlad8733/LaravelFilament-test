@@ -15,7 +15,7 @@ class EnsureUserIsAdmin
     {
         $user = $request->user();
 
-        if (!$user || !$user->isAdmin()) {
+        if (! $user || ! $user->isAdmin()) {
             // Если не админ — редирект на главную или 403
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Access denied.'], 403);

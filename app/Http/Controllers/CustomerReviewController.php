@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\CustomerReview;
 use App\Models\Order;
-use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,13 +33,13 @@ class CustomerReviewController extends Controller
         }
 
         // Проверяем что заказ доставлен
-        if (!$order->canBeReviewed()) {
+        if (! $order->canBeReviewed()) {
             return back()->with('error', 'You can only review delivered orders.');
         }
 
         // Загружаем items с продуктами и существующими отзывами
         $order->load(['items.product.images']);
-        
+
         // Получаем уже оставленные отзывы
         $existingReviews = CustomerReview::where('order_id', $order->id)
             ->where('user_id', Auth::id())
@@ -49,7 +48,7 @@ class CustomerReviewController extends Controller
 
         // Фильтруем items без отзывов
         $itemsToReview = $order->items->filter(function ($item) use ($existingReviews) {
-            return !in_array($item->product_id, $existingReviews);
+            return ! in_array($item->product_id, $existingReviews);
         });
 
         if ($itemsToReview->isEmpty()) {
@@ -71,7 +70,7 @@ class CustomerReviewController extends Controller
         }
 
         // Проверяем что заказ доставлен
-        if (!$order->canBeReviewed()) {
+        if (! $order->canBeReviewed()) {
             return back()->with('error', 'You can only review delivered orders.');
         }
 
@@ -85,7 +84,7 @@ class CustomerReviewController extends Controller
 
         // Проверяем что продукт есть в заказе
         $orderItem = $order->items()->where('product_id', $request->product_id)->first();
-        if (!$orderItem) {
+        if (! $orderItem) {
             return back()->with('error', 'This product is not in your order.');
         }
 
@@ -117,7 +116,7 @@ class CustomerReviewController extends Controller
             ->toArray();
 
         $remainingItems = $order->items->filter(function ($item) use ($existingReviews) {
-            return !in_array($item->product_id, $existingReviews);
+            return ! in_array($item->product_id, $existingReviews);
         });
 
         if ($remainingItems->isNotEmpty()) {
@@ -153,7 +152,7 @@ class CustomerReviewController extends Controller
         }
 
         // Можно редактировать только pending отзывы
-        if (!$review->isPending()) {
+        if (! $review->isPending()) {
             return back()->with('error', 'You can only edit pending reviews.');
         }
 
@@ -171,7 +170,7 @@ class CustomerReviewController extends Controller
             abort(403);
         }
 
-        if (!$review->isPending()) {
+        if (! $review->isPending()) {
             return back()->with('error', 'You can only edit pending reviews.');
         }
 

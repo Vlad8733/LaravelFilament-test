@@ -8,7 +8,6 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 
 class MessagesRelationManager extends RelationManager
 {
@@ -54,7 +53,7 @@ class MessagesRelationManager extends RelationManager
                     ->label('From')
                     ->badge()
                     ->color(fn ($record) => $record->is_admin_reply ? 'success' : 'info')
-                    ->formatStateUsing(fn ($record) => $record->is_admin_reply ? '👨‍💼 ' . $record->user->name : '👤 ' . $record->user->name),
+                    ->formatStateUsing(fn ($record) => $record->is_admin_reply ? '👨‍💼 '.$record->user->name : '👤 '.$record->user->name),
 
                 Tables\Columns\TextColumn::make('message')
                     ->limit(100)
@@ -89,6 +88,7 @@ class MessagesRelationManager extends RelationManager
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->id();
                         $data['is_admin_reply'] = true;
+
                         return $data;
                     })
                     ->after(function ($record, $data) {
@@ -103,7 +103,7 @@ class MessagesRelationManager extends RelationManager
                                 $fileName = basename($filePath);
                                 $fileSize = \Storage::disk('public')->size($filePath);
                                 $mimeType = \Storage::disk('public')->mimeType($filePath);
-                                
+
                                 $record->attachments()->create([
                                     'file_name' => $fileName,
                                     'file_path' => $filePath,
@@ -122,7 +122,7 @@ class MessagesRelationManager extends RelationManager
                     ->label('Mark as Read')
                     ->icon('heroicon-o-check')
                     ->color('success')
-                    ->visible(fn ($record) => !$record->is_read && !$record->is_admin_reply)
+                    ->visible(fn ($record) => ! $record->is_read && ! $record->is_admin_reply)
                     ->action(fn ($record) => $record->update(['is_read' => true])),
 
                 Tables\Actions\DeleteAction::make(),

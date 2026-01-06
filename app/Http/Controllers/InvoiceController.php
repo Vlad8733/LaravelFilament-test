@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
@@ -15,19 +14,19 @@ class InvoiceController extends Controller
     public function download(Order $order)
     {
         $user = Auth::user();
-        
+
         // Гостевой заказ (user_id = null) - разрешаем всем
         if ($order->user_id === null) {
             return $this->generatePdf($order);
         }
-        
+
         // Для заказов с user_id - требуем авторизацию
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
-        
+
         // Проверка: только владелец или админ
-        if ($user->id !== $order->user_id && !$user->isAdmin()) {
+        if ($user->id !== $order->user_id && ! $user->isAdmin()) {
             abort(403, __('invoice.errors.access_denied'));
         }
 
@@ -40,7 +39,7 @@ class InvoiceController extends Controller
     public function downloadByNumber(string $orderNumber)
     {
         $order = Order::where('order_number', $orderNumber)->firstOrFail();
-        
+
         return $this->generatePdf($order);
     }
 
@@ -50,17 +49,17 @@ class InvoiceController extends Controller
     public function view(Order $order)
     {
         $user = Auth::user();
-        
+
         // Гостевой заказ - разрешаем
         if ($order->user_id === null) {
             return $this->generatePdf($order, false);
         }
-        
-        if (!$user) {
+
+        if (! $user) {
             return redirect()->route('login');
         }
-        
-        if ($user->id !== $order->user_id && !$user->isAdmin()) {
+
+        if ($user->id !== $order->user_id && ! $user->isAdmin()) {
             abort(403, __('invoice.errors.access_denied'));
         }
 
@@ -89,10 +88,10 @@ class InvoiceController extends Controller
         ];
 
         $pdf = Pdf::loadView('invoices.template', $data);
-        
+
         $pdf->setPaper('a4', 'portrait');
-        
-        $filename = 'invoice-' . $order->order_number . '.pdf';
+
+        $filename = 'invoice-'.$order->order_number.'.pdf';
 
         if ($download) {
             return $pdf->download($filename);

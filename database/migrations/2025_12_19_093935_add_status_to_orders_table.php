@@ -16,10 +16,10 @@ return new class extends Migration
             if (Schema::hasColumn('orders', 'status')) {
                 $table->dropColumn('status');
             }
-            
+
             // Добавляем связь с order_statuses
             $table->foreignId('order_status_id')->nullable()->after('id')->constrained()->nullOnDelete();
-            
+
             // Поле для отслеживания
             $table->string('tracking_number')->nullable()->after('order_number');
         });

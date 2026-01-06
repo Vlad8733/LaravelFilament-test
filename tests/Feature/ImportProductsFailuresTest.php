@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
-use App\Models\ImportJob;
 use App\Jobs\ImportProductsJob;
+use App\Models\ImportJob;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class ImportProductsFailuresTest extends TestCase
 {
@@ -20,7 +20,7 @@ class ImportProductsFailuresTest extends TestCase
         Http::fake();
 
         // Missing 'name' column value should fail validation
-        $csv = "name,sku,price\n" .
+        $csv = "name,sku,price\n".
                ",FAIL-001,5.00\n";
 
         Storage::disk('local')->put('imports/test_failures.csv', $csv);

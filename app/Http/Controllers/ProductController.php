@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -18,7 +18,7 @@ class ProductController extends Controller
             if (is_numeric($request->category)) {
                 $query->where('category_id', $request->category);
             } else {
-                $query->whereHas('category', function($q) use ($request) {
+                $query->whereHas('category', function ($q) use ($request) {
                     $q->where('slug', $request->category);
                 });
             }
@@ -27,10 +27,10 @@ class ProductController extends Controller
         // Поиск
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('description', 'LIKE', "%{$search}%")
-                  ->orWhere('long_description', 'LIKE', "%{$search}%");
+                    ->orWhere('description', 'LIKE', "%{$search}%")
+                    ->orWhere('long_description', 'LIKE', "%{$search}%");
             });
         }
 
@@ -71,15 +71,15 @@ class ProductController extends Controller
                 break;
             case 'rating':
                 $query->withAvg('reviews', 'rating')
-                      ->orderBy('reviews_avg_rating', 'desc');
+                    ->orderBy('reviews_avg_rating', 'desc');
                 break;
             case 'popular':
                 $query->withCount('orderItems')
-                      ->orderBy('order_items_count', 'desc');
+                    ->orderBy('order_items_count', 'desc');
                 break;
             default:
                 $query->orderBy('is_featured', 'desc')
-                      ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc');
         }
 
         $products = $query->paginate(12)->withQueryString();
@@ -99,18 +99,18 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        if (!$product->is_active) {
+        if (! $product->is_active) {
             abort(404);
         }
 
         $product->load([
-            'category', 
-            'images', 
-            'reviews' => function($query) {
+            'category',
+            'images',
+            'reviews' => function ($query) {
                 $query->approved()
-                      ->with('user')
-                      ->orderBy('created_at', 'desc');
-            }
+                    ->with('user')
+                    ->orderBy('created_at', 'desc');
+            },
         ]);
 
         // Получаем изображения продукта
@@ -126,9 +126,9 @@ class ProductController extends Controller
             ->get();
 
         // Также покупают
-        $alsoBought = Product::whereHas('orderItems.order.items', function($query) use ($product) {
-                $query->where('product_id', $product->id);
-            })
+        $alsoBought = Product::whereHas('orderItems.order.items', function ($query) use ($product) {
+            $query->where('product_id', $product->id);
+        })
             ->where('id', '!=', $product->id)
             ->active()
             ->inStock()
@@ -153,20 +153,20 @@ class ProductController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('q');
-        
-        if (!$query) {
+
+        if (! $query) {
             return response()->json([]);
         }
 
         $products = Product::active()
-            ->where(function($q) use ($query) {
+            ->where(function ($q) use ($query) {
                 $q->where('name', 'LIKE', "%{$query}%")
-                  ->orWhere('description', 'LIKE', "%{$query}%");
+                    ->orWhere('description', 'LIKE', "%{$query}%");
             })
             ->with(['images'])
             ->take(8)
             ->get()
-            ->map(function($product) {
+            ->map(function ($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,

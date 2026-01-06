@@ -2,10 +2,10 @@
 
 namespace App\Filament\Seller\Resources\ProductResource\RelationManagers;
 
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
 use Filament\Tables\Table;
 
 class VariantsRelationManager extends RelationManager
@@ -63,23 +63,26 @@ class VariantsRelationManager extends RelationManager
                     ->label('SKU')
                     ->sortable()
                     ->searchable(),
-                    
+
                 Tables\Columns\TextColumn::make('attributes')
                     ->label('Attributes')
                     ->formatStateUsing(function ($state) {
-                        if (!$state || !is_array($state)) return '-';
-                        return collect($state)->map(fn($v, $k) => "$k: $v")->join(', ');
+                        if (! $state || ! is_array($state)) {
+                            return '-';
+                        }
+
+                        return collect($state)->map(fn ($v, $k) => "$k: $v")->join(', ');
                     }),
-                    
+
                 Tables\Columns\TextColumn::make('price')
                     ->label('Price')
                     ->money('usd'),
-                    
+
                 Tables\Columns\TextColumn::make('sale_price')
                     ->label('Sale')
                     ->money('usd')
                     ->toggleable(),
-                    
+
                 Tables\Columns\TextColumn::make('stock_quantity')
                     ->label('Stock')
                     ->sortable()
@@ -89,7 +92,7 @@ class VariantsRelationManager extends RelationManager
                         $state > 0 => 'warning',
                         default => 'danger',
                     }),
-                    
+
                 Tables\Columns\IconColumn::make('is_default')
                     ->boolean()
                     ->label('Default'),

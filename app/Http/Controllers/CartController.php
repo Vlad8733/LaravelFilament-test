@@ -3,16 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
-use App\Models\Product;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatus;
 use App\Models\OrderStatusHistory;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 
 class CartController extends Controller
 {
@@ -28,7 +26,7 @@ class CartController extends Controller
     public function add(Request $request, $productId)
     {
         $userId = auth()->id();
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
         $qty = max(1, (int) $request->input('quantity', 1));
@@ -63,7 +61,7 @@ class CartController extends Controller
         if ($cartItem) {
             $cartItem->quantity += $qty;
             $cartItem->save();
-            activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
+            activity_log('added_to_cart:'.__('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
         } else {
             // If a cart row exists for this user+product but with different variant (or null),
             // we must handle it because older schema had unique(user_id,product_id).
@@ -79,7 +77,7 @@ class CartController extends Controller
                     $existingAny->variant_id = $variantId;
                 }
                 $existingAny->save();
-                activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
+                activity_log('added_to_cart:'.__('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
             } else {
                 try {
                     CartItem::create([
@@ -89,13 +87,15 @@ class CartController extends Controller
                         'quantity' => $qty,
                         'session_id' => session()->getId(),
                     ]);
-                    activity_log('added_to_cart:' . __('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
+                    activity_log('added_to_cart:'.__('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
                 } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
                     // Fallback: merge into any existing row to avoid duplicate key error
                     $fallback = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
                     if ($fallback) {
                         $fallback->quantity += $qty;
-                        if (is_null($fallback->variant_id) && $variantId) $fallback->variant_id = $variantId;
+                        if (is_null($fallback->variant_id) && $variantId) {
+                            $fallback->variant_id = $variantId;
+                        }
                         $fallback->save();
                     } else {
                         // rethrow if somehow still not resolvable
@@ -105,6 +105,7 @@ class CartController extends Controller
             }
         }
         $count = CartItem::where('user_id', $userId)->sum('quantity');
+
         return response()->json([
             'success' => true,
             'message' => 'Product added to cart',
@@ -116,25 +117,26 @@ class CartController extends Controller
     public function update(Request $request, $itemId)
     {
         $userId = auth()->id();
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
         $qty = max(1, (int) $request->input('quantity', 1));
         $cartItem = CartItem::where('id', $itemId)
             ->where('user_id', $userId)
             ->first();
-        if (!$cartItem) {
+        if (! $cartItem) {
             return response()->json(['success' => false, 'message' => 'Item not found'], 404);
         }
         $cartItem->quantity = $qty;
         $cartItem->save();
-        activity_log('updated_cart:' . __('activity_log.log.updated_cart', ['product' => $cartItem->product->name, 'qty' => $qty]));
+        activity_log('updated_cart:'.__('activity_log.log.updated_cart', ['product' => $cartItem->product->name, 'qty' => $qty]));
         // Пересчитываем итоги
         $cartItems = CartItem::where('user_id', $userId)->with(['product', 'variant'])->get();
 
         $subtotal = $cartItems->sum(function ($item) {
             $source = $item->variant ?? $item->product;
             $price = $source->sale_price ?? $source->price ?? 0;
+
             return $price * $item->quantity;
         });
 
@@ -146,7 +148,7 @@ class CartController extends Controller
             'success' => true,
             'subtotal' => $itemSubtotal,
             'total' => $subtotal,
-            'cartCount' => $cartItems->sum('quantity')
+            'cartCount' => $cartItems->sum('quantity'),
         ]);
     }
 
@@ -154,23 +156,23 @@ class CartController extends Controller
     public function remove(Request $request, $itemId)
     {
         $userId = auth()->id();
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
         $cartItem = CartItem::where('id', $itemId)
             ->where('user_id', $userId)
             ->first();
-        if (!$cartItem) {
+        if (! $cartItem) {
             return response()->json(['success' => false, 'message' => 'Item not found'], 404);
         }
         $productName = $cartItem->product->name;
         $cartItem->delete();
-        activity_log('removed_from_cart:' . __('activity_log.log.removed_from_cart', ['product' => $productName]));
+        activity_log('removed_from_cart:'.__('activity_log.log.removed_from_cart', ['product' => $productName]));
         $cartCount = CartItem::where('user_id', $userId)->sum('quantity');
 
         return response()->json([
             'success' => true,
-            'cartCount' => $cartCount
+            'cartCount' => $cartCount,
         ]);
     }
 
@@ -187,7 +189,7 @@ class CartController extends Controller
     public function checkout()
     {
         $userId = Auth::id();
-        
+
         $cartItems = CartItem::with(['product.images', 'variant'])
             ->where('user_id', $userId)
             ->get();
@@ -199,12 +201,13 @@ class CartController extends Controller
         $subtotal = $cartItems->sum(function ($item) {
             $source = $item->variant ?? $item->product;
             $price = $source->sale_price ?? $source->price ?? 0;
+
             return $price * $item->quantity;
         });
 
         $discount = 0;
         $total = $subtotal - $discount;
-        
+
         $cartCount = $cartItems->sum('quantity');
 
         return view('checkout.index', compact('cartItems', 'subtotal', 'discount', 'total', 'cartCount'));
@@ -224,14 +227,14 @@ class CartController extends Controller
             ]);
 
             $userId = auth()->id();
-            if (!$userId) {
+            if (! $userId) {
                 return redirect()->route('login');
             }
 
             // Получаем корзину
-                $cartItems = CartItem::with(['product', 'variant'])
-                    ->where('user_id', $userId)
-                    ->get();
+            $cartItems = CartItem::with(['product', 'variant'])
+                ->where('user_id', $userId)
+                ->get();
 
             if ($cartItems->isEmpty()) {
                 return redirect()->route('cart.index')
@@ -241,6 +244,7 @@ class CartController extends Controller
             // Подсчёт суммы
             $cartTotal = $cartItems->sum(function ($item) {
                 $source = $item->variant ?? $item->product;
+
                 return ($source->sale_price ?? $source->price ?? 0) * $item->quantity;
             });
 
@@ -252,7 +256,7 @@ class CartController extends Controller
 
             if ($couponData) {
                 $coupon = Coupon::find($couponData['id']);
-                
+
                 if ($coupon && $coupon->isValid()) {
                     // Пересчитываем скидку для применимых товаров
                     $applicableTotal = 0;
@@ -261,12 +265,12 @@ class CartController extends Controller
                             $applicableTotal += $item->product->getCurrentPrice() * $item->quantity;
                         }
                     }
-                    
+
                     if ($applicableTotal > 0) {
                         $discount = $coupon->calculateDiscount($applicableTotal);
                         $couponId = $coupon->id;
                         $couponCode = $coupon->code;
-                        
+
                         // Увеличиваем счётчик использований
                         $coupon->incrementUsage();
                     }
@@ -280,7 +284,7 @@ class CartController extends Controller
 
             // Создаём заказ
             $order = Order::create([
-                'order_number' => 'ORD-' . strtoupper(uniqid()),
+                'order_number' => 'ORD-'.strtoupper(uniqid()),
                 'order_status_id' => $pendingStatus ? $pendingStatus->id : null,
                 'customer_name' => $request->name,
                 'customer_email' => $request->email,
@@ -298,41 +302,41 @@ class CartController extends Controller
             session(['last_order_id' => $order->id]);
 
             // Создаём items заказа
-                // Сохраняем items заказа и уменьшаем склад
-                foreach ($cartItems as $item) {
-                    $variant = $item->variant;
-                    $price = $variant ? ($variant->sale_price ?? $variant->price) : $item->product->getCurrentPrice();
-                    
-                    // Build variant name for display
-                    $variantName = null;
+            // Сохраняем items заказа и уменьшаем склад
+            foreach ($cartItems as $item) {
+                $variant = $item->variant;
+                $price = $variant ? ($variant->sale_price ?? $variant->price) : $item->product->getCurrentPrice();
+
+                // Build variant name for display
+                $variantName = null;
+                if ($variant) {
+                    $attrs = is_array($variant->attributes)
+                        ? collect($variant->attributes)->map(fn ($v, $k) => "$k: $v")->join(', ')
+                        : null;
+                    $variantName = $attrs ?: $variant->sku;
+                }
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'variant_id' => $item->variant_id ?? null,
+                    'product_name' => $item->product->name,
+                    'variant_name' => $variantName,
+                    'quantity' => $item->quantity,
+                    'product_price' => $price,
+                    'total' => $price * $item->quantity,
+                ]);
+
+                // Уменьшаем stock на уровне варианта или продукта
+                try {
                     if ($variant) {
-                        $attrs = is_array($variant->attributes) 
-                            ? collect($variant->attributes)->map(fn($v, $k) => "$k: $v")->join(', ')
-                            : null;
-                        $variantName = $attrs ?: $variant->sku;
+                        $variant->decrement('stock_quantity', $item->quantity);
+                    } else {
+                        $item->product->decrement('stock_quantity', $item->quantity);
                     }
-
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item->product_id,
-                        'variant_id' => $item->variant_id ?? null,
-                        'product_name' => $item->product->name,
-                        'variant_name' => $variantName,
-                        'quantity' => $item->quantity,
-                        'product_price' => $price,
-                        'total' => $price * $item->quantity,
-                    ]);
-
-                    // Уменьшаем stock на уровне варианта или продукта
-                    try {
-                        if ($variant) {
-                            $variant->decrement('stock_quantity', $item->quantity);
-                        } else {
-                            $item->product->decrement('stock_quantity', $item->quantity);
-                        }
-                    } catch (\Exception $e) {
-                        \Log::warning('Failed to decrement stock: ' . $e->getMessage());
-                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to decrement stock: '.$e->getMessage());
+                }
             }
 
             // Добавляем запись в историю статусов
@@ -346,7 +350,7 @@ class CartController extends Controller
                         'changed_at' => now(),
                     ]);
                 } catch (\Exception $e) {
-                    \Log::warning('Could not create order history: ' . $e->getMessage());
+                    \Log::warning('Could not create order history: '.$e->getMessage());
                 }
             }
 
@@ -357,19 +361,20 @@ class CartController extends Controller
             CartItem::where('user_id', $userId)->delete();
             session()->forget('coupon');
 
-            activity_log('placed_order:' . __('activity_log.log.placed_order')); // Перемещено сюда, после успешного создания заказа
+            activity_log('placed_order:'.__('activity_log.log.placed_order')); // Перемещено сюда, после успешного создания заказа
 
             return response()->json([
                 'success' => true,
                 'message' => 'Order placed successfully',
-                'redirect' => route('checkout.success', $order->id)
+                'redirect' => route('checkout.success', $order->id),
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Order placement error: ' . $e->getMessage());
+            \Log::error('Order placement error: '.$e->getMessage());
+
             return response()->json([
-                'success' => false, 
-                'message' => 'Failed to place order: ' . $e->getMessage()
+                'success' => false,
+                'message' => 'Failed to place order: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -378,7 +383,7 @@ class CartController extends Controller
     public function success($orderId)
     {
         $order = Order::with(['items.product', 'status'])->findOrFail($orderId);
-        
+
         // Проверка владельца заказа (работает для гостей и авторизованных)
         if (auth()->check()) {
             // Если авторизован - проверяем email
@@ -400,6 +405,7 @@ class CartController extends Controller
     public function verifyOrder($orderId)
     {
         $order = Order::findOrFail($orderId);
+
         return view('checkout.verify-order', compact('order'));
     }
 
@@ -408,24 +414,24 @@ class CartController extends Controller
         $request->validate([
             'email' => 'required|email',
         ]);
-        
+
         $order = Order::findOrFail($orderId);
-        
+
         if ($order->customer_email !== $request->email) {
             return back()->withErrors([
-                'email' => 'Email does not match order email address.'
+                'email' => 'Email does not match order email address.',
             ]);
         }
-        
+
         session(['recent_order_id' => $orderId]);
-        
+
         return redirect()->route('checkout.success', $orderId);
     }
 
     public function getCartCount()
     {
         $userId = auth()->id();
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['count' => 0]);
         }
 
@@ -438,7 +444,7 @@ class CartController extends Controller
     {
         $userId = auth()->id();
 
-        if (!$userId) {
+        if (! $userId) {
             return redirect()->route('login')->with('error', 'Please login to view your cart.');
         }
 
@@ -447,6 +453,7 @@ class CartController extends Controller
         $subtotal = $cartItems->sum(function ($item) {
             $source = $item->variant ?? $item->product;
             $price = $source->sale_price ?? $source->price ?? 0;
+
             return $price * $item->quantity;
         });
 
@@ -469,28 +476,28 @@ class CartController extends Controller
                 'code' => 'required|string|max:20',
             ]);
 
-            if (!$userId) {
+            if (! $userId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please login to apply coupon'
+                    'message' => 'Please login to apply coupon',
                 ], 401);
             }
 
             $code = strtoupper(trim($request->code));
-            
+
             $coupon = Coupon::where('code', $code)->first();
 
-            if (!$coupon) {
+            if (! $coupon) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid coupon code'
+                    'message' => 'Invalid coupon code',
                 ], 404);
             }
 
-            if (!$coupon->isValid()) {
+            if (! $coupon->isValid()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This coupon is expired or no longer valid'
+                    'message' => 'This coupon is expired or no longer valid',
                 ], 400);
             }
 
@@ -500,7 +507,7 @@ class CartController extends Controller
             if ($cartItems->isEmpty()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Your cart is empty'
+                    'message' => 'Your cart is empty',
                 ], 400);
             }
 
@@ -519,7 +526,7 @@ class CartController extends Controller
             if ($applicableTotal == 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This coupon does not apply to any items in your cart'
+                    'message' => 'This coupon does not apply to any items in your cart',
                 ], 400);
             }
 
@@ -527,7 +534,7 @@ class CartController extends Controller
             if ($coupon->minimum_amount && $applicableTotal < $coupon->minimum_amount) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Minimum order amount of \${$coupon->minimum_amount} required for this coupon"
+                    'message' => "Minimum order amount of \${$coupon->minimum_amount} required for this coupon",
                 ], 400);
             }
 
@@ -542,7 +549,7 @@ class CartController extends Controller
                     'type' => $coupon->type,
                     'value' => $coupon->value,
                     'discount' => $discount,
-                ]
+                ],
             ]);
 
             // Полная сумма корзины
@@ -552,7 +559,7 @@ class CartController extends Controller
 
             $total = $subtotal - $discount;
 
-            activity_log('applied_coupon:' . __('activity_log.log.applied_coupon', ['coupon' => $request->input('code')]));
+            activity_log('applied_coupon:'.__('activity_log.log.applied_coupon', ['coupon' => $request->input('code')]));
 
             return response()->json([
                 'success' => true,
@@ -561,15 +568,16 @@ class CartController extends Controller
                 'discount' => $discount,
                 'subtotal' => $subtotal,
                 'total' => $total,
-                'discount_formatted' => '$' . number_format($discount, 2),
-                'total_formatted' => '$' . number_format($total, 2),
+                'discount_formatted' => '$'.number_format($discount, 2),
+                'total_formatted' => '$'.number_format($total, 2),
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Coupon apply error: ' . $e->getMessage());
+            \Log::error('Coupon apply error: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to apply coupon'
+                'message' => 'Failed to apply coupon',
             ], 500);
         }
     }
@@ -589,14 +597,14 @@ class CartController extends Controller
             return $item->product->getCurrentPrice() * $item->quantity;
         });
 
-        activity_log('removed_coupon:' . __('activity_log.log.removed_coupon'));
+        activity_log('removed_coupon:'.__('activity_log.log.removed_coupon'));
 
         return response()->json([
             'success' => true,
             'message' => 'Coupon removed',
             'subtotal' => $subtotal,
             'total' => $subtotal,
-            'total_formatted' => '$' . number_format($subtotal, 2),
+            'total_formatted' => '$'.number_format($subtotal, 2),
         ]);
     }
 }

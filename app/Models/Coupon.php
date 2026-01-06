@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class Coupon extends Model
 {
@@ -41,7 +41,7 @@ class Coupon extends Model
     public static function generateCode(): string
     {
         do {
-            $code = strtoupper(substr(bin2hex(random_bytes(4)), 0, 4)) . '-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 4));
+            $code = strtoupper(substr(bin2hex(random_bytes(4)), 0, 4)).'-'.strtoupper(substr(bin2hex(random_bytes(4)), 0, 4));
         } while (self::where('code', $code)->exists());
 
         return $code;
@@ -52,7 +52,7 @@ class Coupon extends Model
      */
     public function isValid(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 

@@ -3,25 +3,22 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ImportJobResource\Pages;
+use App\Jobs\ImportProductsJob;
 use App\Models\ImportJob;
+use App\Models\ImportJob as ImportJobModel;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextInputColumn;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\Action;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Route;
-use App\Jobs\ImportProductsJob;
-use App\Models\ImportJob as ImportJobModel;
-use Illuminate\Support\Facades\Dispatch;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Builder;
 
 class ImportJobResource extends Resource
 {
     protected static ?string $model = ImportJob::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?string $navigationLabel = 'Imports';
 
     public static function table(Tables\Table $table): Tables\Table
@@ -52,7 +49,7 @@ class ImportJobResource extends Resource
                     ->icon('heroicon-m-download')
                     ->url(fn ($record) => route('admin.imports.download_failed', $record->id))
                     ->openUrlInNewTab()
-                    ->visible(fn ($record) => !empty($record->failed_file_path)),
+                    ->visible(fn ($record) => ! empty($record->failed_file_path)),
                 Action::make('cancel')
                     ->label('Cancel')
                     ->icon('heroicon-m-x-circle')

@@ -3,25 +3,25 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CouponResource\Pages;
-use App\Models\Coupon;
 use App\Models\Category;
+use App\Models\Coupon;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 
 class CouponResource extends Resource
 {
     protected static ?string $model = Coupon::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
-    
+
     protected static ?string $navigationGroup = 'Shop';
-    
+
     protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
@@ -41,7 +41,7 @@ class CouponResource extends Resource
                                     ->action(fn (Set $set) => $set('code', Coupon::generateCode()))
                             )
                             ->default(fn () => Coupon::generateCode()),
-                        
+
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\Select::make('type')
@@ -51,14 +51,14 @@ class CouponResource extends Resource
                                         'fixed' => 'Fixed Amount ($)',
                                     ])
                                     ->default('percentage'),
-                                
+
                                 Forms\Components\TextInput::make('value')
                                     ->required()
                                     ->numeric()
                                     ->minValue(0)
                                     ->suffix(fn (Get $get) => $get('type') === 'percentage' ? '%' : '$'),
                             ]),
-                        
+
                         Forms\Components\TextInput::make('minimum_amount')
                             ->numeric()
                             ->prefix('$')
@@ -75,7 +75,7 @@ class CouponResource extends Resource
                                     ->minValue(1)
                                     ->placeholder('Unlimited')
                                     ->helperText('Leave empty for unlimited'),
-                                
+
                                 Forms\Components\TextInput::make('used_count')
                                     ->numeric()
                                     ->default(0)
@@ -83,18 +83,18 @@ class CouponResource extends Resource
                                     ->dehydrated(false)
                                     ->helperText('Times used'),
                             ]),
-                        
+
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\DateTimePicker::make('starts_at')
                                     ->required()
                                     ->default(now()),
-                                
+
                                 Forms\Components\DateTimePicker::make('expires_at')
                                     ->required()
                                     ->after('starts_at'),
                             ]),
-                        
+
                         Forms\Components\Toggle::make('is_active')
                             ->default(true)
                             ->helperText('Enable or disable this coupon'),
@@ -111,14 +111,14 @@ class CouponResource extends Resource
                             ])
                             ->default('all')
                             ->live(),
-                        
+
                         Forms\Components\Select::make('category_ids')
                             ->multiple()
                             ->options(Category::pluck('name', 'id'))
                             ->searchable()
                             ->visible(fn (Get $get) => $get('applies_to') === 'categories')
                             ->required(fn (Get $get) => $get('applies_to') === 'categories'),
-                        
+
                         Forms\Components\Select::make('product_ids')
                             ->multiple()
                             ->options(Product::where('is_active', true)->pluck('name', 'id'))
@@ -138,39 +138,39 @@ class CouponResource extends Resource
                     ->copyable()
                     ->weight('bold')
                     ->color('primary'),
-                
+
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (string $state) => $state === 'percentage' ? 'Percentage' : 'Fixed')
                     ->color(fn (string $state) => $state === 'percentage' ? 'info' : 'success'),
-                
+
                 Tables\Columns\TextColumn::make('value')
                     ->formatStateUsing(fn ($state, $record) => $record->type === 'percentage' ? "{$state}%" : "\${$state}")
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('usage')
-                    ->state(fn ($record) => $record->usage_limit 
-                        ? "{$record->used_count} / {$record->usage_limit}" 
+                    ->state(fn ($record) => $record->usage_limit
+                        ? "{$record->used_count} / {$record->usage_limit}"
                         : "{$record->used_count} / ∞"),
-                
+
                 Tables\Columns\TextColumn::make('applies_to')
                     ->badge()
                     ->formatStateUsing(fn (string $state) => ucfirst($state))
-                    ->color(fn (string $state) => match($state) {
+                    ->color(fn (string $state) => match ($state) {
                         'all' => 'gray',
                         'categories' => 'warning',
                         'products' => 'info',
                     }),
-                
+
                 Tables\Columns\TextColumn::make('expires_at')
                     ->dateTime('M d, Y')
                     ->sortable()
                     ->color(fn ($state) => $state < now() ? 'danger' : 'success'),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

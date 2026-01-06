@@ -5,15 +5,12 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TicketResource\Pages;
 use App\Filament\Resources\TicketResource\RelationManagers;
 use App\Models\Ticket;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components;
 
 class TicketResource extends Resource
 {
@@ -35,6 +32,7 @@ class TicketResource extends Resource
     public static function getNavigationBadgeColor(): ?string
     {
         $count = static::getModel()::where('status', 'open')->count();
+
         return $count > 5 ? 'danger' : 'warning';
     }
 
@@ -121,6 +119,7 @@ class TicketResource extends Resource
                         if (strlen($state) <= 50) {
                             return null;
                         }
+
                         return $state;
                     }),
 
@@ -204,10 +203,8 @@ class TicketResource extends Resource
 
                 Tables\Filters\Filter::make('unread')
                     ->label('Has Unread Messages')
-                    ->query(fn (Builder $query): Builder => 
-                        $query->whereHas('messages', fn ($q) => 
-                            $q->where('is_admin_reply', false)->where('is_read', false)
-                        )
+                    ->query(fn (Builder $query): Builder => $query->whereHas('messages', fn ($q) => $q->where('is_admin_reply', false)->where('is_read', false)
+                    )
                     )
                     ->toggle(),
             ])

@@ -15,7 +15,7 @@ class TicketChat extends Page
     protected static string $view = 'filament.resources.ticket-resource.pages.ticket-chat';
 
     public $record;
-    
+
     public $newMessage = '';
 
     public function mount($record): void
@@ -36,18 +36,18 @@ class TicketChat extends Page
         ]);
 
         $this->record->update(['last_reply_at' => now()]);
-        
+
         // Уведомляем пользователя о новом ответе
         try {
             $this->record->user->notify(new TicketReplied($this->record, $message));
         } catch (\Exception $e) {
-            \Log::error('Failed to send notification: ' . $e->getMessage());
+            \Log::error('Failed to send notification: '.$e->getMessage());
         }
-        
+
         $this->newMessage = '';
         $this->record->refresh();
         $this->record->load(['messages.user', 'messages.attachments']);
-        
+
         \Filament\Notifications\Notification::make()
             ->success()
             ->title('Message sent!')

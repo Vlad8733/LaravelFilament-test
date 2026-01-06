@@ -2,20 +2,20 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\Category;
-use App\Models\Coupon;
 use App\Models\CartItem;
+use App\Models\Coupon;
+use App\Models\Product;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CouponTest extends TestCase
 {
     use RefreshDatabase;
 
     protected User $user;
+
     protected Product $product;
 
     protected function setUp(): void

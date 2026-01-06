@@ -53,7 +53,7 @@ return [
     'in_stock_count' => ':count noliktavā',
     'select_variant_first' => 'Lūdzu, vispirms izvēlieties variantu',
     'variant_out_of_stock' => 'Izvēlētais variants nav noliktavā',
-    
+
     // Product page
     'description' => 'Apraksts',
     'details' => 'Detaļas',
@@ -65,15 +65,15 @@ return [
     'recently_viewed' => 'Nesen skatītās preces',
     'view_details' => 'Skatīt detaļas',
     'category' => 'Kategorija',
-    
+
     // Ratings
     'delivery' => 'Piegāde',
     'packaging' => 'Iepakojums',
     'product' => 'Prece',
-    
+
     // Reviews - for trans_choice
     'reviews_count' => '{0} Nav atsauksmju|{1} :count atsauksme|[2,*] :count atsauksmes',
-    
+
     // Additional keys
     'product_details' => 'Preces detaļas',
     'back_to_products' => 'Atpakaļ uz precēm',

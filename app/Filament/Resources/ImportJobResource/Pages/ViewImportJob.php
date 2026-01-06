@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class ViewImportJob extends ViewRecord
 {
     protected static string $resource = ImportJobResource::class;
+
     /**
      * Use custom blade view stored at resources/views/filament/imports/view.blade.php
      *
@@ -33,20 +34,23 @@ class ViewImportJob extends ViewRecord
     protected function loadPreview(): void
     {
         $path = $this->record->failed_file_path;
-        if (!$path || !Storage::disk('local')->exists($path)) {
+        if (! $path || ! Storage::disk('local')->exists($path)) {
             $this->previewRows = [];
+
             return;
         }
 
         $full = Storage::disk('local')->path($path);
-        if (!file_exists($full)) {
+        if (! file_exists($full)) {
             $this->previewRows = [];
+
             return;
         }
 
         $handle = fopen($full, 'r');
         if ($handle === false) {
             $this->previewRows = [];
+
             return;
         }
 

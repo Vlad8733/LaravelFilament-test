@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // Добавляем только если колонки нет
-        if (!Schema::hasColumn('products', 'user_id')) {
+        if (! Schema::hasColumn('products', 'user_id')) {
             Schema::table('products', function (Blueprint $table) {
                 $table->unsignedBigInteger('user_id')->nullable()->after('id');
                 $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');

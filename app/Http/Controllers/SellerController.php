@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
 
 class SellerController extends Controller
@@ -15,6 +14,7 @@ class SellerController extends Controller
     public function products()
     {
         $products = auth()->check() ? Product::where('user_id', auth()->id())->get() : collect();
+
         return view('seller.products', compact('products'));
     }
 }

@@ -2,15 +2,19 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
 use App\Models\ImportJob;
+use Livewire\Component;
 
 class ImportProgress extends Component
 {
     public int $importId;
+
     public int $total = 0;
+
     public int $processed = 0;
+
     public int $failed = 0;
+
     public string $status = 'pending';
 
     public function mount(int $importId)
@@ -22,7 +26,7 @@ class ImportProgress extends Component
     public function refreshState(): void
     {
         $import = ImportJob::find($this->importId);
-        if (!$import) {
+        if (! $import) {
             return;
         }
 
@@ -36,6 +40,7 @@ class ImportProgress extends Component
     {
         // polled from the blade via wire:poll
         $this->refreshState();
+
         return view('livewire.import-progress');
     }
 }

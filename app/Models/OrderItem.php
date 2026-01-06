@@ -46,8 +46,9 @@ class OrderItem extends Model
     public function getDisplayNameAttribute(): string
     {
         if ($this->variant_name) {
-            return $this->product_name . ' (' . $this->variant_name . ')';
+            return $this->product_name.' ('.$this->variant_name.')';
         }
+
         return $this->product_name;
     }
 }

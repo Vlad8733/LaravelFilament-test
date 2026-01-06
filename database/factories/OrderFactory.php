@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Order;
 use App\Models\User;
-use App\Models\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -16,7 +15,7 @@ class OrderFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'order_number' => 'ORD-' . strtoupper(Str::random(10)),
+            'order_number' => 'ORD-'.strtoupper(Str::random(10)),
             'customer_name' => fake()->name(),
             'customer_email' => fake()->safeEmail(),
             'shipping_address' => fake()->address(),

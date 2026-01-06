@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('session_id')->nullable()->index();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            
+
             // Unique constraint - user can only add product once
             $table->unique(['user_id', 'product_id']);
         });

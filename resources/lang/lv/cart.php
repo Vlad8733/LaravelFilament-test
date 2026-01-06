@@ -28,7 +28,7 @@ return [
     'item_removed' => 'Prece noņemta no groza',
     'cart_updated' => 'Grozs atjaunināts',
     'error_updating' => 'Kļūda atjauninot grozu',
-    
+
     // Additional
     'items_in_cart' => '{0} Nav preču|{1} :count prece|[2,*] :count preces',
     'home' => 'Sākums',

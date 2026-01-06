@@ -26,7 +26,7 @@ class Category extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($category) {
             if (empty($category->slug)) {
                 $category->slug = static::generateUniqueSlug($category->name);
@@ -46,10 +46,10 @@ class Category extends Model
         $originalSlug = $slug;
         $counter = 1;
 
-        while (static::where('slug', $slug)->when($ignoreId, function($query, $ignoreId) {
+        while (static::where('slug', $slug)->when($ignoreId, function ($query, $ignoreId) {
             return $query->where('id', '!=', $ignoreId);
         })->exists()) {
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
             $counter++;
         }
 

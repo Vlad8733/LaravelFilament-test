@@ -5,7 +5,7 @@ return [
     'checkout' => 'Оформление заказа',
     'cart_empty' => 'Ваша корзина пуста',
     'continue_shopping' => 'Продолжить покупки',
-    
+
     // Order Summary
     'order_summary' => 'Ваш заказ',
     'qty' => 'Кол-во',
@@ -14,7 +14,7 @@ return [
     'shipping' => 'Доставка',
     'free' => 'Бесплатно',
     'total' => 'Итого',
-    
+
     // Shipping Information
     'shipping_info' => 'Данные доставки',
     'full_name' => 'Полное имя',
@@ -28,7 +28,7 @@ return [
     'notes' => 'Примечания (необязательно)',
     'notes_placeholder' => 'Добавьте инструкции по доставке...',
     'place_order' => 'Оформить заказ',
-    
+
     // Payment Modal
     'payment_info' => 'Данные оплаты',
     'payment_method' => 'Способ оплаты',
@@ -46,13 +46,13 @@ return [
     'cancel' => 'Отмена',
     'pay' => 'Оплатить',
     'processing' => 'Обработка...',
-    
+
     // Messages
     'order_success' => 'Заказ успешно оформлен!',
     'order_error' => 'Ошибка оформления заказа',
     'fill_required' => 'Заполните все обязательные поля',
     'fill_card_details' => 'Заполните все данные карты',
-    
+
     // Verify Order
     'verify_title' => 'Подтверждение заказа',
     'verify_subtitle' => 'Введите email для просмотра деталей заказа',
@@ -60,7 +60,7 @@ return [
     'email_address' => 'Email адрес',
     'verify_button' => 'Подтвердить и посмотреть',
     'verify_security_note' => 'Это мера безопасности для защиты информации о вашем заказе.',
-    
+
     // Success Page
     'success_title' => 'Заказ оформлен',
     'order_placed' => 'Заказ успешно оформлен!',

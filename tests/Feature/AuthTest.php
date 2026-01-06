@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
@@ -32,7 +32,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertRedirect();
-        
+
         $this->assertDatabaseHas('users', [
             'email' => 'test@example.com',
             'name' => 'Test User',
@@ -179,7 +179,7 @@ class AuthTest extends TestCase
             ]);
 
         $response->assertRedirect();
-        
+
         $user->refresh();
         $this->assertEquals('Updated Name', $user->name);
     }
@@ -203,7 +203,7 @@ class AuthTest extends TestCase
             ]);
 
         $response->assertRedirect();
-        
+
         $user->refresh();
         $this->assertTrue(Hash::check('Newpassword123!', $user->password));
     }

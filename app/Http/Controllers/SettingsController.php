@@ -21,7 +21,7 @@ class SettingsController extends Controller
     public function updateLocale(Request $request)
     {
         $request->validate([
-            'locale' => 'required|in:en,ru,lv'
+            'locale' => 'required|in:en,ru,lv',
         ]);
 
         $user = Auth::user();

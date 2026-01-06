@@ -15,12 +15,12 @@ class EnsureUserIsSeller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(403, 'Access denied.');
         }
 
         // Доступ для: seller, admin, super_admin
-        if (!$user->isSeller() && !$user->isAdmin()) {
+        if (! $user->isSeller() && ! $user->isAdmin()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Access denied.'], 403);
             }

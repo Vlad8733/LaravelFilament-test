@@ -1,5 +1,7 @@
 <?php
+
 // filepath: app/Http/Controllers/ReviewController.php
+
 namespace App\Http\Controllers;
 
 use App\Models\Product;
@@ -30,7 +32,7 @@ class ReviewController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Thank you for your review! It will be published after moderation.',
-                'review' => $review
+                'review' => $review,
             ]);
         }
 

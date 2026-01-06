@@ -5,7 +5,7 @@ return [
     'checkout' => 'Checkout',
     'cart_empty' => 'Your cart is empty',
     'continue_shopping' => 'Continue Shopping',
-    
+
     // Order Summary
     'order_summary' => 'Order Summary',
     'qty' => 'Qty',
@@ -14,7 +14,7 @@ return [
     'shipping' => 'Shipping',
     'free' => 'Free',
     'total' => 'Total',
-    
+
     // Shipping Information
     'shipping_info' => 'Shipping Information',
     'full_name' => 'Full Name',
@@ -28,7 +28,7 @@ return [
     'notes' => 'Notes (Optional)',
     'notes_placeholder' => 'Add delivery instructions...',
     'place_order' => 'Place Order',
-    
+
     // Payment Modal
     'payment_info' => 'Payment Information',
     'payment_method' => 'Payment Method',
@@ -46,13 +46,13 @@ return [
     'cancel' => 'Cancel',
     'pay' => 'Pay',
     'processing' => 'Processing...',
-    
+
     // Messages
     'order_success' => 'Order placed successfully!',
     'order_error' => 'Failed to place order',
     'fill_required' => 'Please fill in all required fields',
     'fill_card_details' => 'Please fill in all card details',
-    
+
     // Verify Order
     'verify_title' => 'Verify Your Order',
     'verify_subtitle' => 'Please enter your email to view order details',
@@ -60,7 +60,7 @@ return [
     'email_address' => 'Email Address',
     'verify_button' => 'Verify & View Order',
     'verify_security_note' => 'This is a security measure to protect your order information.',
-    
+
     // Success Page
     'success_title' => 'Order Success',
     'order_placed' => 'Order Placed Successfully!',

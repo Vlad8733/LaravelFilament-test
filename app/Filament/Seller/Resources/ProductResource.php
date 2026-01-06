@@ -3,23 +3,22 @@
 namespace App\Filament\Seller\Resources;
 
 use App\Filament\Seller\Resources\ProductResource\Pages;
+use App\Filament\Seller\Resources\ProductResource\RelationManagers\VariantsRelationManager;
 use App\Models\Product;
-use App\Models\Category;
 use Filament\Forms;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use App\Filament\Seller\Resources\ProductResource\RelationManagers\VariantsRelationManager;
 
 class ProductResource extends Resource
 {
@@ -54,7 +53,7 @@ class ProductResource extends Resource
                             ->label('Product Name')
                             ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, Forms\Set $set, ?Product $record) {
-                                if (!$record) {
+                                if (! $record) {
                                     $set('slug', Str::slug($state));
                                 }
                             }),
@@ -149,16 +148,16 @@ class ProductResource extends Resource
                                         '1:1',
                                     ])
                                     ->required(),
-                                
+
                                 TextInput::make('alt_text')
                                     ->label('Alt Text')
                                     ->maxLength(255)
                                     ->placeholder('Describe this image'),
-                                
+
                                 Toggle::make('is_primary')
                                     ->label('Primary Image')
                                     ->helperText('Only one image can be primary'),
-                                
+
                                 TextInput::make('sort_order')
                                     ->numeric()
                                     ->default(0)
@@ -186,10 +185,11 @@ class ProductResource extends Resource
                     ->label('Image')
                     ->getStateUsing(function (Product $record) {
                         $primaryImage = $record->getPrimaryImage();
-                        if (!$primaryImage || !$primaryImage->image_path) {
+                        if (! $primaryImage || ! $primaryImage->image_path) {
                             return null;
                         }
-                        return asset('storage/' . $primaryImage->image_path);
+
+                        return asset('storage/'.$primaryImage->image_path);
                     })
                     ->size(60)
                     ->circular()
@@ -200,26 +200,26 @@ class ProductResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->limit(30),
-                
+
                 Tables\Columns\TextColumn::make('sku')
                     ->label('SKU')
                     ->searchable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('Category')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('price')
                     ->label('Price')
                     ->money('usd')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('sale_price')
                     ->label('Sale Price')
                     ->money('usd')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('stock_quantity')
                     ->label('Stock')
                     ->sortable()
@@ -229,15 +229,15 @@ class ProductResource extends Resource
                         $state > 0 => 'warning',
                         default => 'danger',
                     }),
-                
+
                 Tables\Columns\IconColumn::make('is_featured')
                     ->boolean()
                     ->label('Featured'),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->label('Active'),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -246,13 +246,13 @@ class ProductResource extends Resource
             ->filters([
                 SelectFilter::make('category')
                     ->relationship('category', 'name'),
-                    
+
                 Tables\Filters\TernaryFilter::make('is_featured')
                     ->label('Featured'),
-                    
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Active'),
-                    
+
                 Tables\Filters\Filter::make('low_stock')
                     ->query(fn ($query) => $query->where('stock_quantity', '<=', 10))
                     ->label('Low Stock'),

@@ -53,7 +53,7 @@ class TicketMessage extends Model
      */
     public function markAsRead(): void
     {
-        if (!$this->is_read) {
+        if (! $this->is_read) {
             $this->update(['is_read' => true]);
         }
     }

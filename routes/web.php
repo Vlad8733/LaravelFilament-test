@@ -1,22 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\CouponController;
-use App\Http\Controllers\WishlistController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TicketController;
-use App\Http\Controllers\PageController;
-use App\Livewire\AdminTicketChat;
+use App\Http\Controllers\WishlistController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.global');
 
@@ -28,7 +26,7 @@ Route::get('/faq', [PageController::class, 'faq'])->name('pages.faq');
 Route::get('/recently-viewed', [PageController::class, 'recentlyViewed'])->name('pages.recently-viewed');
 
 // Home
-Route::get('/', fn() => view('welcome'))->name('home');
+Route::get('/', fn () => view('welcome'))->name('home');
 
 // Guest routes: registration / login
 Route::middleware('guest')->group(function () {
@@ -228,6 +226,7 @@ Route::get('/language/{locale}', function (string $locale) {
     if (in_array($locale, ['en', 'ru', 'lv'])) {
         session(['locale' => $locale]);
     }
+
     return redirect()->back();
 })->name('language.switch');
 
@@ -235,4 +234,3 @@ Route::get('/language/{locale}', function (string $locale) {
 Route::middleware(['auth', \App\Http\Middleware\LogUserActivity::class])->group(function () {
     Route::get('/activity-log', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity_log.index');
 });
-

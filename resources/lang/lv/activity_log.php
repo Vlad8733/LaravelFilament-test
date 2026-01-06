@@ -5,7 +5,7 @@ return [
     'all_activities' => 'Visas darbības',
     'recent_activities' => 'Nesenās darbības',
     'no_activities' => 'Nav darbību',
-    
+
     // Filters
     'filter_by_type' => 'Filtrēt pēc veida',
     'filter_by_date' => 'Filtrēt pēc datuma',
@@ -16,7 +16,7 @@ return [
     'this_month' => 'Šomēnes',
     'show_details' => 'Rādīt detaļas',
     'changes' => 'Izmaiņas',
-    
+
     // Action types
     'type_login' => 'Pieteikšanās',
     'type_logout' => 'Izrakstīšanās',
@@ -36,7 +36,7 @@ return [
     'type_child_account_created' => 'Bērna konts izveidots',
     'type_child_account_updated' => 'Bērna konts atjaunināts',
     'type_child_account_deleted' => 'Bērna konts dzēsts',
-    
+
     // Activity messages
     'logged_in' => 'Pieteicās sistēmā',
     'logged_out' => 'Izrakstījās no sistēmas',
@@ -56,7 +56,7 @@ return [
     'created_child_account' => 'Izveidoja bērna kontu :name',
     'updated_child_account' => 'Atjaunināja bērna kontu :name',
     'deleted_child_account' => 'Dzēsa bērna kontu :name',
-    
+
     // Details
     'browser' => 'Pārlūks',
     'device' => 'Ierīce',
@@ -66,7 +66,7 @@ return [
     'view_order' => 'Skatīt pasūtījumu',
     'view_product' => 'Skatīt preci',
     'view_ticket' => 'Skatīt pieteikumu',
-    
+
     // Pagination
     'showing' => 'Rāda',
     'of' => 'no',

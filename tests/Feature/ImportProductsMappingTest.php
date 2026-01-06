@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
-use App\Models\ImportJob;
-use App\Models\Product;
 use App\Jobs\ImportProductsJob;
+use App\Models\ImportJob;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class ImportProductsMappingTest extends TestCase
 {
@@ -20,7 +19,7 @@ class ImportProductsMappingTest extends TestCase
         Storage::fake('public');
         Http::fake();
 
-        $csv = "ProductName,ProductSKU,Cost\n" .
+        $csv = "ProductName,ProductSKU,Cost\n".
                "Mapped Product,MAP-001,19.95\n";
 
         Storage::disk('local')->put('imports/test_mapping.csv', $csv);

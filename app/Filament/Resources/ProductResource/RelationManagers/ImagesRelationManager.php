@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\ProductResource\RelationManagers;
 
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,8 +16,6 @@ class ImagesRelationManager extends RelationManager
     protected static ?string $title = 'Images';
 
     protected static ?string $recordTitleAttribute = 'alt_text';
-
-    
 
     public function form(Form $form): Form
     {
@@ -82,7 +80,7 @@ class ImagesRelationManager extends RelationManager
                     ->action(function (Model $record) {
                         $record->update(['is_primary' => true]);
                     })
-                    ->visible(fn (Model $record): bool => !$record->is_primary),
+                    ->visible(fn (Model $record): bool => ! $record->is_primary),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

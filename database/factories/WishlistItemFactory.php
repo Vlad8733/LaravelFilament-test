@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\WishlistItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\WishlistItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class WishlistItemFactory extends Factory

@@ -2,14 +2,15 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         // safety: only proceed if products table exists
-        if (!Schema::hasTable('products')) {
+        if (! Schema::hasTable('products')) {
             return;
         }
 
@@ -19,7 +20,7 @@ return new class extends Migration {
         $hasCategory = Schema::hasColumn('products', 'category_id');
         $hasIsActive = Schema::hasColumn('products', 'is_active');
 
-        if (!($hasSku || $hasSlug || $hasCategory || $hasIsActive)) {
+        if (! ($hasSku || $hasSlug || $hasCategory || $hasIsActive)) {
             return;
         }
 
@@ -32,39 +33,39 @@ return new class extends Migration {
                 [$database, 'products']
             );
 
-            $existingIndexes = array_map(fn($r) => (string) $r->name, $rows);
+            $existingIndexes = array_map(fn ($r) => (string) $r->name, $rows);
         }
 
         // For sqlite, use PRAGMA to list indexes
         if (DB::getDriverName() === 'sqlite') {
             $rows = DB::select("PRAGMA index_list('products')");
-            $existingIndexes = array_map(fn($r) => (string) ($r->name ?? $r->idx_name ?? ''), $rows);
+            $existingIndexes = array_map(fn ($r) => (string) ($r->name ?? $r->idx_name ?? ''), $rows);
         }
 
         Schema::table('products', function (Blueprint $table) use ($hasSku, $hasSlug, $hasCategory, $hasIsActive, $existingIndexes) {
             if ($hasSku) {
-                $need = !in_array('products_sku_unique', $existingIndexes, true) && !in_array('sku_unique', $existingIndexes, true) && !in_array('sku', $existingIndexes, true);
+                $need = ! in_array('products_sku_unique', $existingIndexes, true) && ! in_array('sku_unique', $existingIndexes, true) && ! in_array('sku', $existingIndexes, true);
                 if ($need) {
                     $table->unique('sku');
                 }
             }
 
             if ($hasSlug) {
-                $need = !in_array('products_slug_unique', $existingIndexes, true) && !in_array('slug_unique', $existingIndexes, true) && !in_array('slug', $existingIndexes, true);
+                $need = ! in_array('products_slug_unique', $existingIndexes, true) && ! in_array('slug_unique', $existingIndexes, true) && ! in_array('slug', $existingIndexes, true);
                 if ($need) {
                     $table->unique('slug');
                 }
             }
 
             if ($hasCategory) {
-                $need = !in_array('products_category_id_index', $existingIndexes, true) && !in_array('category_id_index', $existingIndexes, true) && !in_array('category_id', $existingIndexes, true);
+                $need = ! in_array('products_category_id_index', $existingIndexes, true) && ! in_array('category_id_index', $existingIndexes, true) && ! in_array('category_id', $existingIndexes, true);
                 if ($need) {
                     $table->index('category_id');
                 }
             }
 
             if ($hasIsActive) {
-                $need = !in_array('products_is_active_index', $existingIndexes, true) && !in_array('is_active_index', $existingIndexes, true) && !in_array('is_active', $existingIndexes, true);
+                $need = ! in_array('products_is_active_index', $existingIndexes, true) && ! in_array('is_active_index', $existingIndexes, true) && ! in_array('is_active', $existingIndexes, true);
                 if ($need) {
                     $table->index('is_active');
                 }
@@ -75,10 +76,22 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            try { $table->dropUnique(['sku']); } catch (\Throwable $e) {}
-            try { $table->dropUnique(['slug']); } catch (\Throwable $e) {}
-            try { $table->dropIndex(['category_id']); } catch (\Throwable $e) {}
-            try { $table->dropIndex(['is_active']); } catch (\Throwable $e) {}
+            try {
+                $table->dropUnique(['sku']);
+            } catch (\Throwable $e) {
+            }
+            try {
+                $table->dropUnique(['slug']);
+            } catch (\Throwable $e) {
+            }
+            try {
+                $table->dropIndex(['category_id']);
+            } catch (\Throwable $e) {
+            }
+            try {
+                $table->dropIndex(['is_active']);
+            } catch (\Throwable $e) {
+            }
         });
     }
 };

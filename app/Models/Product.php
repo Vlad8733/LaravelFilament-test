@@ -41,13 +41,13 @@ class Product extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($product) {
-            if (empty($product->slug) && !empty($product->name)) {
+            if (empty($product->slug) && ! empty($product->name)) {
                 $product->slug = static::generateUniqueSlug($product->name);
             }
             if (empty($product->sku)) {
-                $product->sku = 'SKU-' . strtoupper(Str::random(8));
+                $product->sku = 'SKU-'.strtoupper(Str::random(8));
             }
         });
 
@@ -59,7 +59,7 @@ class Product extends Model
 
         // Если у продукта нет primary изображения, делаем первое primary
         static::saved(function ($product) {
-            if (!$product->hasPrimaryImage() && $product->images()->count() > 0) {
+            if (! $product->hasPrimaryImage() && $product->images()->count() > 0) {
                 $product->images()->first()->update(['is_primary' => true]);
             }
         });
@@ -71,10 +71,10 @@ class Product extends Model
         $originalSlug = $slug;
         $counter = 1;
 
-        while (static::where('slug', $slug)->when($ignoreId, function($query, $ignoreId) {
+        while (static::where('slug', $slug)->when($ignoreId, function ($query, $ignoreId) {
             return $query->where('id', '!=', $ignoreId);
         })->exists()) {
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
             $counter++;
         }
 
@@ -187,16 +187,17 @@ class Product extends Model
 
     public function getDiscountPercentage()
     {
-        if (!$this->sale_price || !$this->price) {
+        if (! $this->sale_price || ! $this->price) {
             return 0;
         }
-        
+
         return round((($this->price - $this->sale_price) / $this->price) * 100);
     }
 
     public function getAverageRatingAttribute(): ?float
     {
         $avg = $this->approvedReviews()->avg('overall_rating');
+
         return $avg ? round($avg, 1) : null;
     }
 
@@ -207,7 +208,7 @@ class Product extends Model
 
     public function getPrimaryImage()
     {
-        return $this->images()->where('is_primary', true)->first() 
+        return $this->images()->where('is_primary', true)->first()
             ?? $this->images()->orderBy('sort_order')->first();
     }
 

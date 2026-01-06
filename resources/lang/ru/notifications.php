@@ -9,7 +9,7 @@ return [
     'new_status_label' => 'Новый статус: :status',
     'track_order_action' => 'Отследить заказ',
     'thank_you_order' => 'Спасибо за ваш заказ!',
-    
+
     // Ticket notifications
     'ticket_created_subject' => 'Создан новый тикет поддержки',
     'ticket_created_message' => 'Новый тикет поддержки: ":subject"',
@@ -21,11 +21,11 @@ return [
     'view_ticket' => 'Посмотреть тикет',
     'thank_you_patience' => 'Благодарим за терпение!',
     'ticket_status_message' => 'Статус тикета #:id изменён на :status',
-    
+
     // Ticket reply notifications
     'ticket_reply_support' => 'Поддержка ответила на ваш тикет: ":subject"',
     'ticket_reply_user' => 'Новый ответ в тикете: ":subject"',
-    
+
     // Import notifications
     'import_subject' => 'Импорт завершён: :status',
     'import_greeting' => 'Импорт завершён',
@@ -34,7 +34,7 @@ return [
     'import_failed' => 'Ошибок: :count',
     'view_imports' => 'Посмотреть импорты',
     'import_failed_notice' => 'Есть строки с ошибками. Скачайте CSV с ошибками на странице импортов в админке.',
-    
+
     // Notifications page UI
     'title' => 'Уведомления',
     'no_notifications' => 'Нет уведомлений',
@@ -48,23 +48,23 @@ return [
     'view_order' => 'Посмотреть заказ',
     'browse_products' => 'Смотреть товары',
     'no_message' => 'Сообщение отсутствует',
-    
+
     // Filters
     'filter_all' => 'Все',
     'filter_tickets' => 'Тикеты',
     'filter_orders' => 'Заказы',
-    
+
     // Types
     'type_notification' => 'Уведомление',
     'type_ticket' => 'Тикет',
     'type_order' => 'Заказ',
     'type_import' => 'Импорт',
     'type_refund' => 'Возврат',
-    
+
     // Confirmations
     'confirm_delete' => 'Вы уверены, что хотите удалить это уведомление?',
     'confirm_delete_all' => 'Вы уверены, что хотите удалить все уведомления? Это действие нельзя отменить.',
-    
+
     // Errors
     'error_mark_read' => 'Не удалось отметить уведомление как прочитанное',
     'error_delete' => 'Не удалось удалить уведомление',

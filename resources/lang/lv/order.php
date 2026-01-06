@@ -11,26 +11,26 @@ return [
     'track_button' => 'Izsekot pasūtījumu',
     'need_help' => 'Vajadzīga palīdzība?',
     'contact_support' => 'Sazināties ar atbalstu',
-    
+
     // Verify Email Page
     'verify_email_title' => 'Apstipriniet savu e-pastu',
     'verify_email_subtitle' => 'Lūdzu, ievadiet savu e-pastu, lai skatītu pasūtījuma detaļas',
     'continue' => 'Turpināt',
-    
+
     // Tracking Page
     'tracking_title' => 'Izsekot pasūtījumu',
     'order_tracking' => 'Pasūtījuma izsekošana',
     'track_another' => 'Izsekot citu pasūtījumu',
     'order_prefix' => 'Pasūtījums #:number',
-    
+
     // Tracking Number
     'tracking_number' => 'Izsekošanas numurs',
     'copied' => 'Nokopēts!',
-    
+
     // Order History
     'order_history' => 'Pasūtījuma vēsture',
     'note' => 'Piezīme',
-    
+
     // Refund Section
     'refund_request' => 'Atmaksas pieprasījums',
     'refund_status' => 'Statuss',
@@ -39,7 +39,7 @@ return [
     'need_refund' => 'Vajadzīga atmaksa?',
     'refund_description' => 'Ja neesat apmierināts ar pasūtījumu, varat pieprasīt atmaksu.',
     'request_refund' => 'Pieprasīt atmaksu',
-    
+
     // Review Section
     'share_experience' => 'Dalieties ar savu pieredzi',
     'review_description' => 'Jūsu pasūtījums ir piegādāts! Pastāstiet mums par savu pieredzi ar :count :products.',
@@ -49,23 +49,23 @@ return [
     'thanks_reviews' => 'Paldies par jūsu atsauksmēm!',
     'reviewed_all' => 'Jūs esat novērtējis visas preces šajā pasūtījumā.',
     'view_my_reviews' => 'Skatīt manas atsauksmes',
-    
+
     // Invoice Section
     'invoice_description' => 'Lejupielādējiet rēķinu par savu pasūtījumu PDF formātā.',
-    
+
     // Order Details
     'order_details' => 'Pasūtījuma detaļas',
     'order_date' => 'Pasūtījuma datums',
     'total_amount' => 'Kopējā summa',
     'payment_method' => 'Apmaksas veids',
-    
+
     // Shipping Address
     'shipping_address' => 'Piegādes adrese',
-    
+
     // Order Items
     'items' => 'Preces',
     'quantity' => 'Daudzums',
-    
+
     // Statuses - names
     'status_pending' => 'Gaida',
     'status_processing' => 'Apstrādē',
@@ -74,7 +74,7 @@ return [
     'status_out_for_delivery' => 'Piegādes procesā',
     'status_delivered' => 'Piegādāts',
     'status_cancelled' => 'Atcelts',
-    
+
     // Statuses - descriptions
     'status_pending_desc' => 'Pasūtījums ir veikts un gaida apstiprinājumu',
     'status_processing_desc' => 'Pasūtījums tiek sagatavots nosūtīšanai',
@@ -83,7 +83,7 @@ return [
     'status_out_for_delivery_desc' => 'Pasūtījums tiek piegādāts',
     'status_delivered_desc' => 'Pasūtījums ir veiksmīgi piegādāts',
     'status_cancelled_desc' => 'Pasūtījums ir atcelts',
-    
+
     // Additional keys
     'title' => 'Pasūtījuma detaļas',
     'my_orders' => 'Mani pasūtījumi',

@@ -54,7 +54,7 @@ return [
     'select_variant_first' => 'Сначала выберите вариант товара',
     'variant_out_of_stock' => 'Выбранный вариант отсутствует в наличии',
     'adding' => 'Добавляем...',
-    
+
     // Product page
     'description' => 'Описание',
     'details' => 'Подробнее',
@@ -74,7 +74,7 @@ return [
     'view_details' => 'Подробнее',
     'off' => 'скидка',
     'category' => 'Категория',
-    
+
     // Ratings
     'delivery' => 'Доставка',
     'packaging' => 'Упаковка',

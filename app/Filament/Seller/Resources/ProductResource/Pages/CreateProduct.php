@@ -14,7 +14,7 @@ class CreateProduct extends CreateRecord
     {
         // Гарантируем что user_id = текущий продавец
         $data['user_id'] = Auth::id();
-        
+
         return $data;
     }
 

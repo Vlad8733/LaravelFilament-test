@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\Product;
 use App\Models\ActivityLog;
+use App\Models\Product;
 use Illuminate\Support\Arr;
 
 class ProductObserver
@@ -12,7 +12,7 @@ class ProductObserver
     {
         ActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'created product: ' . $product->id . ' - ' . $product->name,
+            'action' => 'created product: '.$product->id.' - '.$product->name,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'subject_type' => Product::class,
@@ -29,7 +29,7 @@ class ProductObserver
 
         ActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'updated product: ' . $product->id . ' - changes: ' . json_encode($changes),
+            'action' => 'updated product: '.$product->id.' - changes: '.json_encode($changes),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'subject_type' => Product::class,
@@ -42,7 +42,7 @@ class ProductObserver
     {
         ActivityLog::create([
             'user_id' => auth()->id(),
-            'action' => 'deleted product: ' . $product->id . ' - ' . $product->name,
+            'action' => 'deleted product: '.$product->id.' - '.$product->name,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'subject_type' => Product::class,

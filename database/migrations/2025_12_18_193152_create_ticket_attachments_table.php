@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('file_type')->nullable();
             $table->integer('file_size')->nullable(); // in bytes
             $table->timestamps();
-            
+
             $table->index('ticket_message_id');
         });
     }

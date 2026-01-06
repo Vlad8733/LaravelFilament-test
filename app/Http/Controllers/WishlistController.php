@@ -15,8 +15,8 @@ class WishlistController extends Controller
         $wishlistItems = WishlistItem::with(['product.images', 'product.category', 'variant'])
             ->where('user_id', $userId)
             ->get()
-            ->map(function($wi) {
-                return (object)[
+            ->map(function ($wi) {
+                return (object) [
                     'id' => $wi->id,
                     'product' => $wi->product,
                     'variant' => $wi->variant,
@@ -32,10 +32,14 @@ class WishlistController extends Controller
     public function add(Request $request, $productId)
     {
         $userId = auth()->id();
-        if (! $userId) return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        if (! $userId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
 
         $product = Product::find($productId);
-        if (! $product) return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+        if (! $product) {
+            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+        }
 
         $variantId = $request->input('variant_id');
 
@@ -46,7 +50,7 @@ class WishlistController extends Controller
             if (is_null($existingAny->variant_id) && $variantId) {
                 $existingAny->variant_id = $variantId;
                 $existingAny->save();
-            } else if ($existingAny->variant_id && $variantId && $existingAny->variant_id != $variantId) {
+            } elseif ($existingAny->variant_id && $variantId && $existingAny->variant_id != $variantId) {
                 // keep behaviour simple: update to latest chosen variant
                 $existingAny->variant_id = $variantId;
                 $existingAny->save();
@@ -62,7 +66,7 @@ class WishlistController extends Controller
             $wasCreated = true;
         }
 
-        activity_log('added_to_wishlist:' . __('activity_log.log.added_to_wishlist', ['product' => $product->name]));
+        activity_log('added_to_wishlist:'.__('activity_log.log.added_to_wishlist', ['product' => $product->name]));
 
         $count = WishlistItem::where('user_id', $userId)->count();
 
@@ -70,7 +74,7 @@ class WishlistController extends Controller
             'success' => true,
             'message' => 'Added to wishlist',
             'count' => $count,
-            'added' => $wasCreated ?? ($created->wasRecentlyCreated ?? false)
+            'added' => $wasCreated ?? ($created->wasRecentlyCreated ?? false),
         ]);
     }
 
@@ -78,21 +82,25 @@ class WishlistController extends Controller
     public function remove(Request $request, $productId)
     {
         $userId = auth()->id();
-        if (! $userId) return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        if (! $userId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
 
         $product = Product::find($productId);
-        if (! $product) return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+        if (! $product) {
+            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+        }
 
         WishlistItem::where('user_id', $userId)->where('product_id', $productId)->delete();
 
-        activity_log('removed_from_wishlist:' . __('activity_log.log.removed_from_wishlist', ['product' => $product->name]));
+        activity_log('removed_from_wishlist:'.__('activity_log.log.removed_from_wishlist', ['product' => $product->name]));
 
         $count = $userId ? WishlistItem::where('user_id', $userId)->count() : 0;
-        
+
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'message' => 'Removed',
-            'count' => $count
+            'count' => $count,
         ]);
     }
 
@@ -101,6 +109,7 @@ class WishlistController extends Controller
     {
         $userId = auth()->id();
         $count = $userId ? WishlistItem::where('user_id', $userId)->count() : 0;
+
         return response()->json(['count' => $count]);
     }
 
@@ -109,6 +118,7 @@ class WishlistController extends Controller
     {
         $userId = auth()->id();
         $items = $userId ? WishlistItem::where('user_id', $userId)->pluck('product_id') : collect([]);
+
         return response()->json(['items' => $items]);
     }
 }

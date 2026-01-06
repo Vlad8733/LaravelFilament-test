@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
-use App\Models\ImportJob;
-use App\Models\Product;
 use App\Jobs\ImportProductsJob;
+use App\Models\ImportJob;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class ImportProductsJobTest extends TestCase
 {
@@ -22,8 +21,8 @@ class ImportProductsJobTest extends TestCase
         // Prevent external HTTP calls for image downloads
         Http::fake();
 
-        $csv = "name,sku,price\n" .
-               "Test Product A,TPA-001,12.50\n" .
+        $csv = "name,sku,price\n".
+               "Test Product A,TPA-001,12.50\n".
                "Test Product B,TPB-002,9.99\n";
 
         Storage::disk('local')->put('imports/test_import.csv', $csv);

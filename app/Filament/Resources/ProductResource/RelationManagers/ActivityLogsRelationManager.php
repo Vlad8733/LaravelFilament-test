@@ -2,19 +2,17 @@
 
 namespace App\Filament\Resources\ProductResource\RelationManagers;
 
+use Filament\Forms;
+use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Forms;
-use Filament\Forms\Form;
 
 class ActivityLogsRelationManager extends RelationManager
 {
     protected static string $relationship = 'activityLogs';
 
     protected static ?string $title = 'Activity Logs';
-
-    
 
     public function form(Form $form): Form
     {
@@ -33,9 +31,9 @@ class ActivityLogsRelationManager extends RelationManager
             Tables\Columns\TextColumn::make('ip_address')->label('IP')->toggleable(isToggledHiddenByDefault: true),
             Tables\Columns\TextColumn::make('created_at')->label('When')->dateTime()->sortable(),
         ])->filters([])
-        ->headerActions([])
-        ->actions([])
-        ->bulkActions([])
-        ->defaultSort('created_at', 'desc');
+            ->headerActions([])
+            ->actions([])
+            ->bulkActions([])
+            ->defaultSort('created_at', 'desc');
     }
 }

@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements MustVerifyEmail, FilamentUser
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
-    use Notifiable, HasFactory;
+    use HasFactory, Notifiable;
 
     /**
      * Email супер-админа (создатель системы)
@@ -24,8 +24,11 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
      * Константы ролей
      */
     public const ROLE_USER = 'user';
+
     public const ROLE_SELLER = 'seller';
+
     public const ROLE_ADMIN = 'admin';
+
     public const ROLE_SUPER_ADMIN = 'super_admin';
 
     protected $fillable = [
@@ -63,7 +66,7 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
      */
     public function isSuperAdmin(): bool
     {
-        return $this->role === self::ROLE_SUPER_ADMIN 
+        return $this->role === self::ROLE_SUPER_ADMIN
             || $this->email === self::SUPER_ADMIN_EMAIL;
     }
 
@@ -145,7 +148,7 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
     public function canBeDeleted(): bool
     {
         // Супер-админа нельзя удалить никогда
-        return !$this->isSuperAdmin();
+        return ! $this->isSuperAdmin();
     }
 
     /**
@@ -159,7 +162,7 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         }
 
         // Только супер-админ может назначать роль admin
-        if ($editor && !$editor->isSuperAdmin()) {
+        if ($editor && ! $editor->isSuperAdmin()) {
             return false;
         }
 
@@ -276,6 +279,7 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
         if ($this->avatar && \Storage::disk('public')->exists($this->avatar)) {
             return \Storage::url($this->avatar);
         }
+
         // Новая заглушка
         return asset('storage/logo/no_avatar.png');
     }

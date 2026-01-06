@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('is_admin_reply')->default(false);
             $table->boolean('is_read')->default(false);
             $table->timestamps();
-            
+
             $table->index(['ticket_id', 'created_at']);
             $table->index('user_id');
         });

@@ -2,28 +2,29 @@
 
 namespace App\Jobs;
 
+use App\Models\Category;
+use App\Models\ImportJob;
+use App\Models\Product;
+use App\Models\User;
+use App\Notifications\ImportFinishedNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use App\Models\Product;
-use App\Models\Category;
-use App\Models\ImportJob;
-use Illuminate\Support\Facades\Log;
-use App\Notifications\ImportFinishedNotification;
-use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ImportProductsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected string $path;
+
     protected int $importJobId;
 
     public function __construct(string $path, int $importJobId)
@@ -36,7 +37,7 @@ class ImportProductsJob implements ShouldQueue
     public function handle(): void
     {
         $fullPath = Storage::path($this->path);
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             return;
         }
 
@@ -47,7 +48,7 @@ class ImportProductsJob implements ShouldQueue
 
         // compute total rows (lines) to update import job
         $totalLines = 0;
-        while (!feof($handle)) {
+        while (! feof($handle)) {
             $line = fgets($handle);
             if ($line !== false) {
                 $totalLines++;
@@ -56,8 +57,9 @@ class ImportProductsJob implements ShouldQueue
 
         rewind($handle);
         $header = fgetcsv($handle);
-        if (!$header) {
+        if (! $header) {
             fclose($handle);
+
             return;
         }
 
@@ -104,7 +106,7 @@ class ImportProductsJob implements ShouldQueue
             }
         }
 
-        if (!empty($buffer)) {
+        if (! empty($buffer)) {
             $this->processBuffer($buffer, $failed);
         }
 
@@ -114,8 +116,8 @@ class ImportProductsJob implements ShouldQueue
         if (DB::table('import_jobs')->where('id', $this->importJobId)->exists()) {
             Log::info('ImportProductsJob: updating import finished', ['import_id' => $this->importJobId, 'rows' => $rowNum - 1, 'failed' => count($failed)]);
             DB::table('import_jobs')->where('id', $this->importJobId)->update([
-                'processed_rows' => DB::raw('processed_rows + ' . max(0, $rowNum - 1)),
-                'failed_count' => DB::raw('failed_count + ' . count($failed)),
+                'processed_rows' => DB::raw('processed_rows + '.max(0, $rowNum - 1)),
+                'failed_count' => DB::raw('failed_count + '.count($failed)),
                 'status' => 'completed',
                 'finished_at' => now(),
                 'updated_at' => now(),
@@ -139,7 +141,7 @@ class ImportProductsJob implements ShouldQueue
             Log::warning('ImportProductsJob: import record not found at finish', ['import_id' => $this->importJobId]);
         }
 
-        if (!empty($failed)) {
+        if (! empty($failed)) {
             // build failed CSV
             $allKeys = [];
             foreach ($failed as $f) {
@@ -170,7 +172,7 @@ class ImportProductsJob implements ShouldQueue
             $contents = stream_get_contents($fp);
             fclose($fp);
 
-            $failedPath = 'imports/failed_import_' . time() . '.csv';
+            $failedPath = 'imports/failed_import_'.time().'.csv';
             Storage::disk('local')->put($failedPath, $contents);
             // persist failed file path to import_jobs so admins can download it
             if (DB::table('import_jobs')->where('id', $this->importJobId)->exists()) {
@@ -211,11 +213,12 @@ class ImportProductsJob implements ShouldQueue
 
                 if ($validator->fails()) {
                     $failed[] = array_merge(['row' => $rowNum, 'errors' => $validator->errors()->all()], $data);
+
                     continue;
                 }
 
                 $categoryId = null;
-                if (!empty($data['category'])) {
+                if (! empty($data['category'])) {
                     $category = Category::firstOrCreate(
                         ['name' => $data['category']],
                         ['slug' => Str::slug($data['category'])]
@@ -228,19 +231,19 @@ class ImportProductsJob implements ShouldQueue
                 $slugVal = $data['slug'] ?? null;
                 $idVal = $data['id'] ?? null;
 
-                if (!empty($skuVal)) {
+                if (! empty($skuVal)) {
                     $product = Product::where('sku', $skuVal)->first();
                 }
-                if (!$product && !empty($slugVal)) {
+                if (! $product && ! empty($slugVal)) {
                     $product = Product::where('slug', $slugVal)->first();
                 }
-                if (!$product && !empty($idVal)) {
+                if (! $product && ! empty($idVal)) {
                     $product = Product::find($idVal);
                 }
 
                 $attributes = [
                     'name' => $data['name'] ?? null,
-                    'slug' => !empty($slugVal) ? $slugVal : Str::slug($data['name'] ?? ''),
+                    'slug' => ! empty($slugVal) ? $slugVal : Str::slug($data['name'] ?? ''),
                     'sku' => $skuVal ?? null,
                     'price' => $data['price'] ?? null,
                     'sale_price' => $data['sale_price'] ?? null,
@@ -258,6 +261,7 @@ class ImportProductsJob implements ShouldQueue
                     }
                 } catch (\Exception $e) {
                     $failed[] = ['row' => $rowNum, 'errors' => [$e->getMessage()], 'data' => $data];
+
                     continue;
                 }
 
@@ -265,7 +269,7 @@ class ImportProductsJob implements ShouldQueue
                 $product = Product::where('sku', $attributes['sku'])->orWhere('slug', $attributes['slug'])->first();
 
                 // Handle images column: semicolon-separated URLs
-                if (!empty($data['images']) && $product) {
+                if (! empty($data['images']) && $product) {
                     $urls = preg_split('/[;|,]+/u', $data['images']);
                     $sort = $product->images()->max('sort_order') ?? 0;
                     foreach ($urls as $i => $url) {
@@ -290,14 +294,22 @@ class ImportProductsJob implements ShouldQueue
                 }
 
                 // Handle simple variant columns (single variant per row or multiple rows per product)
-                if (!empty($data['variant_sku']) || !empty($data['variant_price']) || !empty($data['variant_attributes'])) {
+                if (! empty($data['variant_sku']) || ! empty($data['variant_price']) || ! empty($data['variant_attributes'])) {
                     try {
                         $variantData = [];
-                        if (!empty($data['variant_sku'])) $variantData['sku'] = $data['variant_sku'];
-                        if (!empty($data['variant_price'])) $variantData['price'] = $data['variant_price'];
-                        if (!empty($data['variant_sale_price'])) $variantData['sale_price'] = $data['variant_sale_price'];
-                        if (!empty($data['variant_stock_quantity'])) $variantData['stock_quantity'] = $data['variant_stock_quantity'];
-                        if (!empty($data['variant_attributes'])) {
+                        if (! empty($data['variant_sku'])) {
+                            $variantData['sku'] = $data['variant_sku'];
+                        }
+                        if (! empty($data['variant_price'])) {
+                            $variantData['price'] = $data['variant_price'];
+                        }
+                        if (! empty($data['variant_sale_price'])) {
+                            $variantData['sale_price'] = $data['variant_sale_price'];
+                        }
+                        if (! empty($data['variant_stock_quantity'])) {
+                            $variantData['stock_quantity'] = $data['variant_stock_quantity'];
+                        }
+                        if (! empty($data['variant_attributes'])) {
                             // support JSON or key:value;key2:value2 format
                             $attrs = $data['variant_attributes'];
                             $parsed = @json_decode($attrs, true);
@@ -308,18 +320,20 @@ class ImportProductsJob implements ShouldQueue
                                 $map = [];
                                 foreach ($pairs as $pair) {
                                     [$k, $v] = array_pad(explode(':', $pair, 2), 2, null);
-                                    if ($k !== null) $map[trim($k)] = $v !== null ? trim($v) : null;
+                                    if ($k !== null) {
+                                        $map[trim($k)] = $v !== null ? trim($v) : null;
+                                    }
                                 }
                                 $variantData['attributes'] = $map;
                             }
                         }
 
-                        if (!empty($variantData)) {
+                        if (! empty($variantData)) {
                             $variantModel = null;
-                            if (!empty($variantData['sku'])) {
+                            if (! empty($variantData['sku'])) {
                                 $variantModel = \App\Models\ProductVariant::where('sku', $variantData['sku'])->first();
                             }
-                            if (!$variantModel && $product) {
+                            if (! $variantModel && $product) {
                                 // try find by product and attributes (simple fallback)
                                 $variantModel = $product->variants()->first();
                             }
@@ -343,7 +357,7 @@ class ImportProductsJob implements ShouldQueue
                 $processed = count($buffer);
                 $newFails = 0;
                 foreach ($failed as $f) {
-                    if (isset($f['row']) && $f['row'] >= ($buffer[0]['row'] ?? 0) && $f['row'] <= ($buffer[count($buffer)-1]['row'] ?? 0)) {
+                    if (isset($f['row']) && $f['row'] >= ($buffer[0]['row'] ?? 0) && $f['row'] <= ($buffer[count($buffer) - 1]['row'] ?? 0)) {
                         $newFails++;
                     }
                 }
@@ -374,16 +388,18 @@ class ImportProductsJob implements ShouldQueue
     {
         try {
             $resp = Http::timeout(10)->get($url);
-            if (!$resp->ok()) {
+            if (! $resp->ok()) {
                 return null;
             }
 
             $ext = pathinfo(parse_url($url, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION) ?: 'jpg';
-            $filename = 'products/' . $productId . '/' . uniqid() . '.' . $ext;
+            $filename = 'products/'.$productId.'/'.uniqid().'.'.$ext;
             Storage::disk('public')->put($filename, $resp->body());
+
             return $filename;
         } catch (\Exception $e) {
             Log::warning('ImportProductsJob: image download exception', ['url' => $url, 'error' => $e->getMessage()]);
+
             return null;
         }
     }

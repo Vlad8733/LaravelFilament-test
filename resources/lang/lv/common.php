@@ -24,7 +24,7 @@ return [
     'upload' => 'Augšupielādēt',
     'loading' => 'Ielādē...',
     'processing' => 'Apstrādā...',
-    
+
     // Status
     'active' => 'Aktīvs',
     'inactive' => 'Neaktīvs',
@@ -34,7 +34,7 @@ return [
     'approved' => 'Apstiprināts',
     'rejected' => 'Noraidīts',
     'completed' => 'Pabeigts',
-    
+
     // Messages
     'success' => 'Veiksmīgi!',
     'error' => 'Kļūda!',
@@ -44,23 +44,23 @@ return [
     'deleted' => 'Veiksmīgi dzēsts',
     'updated' => 'Veiksmīgi atjaunināts',
     'created' => 'Veiksmīgi izveidots',
-    
+
     // Pagination
     'showing' => 'Rāda',
     'to' => 'līdz',
     'of' => 'no',
     'results' => 'rezultātiem',
     'per_page' => 'lapā',
-    
+
     // Confirmation
     'are_you_sure' => 'Vai esat pārliecināts?',
     'confirm_delete' => 'Vai tiešām vēlaties dzēst šo vienumu?',
     'action_irreversible' => 'Šo darbību nevar atsaukt.',
-    
+
     // Empty states
     'no_results' => 'Nav atrasti rezultāti',
     'no_data' => 'Nav pieejamu datu',
-    
+
     // Time
     'today' => 'Šodien',
     'yesterday' => 'Vakar',

@@ -15,7 +15,7 @@ class ProductPolicy
 
     public function view(?User $user, Product $product): bool
     {
-        if (!$user) {
+        if (! $user) {
             return $product->is_active; // guests can view active products
         }
 

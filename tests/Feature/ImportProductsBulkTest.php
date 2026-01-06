@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\ImportProductsJob;
 use App\Models\ImportJob;
 use App\Models\Product;
-use App\Jobs\ImportProductsJob;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class ImportProductsBulkTest extends TestCase
 {
@@ -22,12 +22,12 @@ class ImportProductsBulkTest extends TestCase
 
         // generate 100 small rows to simulate bulk import
         $lines = [];
-        $lines[] = "name,sku,price";
+        $lines[] = 'name,sku,price';
         for ($i = 1; $i <= 100; $i++) {
-            $lines[] = "Bulk Product {$i},BULK-" . str_pad($i, 3, '0', STR_PAD_LEFT) . "," . (mt_rand(100, 1000) / 100);
+            $lines[] = "Bulk Product {$i},BULK-".str_pad($i, 3, '0', STR_PAD_LEFT).','.(mt_rand(100, 1000) / 100);
         }
 
-        $csv = implode("\n", $lines) . "\n";
+        $csv = implode("\n", $lines)."\n";
         Storage::disk('local')->put('imports/test_bulk.csv', $csv);
 
         $import = ImportJob::create([

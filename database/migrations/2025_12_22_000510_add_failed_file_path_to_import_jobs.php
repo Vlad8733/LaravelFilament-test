@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('import_jobs', 'failed_file_path')) {
+        if (! Schema::hasColumn('import_jobs', 'failed_file_path')) {
             Schema::table('import_jobs', function (Blueprint $table) {
                 $table->string('failed_file_path')->nullable()->after('failed_count');
             });

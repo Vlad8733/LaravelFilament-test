@@ -2,17 +2,17 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ProductTest extends TestCase
 {
     use RefreshDatabase;
 
     protected Product $product;
+
     protected Category $category;
 
     protected function setUp(): void
@@ -119,7 +119,7 @@ class ProductTest extends TestCase
             'price' => 100,
             'stock_quantity' => 10,
         ]);
-        
+
         $product2 = Product::create([
             'name' => 'Unique Test Product',
             'price' => 100,

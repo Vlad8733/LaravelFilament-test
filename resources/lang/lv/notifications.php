@@ -9,7 +9,7 @@ return [
     'new_status_label' => 'Jaunais statuss: :status',
     'track_order_action' => 'Izsekot pasūtījumu',
     'thank_you_order' => 'Paldies par jūsu pasūtījumu!',
-    
+
     // Ticket notifications
     'ticket_created_subject' => 'Izveidots jauns atbalsta pieteikums',
     'ticket_created_message' => 'Jauns atbalsta pieteikums: ":subject"',
@@ -21,11 +21,11 @@ return [
     'view_ticket' => 'Skatīt pieteikumu',
     'thank_you_patience' => 'Paldies par jūsu pacietību!',
     'ticket_status_message' => 'Pieteikuma #:id statuss mainīts uz :status',
-    
+
     // Ticket reply notifications
     'ticket_reply_support' => 'Atbalsts atbildēja uz jūsu pieteikumu: ":subject"',
     'ticket_reply_user' => 'Jauna atbilde pieteikumā: ":subject"',
-    
+
     // Import notifications
     'import_subject' => 'Imports pabeigts: :status',
     'import_greeting' => 'Imports pabeigts',
@@ -34,7 +34,7 @@ return [
     'import_failed' => 'Neizdevās: :count',
     'view_imports' => 'Skatīt importus',
     'import_failed_notice' => 'Ir neveiksmīgas rindas. Lejupielādējiet neveiksmīgo CSV no admin importu lapas.',
-    
+
     // Notifications page UI
     'title' => 'Paziņojumi',
     'no_notifications' => 'Nav paziņojumu',
@@ -48,23 +48,23 @@ return [
     'view_order' => 'Skatīt pasūtījumu',
     'browse_products' => 'Pārlūkot produktus',
     'no_message' => 'Ziņojums nav pieejams',
-    
+
     // Filters
     'filter_all' => 'Visi',
     'filter_tickets' => 'Pieteikumi',
     'filter_orders' => 'Pasūtījumi',
-    
+
     // Types
     'type_notification' => 'Paziņojums',
     'type_ticket' => 'Pieteikums',
     'type_order' => 'Pasūtījums',
     'type_import' => 'Imports',
     'type_refund' => 'Atmaksa',
-    
+
     // Confirmations
     'confirm_delete' => 'Vai tiešām vēlaties dzēst šo paziņojumu?',
     'confirm_delete_all' => 'Vai tiešām vēlaties dzēst visus paziņojumus? Šo darbību nevar atsaukt.',
-    
+
     // Errors
     'error_mark_read' => 'Neizdevās atzīmēt paziņojumu kā izlasītu',
     'error_delete' => 'Neizdevās dzēst paziņojumu',

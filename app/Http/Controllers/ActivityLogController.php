@@ -31,8 +31,8 @@ class ActivityLogController extends Controller
             ->whereRaw('LOCATE(":", action) > 0')
             ->groupBy('type')
             ->pluck('type');
-        
-        $types = $rawTypes->map(function($type) {
+
+        $types = $rawTypes->map(function ($type) {
             $type = trim($type);
             // Преобразуем тип к ключу перевода
             $key = Str::snake(strtolower($type));
@@ -42,12 +42,13 @@ class ActivityLogController extends Controller
             if ($label === $translationKey) {
                 $label = $type;
             }
+
             return [
                 'key' => $type, // Используем оригинальный тип для фильтрации
-                'label' => $label
+                'label' => $label,
             ];
         });
-        
+
         return view('activity_log.index', compact('logs', 'types'));
     }
 }

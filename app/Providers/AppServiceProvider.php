@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use App\Models\Ticket;
-use App\Observers\TicketObserver;
 use App\Models\Product;
+use App\Models\Ticket;
 use App\Observers\ProductObserver;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\App;
+use App\Observers\TicketObserver;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Синхронизируем локаль Carbon с локалью приложения
         Carbon::setLocale(App::getLocale());
-        
+
         // Или можно использовать middleware для динамической смены
 
         // Register Livewire components aliases explicitly so they are discoverable

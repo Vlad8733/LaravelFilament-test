@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\ImportProductsJob;
 use App\Models\ImportJob;
 use App\Models\Product;
-use App\Jobs\ImportProductsJob;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class ImportProductsImagesTest extends TestCase
 {
@@ -22,7 +22,7 @@ class ImportProductsImagesTest extends TestCase
             '*' => Http::response('image-content', 200, ['Content-Type' => 'image/jpeg']),
         ]);
 
-        $csv = "name,sku,images\n" .
+        $csv = "name,sku,images\n".
                "Product Image A,PIA-001,https://example.com/a.jpg\n";
 
         Storage::disk('local')->put('imports/test_images.csv', $csv);

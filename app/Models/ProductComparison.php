@@ -32,8 +32,8 @@ class ProductComparison extends Model
         $sessionId = session()->getId();
 
         return static::with(['product.images', 'product.category'])
-            ->when($userId, fn($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn($q) => $q->where('session_id', $sessionId))
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -46,8 +46,8 @@ class ProductComparison extends Model
         $userId = auth()->id();
         $sessionId = session()->getId();
 
-        return static::when($userId, fn($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn($q) => $q->where('session_id', $sessionId))
+        return static::when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->count();
     }
 
@@ -59,8 +59,8 @@ class ProductComparison extends Model
         $userId = auth()->id();
         $sessionId = session()->getId();
 
-        return static::when($userId, fn($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn($q) => $q->where('session_id', $sessionId))
+        return static::when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->where('product_id', $productId)
             ->exists();
     }
@@ -101,15 +101,15 @@ class ProductComparison extends Model
         $userId = auth()->id();
         $sessionId = session()->getId();
 
-        $deleted = static::when($userId, fn($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn($q) => $q->where('session_id', $sessionId))
+        $deleted = static::when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->where('product_id', $productId)
             ->delete();
 
         return [
             'success' => $deleted > 0,
             'message' => $deleted > 0 ? __('compare.removed') : __('compare.not_found'),
-            'count' => static::getCount()
+            'count' => static::getCount(),
         ];
     }
 
@@ -121,8 +121,8 @@ class ProductComparison extends Model
         $userId = auth()->id();
         $sessionId = session()->getId();
 
-        static::when($userId, fn($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn($q) => $q->where('session_id', $sessionId))
+        static::when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->delete();
 
         return ['success' => true, 'message' => __('compare.cleared'), 'count' => 0];

@@ -12,6 +12,7 @@ class TicketReplied extends Notification
     use Queueable;
 
     public Ticket $ticket;
+
     public TicketMessage $message;
 
     public function __construct(Ticket $ticket, TicketMessage $message)

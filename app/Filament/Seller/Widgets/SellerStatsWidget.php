@@ -14,15 +14,15 @@ class SellerStatsWidget extends BaseWidget
     protected function getStats(): array
     {
         $user = Auth::user();
-        
+
         // Количество товаров продавца
         $productsCount = Product::where('user_id', $user->id)->count();
-        
+
         // Количество активных товаров
         $activeProducts = Product::where('user_id', $user->id)
             ->where('is_active', true)
             ->count();
-        
+
         // Товары не в наличии
         $outOfStock = Product::where('user_id', $user->id)
             ->where('stock_quantity', '<=', 0)

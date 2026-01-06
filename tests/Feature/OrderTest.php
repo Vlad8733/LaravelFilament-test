@@ -2,20 +2,20 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\OrderStatus;
 use App\Models\CartItem;
+use App\Models\Order;
+use App\Models\OrderStatus;
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class OrderTest extends TestCase
 {
     use RefreshDatabase;
 
     protected User $user;
+
     protected Product $product;
 
     protected function setUp(): void
@@ -26,7 +26,7 @@ class OrderTest extends TestCase
             'stock_quantity' => 10,
             'price' => 99.99,
         ]);
-        
+
         // Create pending status
         OrderStatus::create([
             'name' => 'Pending',
@@ -122,7 +122,7 @@ class OrderTest extends TestCase
             ]);
 
         $order = Order::first();
-        
+
         $this->assertNotNull($order);
         $this->assertEquals(1, $order->items()->count());
         $this->assertEquals($this->product->id, $order->items()->first()->product_id);

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
-use App\Models\Category;
-use App\Models\OrderItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,14 +22,14 @@ class AnalyticsController extends Controller
     {
         // Общая статистика
         $stats = $this->getGeneralStats();
-        
+
         // Данные для графиков
         $salesData = $this->getSalesData();
         $categoryData = $this->getCategoryData();
         $topProducts = $this->getTopProducts();
         $recentOrders = $this->getRecentOrders();
         $orderStatusData = $this->getOrderStatusData();
-        
+
         return view('analytics.index', compact(
             'stats',
             'salesData',
@@ -46,7 +46,7 @@ class AnalyticsController extends Controller
     public function getData(Request $request)
     {
         $period = $request->get('period', '7days');
-        
+
         return response()->json([
             'sales' => $this->getSalesData($period),
             'categories' => $this->getCategoryData(),
@@ -63,27 +63,27 @@ class AnalyticsController extends Controller
         $days = $period === '7days' ? 7 : ($period === '30days' ? 30 : 365);
         $startDate = Carbon::now()->subDays($days);
         $prevStartDate = Carbon::now()->subDays($days * 2);
-        
+
         // Текущий период
         $currentRevenue = Order::where('created_at', '>=', $startDate)->sum('total');
         $currentOrders = Order::where('created_at', '>=', $startDate)->count();
         $currentCustomers = User::where('created_at', '>=', $startDate)->where('role', 'user')->count();
-        
+
         // Предыдущий период для сравнения
         $prevRevenue = Order::whereBetween('created_at', [$prevStartDate, $startDate])->sum('total');
         $prevOrders = Order::whereBetween('created_at', [$prevStartDate, $startDate])->count();
         $prevCustomers = User::whereBetween('created_at', [$prevStartDate, $startDate])->where('role', 'user')->count();
-        
+
         // Расчет процентного изменения
         $revenueChange = $prevRevenue > 0 ? round((($currentRevenue - $prevRevenue) / $prevRevenue) * 100, 1) : 0;
         $ordersChange = $prevOrders > 0 ? round((($currentOrders - $prevOrders) / $prevOrders) * 100, 1) : 0;
         $customersChange = $prevCustomers > 0 ? round((($currentCustomers - $prevCustomers) / $prevCustomers) * 100, 1) : 0;
-        
+
         // Средний чек
         $avgOrderValue = $currentOrders > 0 ? round($currentRevenue / $currentOrders, 2) : 0;
         $prevAvgOrderValue = $prevOrders > 0 ? round($prevRevenue / $prevOrders, 2) : 0;
         $avgOrderChange = $prevAvgOrderValue > 0 ? round((($avgOrderValue - $prevAvgOrderValue) / $prevAvgOrderValue) * 100, 1) : 0;
-        
+
         return [
             'revenue' => [
                 'value' => $currentRevenue,
@@ -119,18 +119,18 @@ class AnalyticsController extends Controller
         $labels = [];
         $revenue = [];
         $orders = [];
-        
+
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $labels[] = $date->format($days > 30 ? 'M Y' : 'M d');
-            
+
             $dayRevenue = Order::whereDate('created_at', $date->toDateString())->sum('total');
             $dayOrders = Order::whereDate('created_at', $date->toDateString())->count();
-            
+
             $revenue[] = round($dayRevenue, 2);
             $orders[] = $dayOrders;
         }
-        
+
         return [
             'labels' => $labels,
             'revenue' => $revenue,
@@ -143,23 +143,23 @@ class AnalyticsController extends Controller
      */
     private function getCategoryData()
     {
-        $categories = Category::withCount(['products' => function($query) {
+        $categories = Category::withCount(['products' => function ($query) {
             $query->where('is_active', true);
         }])
-        ->where('is_active', true)
-        ->orderByDesc('products_count')
-        ->limit(6)
-        ->get();
-        
+            ->where('is_active', true)
+            ->orderByDesc('products_count')
+            ->limit(6)
+            ->get();
+
         $labels = [];
         $data = [];
         $colors = ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4'];
-        
+
         foreach ($categories as $index => $category) {
             $labels[] = $category->name;
             $data[] = $category->products_count;
         }
-        
+
         return [
             'labels' => $labels,
             'data' => $data,
@@ -219,11 +219,11 @@ class AnalyticsController extends Controller
             ->with('status:id,name,color')
             ->groupBy('order_status_id')
             ->get();
-        
+
         $labels = [];
         $data = [];
         $colors = [];
-        
+
         $colorMap = [
             'gray' => '#6b7280',
             'yellow' => '#f59e0b',
@@ -233,13 +233,13 @@ class AnalyticsController extends Controller
             'indigo' => '#6366f1',
             'purple' => '#8b5cf6',
         ];
-        
+
         foreach ($statuses as $status) {
             $labels[] = $status->status->name ?? 'Unknown';
             $data[] = $status->count;
             $colors[] = $colorMap[$status->status->color ?? 'gray'] ?? '#6b7280';
         }
-        
+
         return [
             'labels' => $labels,
             'data' => $data,

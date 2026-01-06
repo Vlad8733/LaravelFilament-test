@@ -17,26 +17,26 @@ class SearchController extends Controller
 
         $products = Product::with(['images', 'category'])
             ->where('is_active', true)
-            ->where(function($q) use ($query) {
-                $q->where('name', 'like', '%' . $query . '%')
-                  ->orWhere('description', 'like', '%' . $query . '%');
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', '%'.$query.'%')
+                    ->orWhere('description', 'like', '%'.$query.'%');
             })
             ->limit(10)
             ->get();
 
         $results = $products->map(function ($product) {
             $image = null;
-            
+
             if ($product->images && $product->images->count() > 0) {
                 $firstImage = $product->images->first();
                 if ($firstImage && $firstImage->image_path) {
                     $imagePath = $firstImage->image_path;
-                    
+
                     if (strpos($imagePath, 'public/') === 0) {
                         $imagePath = substr($imagePath, 7);
                     }
-                    
-                    $image = asset('storage/' . $imagePath);
+
+                    $image = asset('storage/'.$imagePath);
                 }
             }
 
@@ -45,7 +45,7 @@ class SearchController extends Controller
                 'name' => $product->name,
                 'price' => $product->sale_price ?? $product->price,
                 'image' => $image,
-                'url' => route('products.show', $product->slug)
+                'url' => route('products.show', $product->slug),
             ];
         });
 

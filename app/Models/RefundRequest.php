@@ -67,7 +67,7 @@ class RefundRequest extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'warning',
             'approved' => 'info',
             'rejected' => 'danger',
@@ -78,7 +78,7 @@ class RefundRequest extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => __('refunds.status_pending_review'),
             'approved' => __('refunds.status_approved'),
             'rejected' => __('refunds.status_rejected'),

@@ -1,13 +1,13 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
+use App\Models\User;
+use App\Models\WishlistItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use App\Models\User;
-use App\Models\CartItem;
-use App\Models\WishlistItem;
 
 class AccountController extends Controller
 {
@@ -32,8 +32,8 @@ class AccountController extends Controller
         $impersonator = session('impersonator_id');
 
         $isMasterToChild = ($target->parent_user_id !== null && $target->parent_user_id === $current->id);
-        $isChildToMaster  = ($current->parent_user_id !== null && $current->parent_user_id === $target->id);
-        $isSameParent    = ($current->parent_user_id !== null && $current->parent_user_id === $target->parent_user_id);
+        $isChildToMaster = ($current->parent_user_id !== null && $current->parent_user_id === $target->id);
+        $isSameParent = ($current->parent_user_id !== null && $current->parent_user_id === $target->parent_user_id);
 
         // allow returning to the original account that started impersonation
         $isReturnToImpersonator = $impersonator && $target->id === $impersonator;
@@ -87,9 +87,9 @@ class AccountController extends Controller
 
         $data = $request->validate([
             'name' => 'required|string|max:100',
-            'email' => ['required','email','max:255', Rule::unique('users','email')],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'password' => 'required|string|min:8|confirmed',
-            'username' => ['nullable','string','max:50', Rule::unique('users','username')],
+            'username' => ['nullable', 'string', 'max:50', Rule::unique('users', 'username')],
         ]);
 
         $child = User::create([
@@ -108,13 +108,17 @@ class AccountController extends Controller
     protected function persistSessionCartToDb(int $userId): void
     {
         $sessionCart = session('cart', []);
-        if (! is_array($sessionCart) || empty($sessionCart)) return;
+        if (! is_array($sessionCart) || empty($sessionCart)) {
+            return;
+        }
 
         foreach ($sessionCart as $entry) {
             // support multiple session formats
             $productId = $entry['product_id'] ?? $entry['id'] ?? null;
-            $quantity = isset($entry['quantity']) ? (int)$entry['quantity'] : 1;
-            if (! $productId) continue;
+            $quantity = isset($entry['quantity']) ? (int) $entry['quantity'] : 1;
+            if (! $productId) {
+                continue;
+            }
 
             $item = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
             if ($item) {
@@ -147,14 +151,16 @@ class AccountController extends Controller
     protected function persistSessionWishlistToDb(int $userId): void
     {
         $sessionWishlist = session('wishlist', []);
-        if (empty($sessionWishlist)) return;
+        if (empty($sessionWishlist)) {
+            return;
+        }
 
         // if wishlist is map/object -> try to extract ids
         $ids = [];
         if (is_array($sessionWishlist)) {
             // numeric array of ids or array of arrays/objects
             foreach ($sessionWishlist as $v) {
-                if (is_int($v) || ctype_digit((string)$v)) {
+                if (is_int($v) || ctype_digit((string) $v)) {
                     $ids[] = (int) $v;
                 } elseif (is_array($v) && isset($v['product_id'])) {
                     $ids[] = (int) $v['product_id'];

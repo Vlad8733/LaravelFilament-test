@@ -40,7 +40,7 @@ class ProductImage extends Model
                 $firstImage = static::where('product_id', $image->product_id)
                     ->orderBy('sort_order')
                     ->first();
-                
+
                 if ($firstImage) {
                     $firstImage->update(['is_primary' => true]);
                 }
@@ -63,7 +63,7 @@ class ProductImage extends Model
         if ($this->image_path) {
             return Storage::disk('public')->url($this->image_path);
         }
-        
+
         return asset('images/no-image.png'); // fallback изображение
     }
 

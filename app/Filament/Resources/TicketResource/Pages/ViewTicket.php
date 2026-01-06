@@ -3,11 +3,10 @@
 namespace App\Filament\Resources\TicketResource\Pages;
 
 use App\Filament\Resources\TicketResource;
-use App\Models\TicketMessage;
 use App\Notifications\TicketReplied;
 use Filament\Actions;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +41,7 @@ class ViewTicket extends ViewRecord
                 ])
                 ->action(function (array $data) {
                     $ticket = $this->record;
-                    
+
                     // Создаём сообщение
                     $message = $ticket->messages()->create([
                         'user_id' => Auth::id(),
@@ -51,7 +50,7 @@ class ViewTicket extends ViewRecord
                     ]);
 
                     // Обрабатываем вложения
-                    if (!empty($data['attachments'])) {
+                    if (! empty($data['attachments'])) {
                         foreach ($data['attachments'] as $path) {
                             $message->attachments()->create([
                                 'file_name' => basename($path),
@@ -86,7 +85,7 @@ class ViewTicket extends ViewRecord
                 ->visible(fn () => $this->record->status !== 'closed')
                 ->action(function () {
                     $this->record->update(['status' => 'closed']);
-                    
+
                     Notification::make()
                         ->title('Ticket closed')
                         ->success()
@@ -100,7 +99,7 @@ class ViewTicket extends ViewRecord
                 ->visible(fn () => $this->record->status === 'closed')
                 ->action(function () {
                     $this->record->update(['status' => 'open']);
-                    
+
                     Notification::make()
                         ->title('Ticket reopened')
                         ->success()

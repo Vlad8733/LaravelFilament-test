@@ -3,21 +3,20 @@
 namespace App\Filament\Resources\ImportJobResource\Pages;
 
 use App\Filament\Resources\ImportJobResource;
-use Filament\Resources\Pages\Page;
-use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Storage;
 use App\Models\ImportJob;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\Page;
+use Illuminate\Support\Facades\Storage;
 
 class ConfigureImport extends Page
 {
     use InteractsWithForms;
+
     protected static string $resource = ImportJobResource::class;
+
     protected static string $view = 'filament.imports.configure';
 
     public ImportJob $importJob;
@@ -47,7 +46,7 @@ class ConfigureImport extends Page
 
         $fields = [];
         foreach ($targetFields as $key => $label) {
-            $fields[] = Select::make('mapping.' . $key)
+            $fields[] = Select::make('mapping.'.$key)
                 ->label($label)
                 ->options(array_merge(['' => '— none —'], $options))
                 ->default(fn () => $this->mapping[$key] ?? '');

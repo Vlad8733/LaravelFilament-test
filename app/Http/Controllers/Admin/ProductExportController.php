@@ -10,13 +10,13 @@ class ProductExportController extends Controller
 {
     public function export()
     {
-        $fileName = 'products_export_' . date('Ymd_His') . '.csv';
+        $fileName = 'products_export_'.date('Ymd_His').'.csv';
 
         $response = new StreamedResponse(function () {
             $handle = fopen('php://output', 'w');
 
             // headers
-            fputcsv($handle, ['id','name','slug','sku','price','sale_price','stock_quantity','category','is_active','is_featured','created_at']);
+            fputcsv($handle, ['id', 'name', 'slug', 'sku', 'price', 'sale_price', 'stock_quantity', 'category', 'is_active', 'is_featured', 'created_at']);
 
             Product::with(['category'])->chunk(200, function ($products) use ($handle) {
                 foreach ($products as $p) {

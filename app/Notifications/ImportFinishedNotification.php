@@ -3,18 +3,21 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Messages\DatabaseMessage;
+use Illuminate\Notifications\Notification;
 
 class ImportFinishedNotification extends Notification
 {
     use Queueable;
 
     protected int $importId;
+
     protected string $status;
+
     protected int $processed;
+
     protected int $failed;
+
     protected ?string $failedPath;
 
     public function __construct(int $importId, string $status, int $processed = 0, int $failed = 0, ?string $failedPath = null)

@@ -28,14 +28,20 @@ class Ticket extends Model
 
     // Статусы
     public const STATUS_OPEN = 'open';
+
     public const STATUS_IN_PROGRESS = 'in_progress';
+
     public const STATUS_RESOLVED = 'resolved';
+
     public const STATUS_CLOSED = 'closed';
 
     // Приоритеты
     public const PRIORITY_LOW = 'low';
+
     public const PRIORITY_MEDIUM = 'medium';
+
     public const PRIORITY_HIGH = 'high';
+
     public const PRIORITY_URGENT = 'urgent';
 
     /**
@@ -119,7 +125,7 @@ class Ticket extends Model
      */
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_OPEN => 'warning',
             self::STATUS_IN_PROGRESS => 'info',
             self::STATUS_RESOLVED => 'success',
@@ -133,7 +139,7 @@ class Ticket extends Model
      */
     public function getPriorityColorAttribute(): string
     {
-        return match($this->priority) {
+        return match ($this->priority) {
             self::PRIORITY_LOW => 'gray',
             self::PRIORITY_MEDIUM => 'info',
             self::PRIORITY_HIGH => 'warning',

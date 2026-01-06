@@ -21,7 +21,7 @@ return [
     'activity' => 'Darbību žurnāls',
     'analytics' => 'Analītika',
     'refunds' => 'Atmaksas',
-    
+
     // Additional keys for navbar
     'search_placeholder' => 'Meklēt preces...',
     'checkout' => 'Noformēt',

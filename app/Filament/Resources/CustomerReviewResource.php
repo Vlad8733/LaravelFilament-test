@@ -6,12 +6,12 @@ use App\Filament\Resources\CustomerReviewResource\Pages;
 use App\Models\CustomerReview;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
 
 class CustomerReviewResource extends Resource
 {
@@ -127,7 +127,7 @@ class CustomerReviewResource extends Resource
 
                 Tables\Columns\TextColumn::make('overall_rating')
                     ->label('Rating')
-                    ->formatStateUsing(fn ($state) => '⭐ ' . number_format($state, 1))
+                    ->formatStateUsing(fn ($state) => '⭐ '.number_format($state, 1))
                     ->sortable(),
 
                 Tables\Columns\BadgeColumn::make('status')
@@ -140,7 +140,7 @@ class CustomerReviewResource extends Resource
                 Tables\Columns\IconColumn::make('comment')
                     ->label('Has Comment')
                     ->boolean()
-                    ->getStateUsing(fn ($record) => !empty($record->comment)),
+                    ->getStateUsing(fn ($record) => ! empty($record->comment)),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Submitted')
@@ -286,7 +286,7 @@ class CustomerReviewResource extends Resource
 
                                 Infolists\Components\TextEntry::make('overall_rating')
                                     ->label('Overall')
-                                    ->formatStateUsing(fn ($state) => '⭐ ' . number_format($state, 1) . ' / 5'),
+                                    ->formatStateUsing(fn ($state) => '⭐ '.number_format($state, 1).' / 5'),
                             ]),
 
                         Infolists\Components\TextEntry::make('status')

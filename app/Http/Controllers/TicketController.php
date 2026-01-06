@@ -3,15 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
-use App\Models\TicketMessage;
 use App\Models\User;
 use App\Notifications\NewTicketCreated;
-use App\Notifications\TicketReplied;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class TicketController extends Controller
 {
@@ -103,7 +100,8 @@ class TicketController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Failed to create ticket: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Failed to create ticket: '.$e->getMessage());
         }
     }
 
@@ -184,11 +182,11 @@ class TicketController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
             }
-            
+
             return back()->with('error', 'Failed to send reply');
         }
     }

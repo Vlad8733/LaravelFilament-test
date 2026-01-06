@@ -6,12 +6,12 @@ use App\Filament\Resources\RefundRequestResource\Pages;
 use App\Models\RefundRequest;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
 
 class RefundRequestResource extends Resource
 {
@@ -147,7 +147,7 @@ class RefundRequestResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                
+
                 Tables\Actions\Action::make('approve')
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
@@ -222,7 +222,7 @@ class RefundRequestResource extends Resource
                     ->action(function (RefundRequest $record, array $data) {
                         $notes = $data['admin_notes'] ?? 'Refund completed.';
                         if ($record->admin_notes) {
-                            $notes = $record->admin_notes . "\n\n" . $notes;
+                            $notes = $record->admin_notes."\n\n".$notes;
                         }
 
                         $record->update([

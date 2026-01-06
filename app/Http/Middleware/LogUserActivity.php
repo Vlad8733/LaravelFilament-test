@@ -15,9 +15,10 @@ class LogUserActivity
             $action = $route ? $route->getName() : $request->path();
             // Не логируем сам просмотр журнала активности
             if ($action !== 'activity_log.index') {
-                activity_log('Visited: ' . $action);
+                activity_log('Visited: '.$action);
             }
         }
+
         return $next($request);
     }
 }

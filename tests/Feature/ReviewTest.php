@@ -2,17 +2,18 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\User;
 use App\Models\Product;
 use App\Models\Review;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ReviewTest extends TestCase
 {
     use RefreshDatabase;
 
     protected User $user;
+
     protected Product $product;
 
     protected function setUp(): void
@@ -74,7 +75,7 @@ class ReviewTest extends TestCase
 
         // Query approved reviews for this product using Review model directly
         $reviews = Review::where('product_id', $this->product->id)->approved()->get();
-        
+
         $this->assertCount(1, $reviews);
         $this->assertEquals($approvedReview->id, $reviews->first()->id);
     }
@@ -89,7 +90,7 @@ class ReviewTest extends TestCase
         ]);
 
         $reviews = Review::where('product_id', $this->product->id)->approved()->get();
-        
+
         $this->assertCount(0, $reviews);
     }
 

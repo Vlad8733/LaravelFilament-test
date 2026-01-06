@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\ImportProductsJob;
 use App\Models\ImportJob;
 use App\Models\Product;
-use App\Jobs\ImportProductsJob;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class ImportProductsVariantsTest extends TestCase
 {
@@ -20,7 +20,7 @@ class ImportProductsVariantsTest extends TestCase
         Storage::fake('public');
         Http::fake();
 
-        $csv = "name,sku,variant_sku,variant_price,variant_attributes\n" .
+        $csv = "name,sku,variant_sku,variant_price,variant_attributes\n".
                "Variant Product,VP-001,VP-001-RED,15.00,{'color':'red'}\n";
 
         Storage::disk('local')->put('imports/test_variants.csv', $csv);

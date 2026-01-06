@@ -5,13 +5,13 @@ return [
     'title' => 'Mans profils',
     'edit_profile' => 'Rediģēt profilu',
     'my_account' => 'Mans konts',
-    
+
     // Navigation
     'personal_info' => 'Personiskā informācija',
     'security' => 'Drošība',
     'addresses' => 'Adreses',
     'child_accounts' => 'Bērnu konti',
-    
+
     // Personal info
     'name' => 'Vārds',
     'email' => 'E-pasta adrese',
@@ -20,14 +20,14 @@ return [
     'avatar' => 'Profila attēls',
     'change_avatar' => 'Mainīt attēlu',
     'remove_avatar' => 'Noņemt attēlu',
-    
+
     // Password
     'change_password' => 'Mainīt paroli',
     'current_password' => 'Pašreizējā parole',
     'new_password' => 'Jaunā parole',
     'confirm_password' => 'Apstiprināt jauno paroli',
     'password_requirements' => 'Parole jābūt vismaz 8 rakstzīmes gara',
-    
+
     // Addresses
     'add_address' => 'Pievienot adresi',
     'edit_address' => 'Rediģēt adresi',
@@ -40,12 +40,12 @@ return [
     'state' => 'Apgabals / Reģions',
     'postal_code' => 'Pasta indekss',
     'country' => 'Valsts',
-    
+
     // Actions
     'save_changes' => 'Saglabāt izmaiņas',
     'cancel' => 'Atcelt',
     'update' => 'Atjaunināt',
-    
+
     // Messages
     'profile_updated' => 'Profils veiksmīgi atjaunināts',
     'password_updated' => 'Parole veiksmīgi atjaunināta',
@@ -53,7 +53,7 @@ return [
     'address_added' => 'Adrese veiksmīgi pievienota',
     'address_updated' => 'Adrese veiksmīgi atjaunināta',
     'address_deleted' => 'Adrese veiksmīgi dzēsta',
-    
+
     // Account stats
     'member_since' => 'Dalībnieks kopš',
     'total_orders' => 'Kopā pasūtījumu',

@@ -3,12 +3,12 @@
 return [
     'title' => 'Norēķins',
     'secure_checkout' => 'Drošs norēķins',
-    
+
     // Steps
     'step_shipping' => 'Piegāde',
     'step_payment' => 'Apmaksa',
     'step_review' => 'Pārskatīt',
-    
+
     // Shipping form
     'shipping_info' => 'Piegādes informācija',
     'full_name' => 'Pilns vārds',
@@ -21,7 +21,7 @@ return [
     'postal_code' => 'Pasta indekss',
     'country' => 'Valsts',
     'continue_to_payment' => 'Turpināt uz apmaksu',
-    
+
     // Payment form
     'payment_method' => 'Apmaksas veids',
     'payment_info' => 'Maksājuma informācija',
@@ -32,13 +32,13 @@ return [
     'cod_description' => 'Apmaksājiet, saņemot preci',
     'back' => 'Atpakaļ',
     'review_order' => 'Pārskatīt pasūtījumu',
-    
+
     // Review
     'review_title' => 'Pārskatiet savu pasūtījumu',
     'shipping_address' => 'Piegādes adrese',
     'items' => 'Preces',
     'qty' => 'Daudz.:',
-    
+
     // Summary
     'order_summary' => 'Pasūtījuma kopsavilkums',
     'subtotal' => 'Starpsumma',
@@ -47,7 +47,7 @@ return [
     'free' => 'BEZMAKSAS',
     'total' => 'Kopā',
     'place_order' => 'Veikt pasūtījumu',
-    
+
     // Payment modal
     'payment_modal_title' => 'Apmaksas apstrāde',
     'payment_demo_notice' => 'Demonstrācijas režīms',
@@ -57,7 +57,7 @@ return [
     'payment_redirecting' => 'Pāradresē uz pasūtījuma apstiprinājumu...',
     'complete_payment' => 'Pabeigt maksājumu',
     'cancel' => 'Atcelt',
-    
+
     // Success page
     'success_title' => 'Pasūtījums veiksmīgs!',
     'success_subtitle' => 'Paldies par jūsu pasūtījumu',
@@ -65,7 +65,7 @@ return [
     'confirmation_sent' => 'Apstiprinājuma e-pasts ir nosūtīts uz',
     'view_order' => 'Skatīt pasūtījumu',
     'continue_shopping' => 'Turpināt iepirkties',
-    
+
     // Errors
     'cart_empty' => 'Jūsu grozs ir tukšs',
     'payment_failed' => 'Maksājums neizdevās. Lūdzu, mēģiniet vēlreiz.',

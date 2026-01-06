@@ -6,16 +6,18 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Resources\Resource;
-use Filament\Tables\Table;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Actions\Action;
+use Filament\Tables\Table;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $navigationLabel = 'Users';
 
     public static function form(Forms\Form $form): Forms\Form
@@ -30,12 +32,12 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('email')->searchable()->sortable(),
-                IconColumn::make('is_seller')->boolean()->label('Seller'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
-            ])
+            TextColumn::make('id')->label('ID')->sortable(),
+            TextColumn::make('name')->searchable()->sortable(),
+            TextColumn::make('email')->searchable()->sortable(),
+            IconColumn::make('is_seller')->boolean()->label('Seller'),
+            TextColumn::make('created_at')->dateTime()->sortable(),
+        ])
             ->actions([
                 Action::make('toggleSeller')
                     ->label(fn (User $record): string => $record->is_seller ? 'Demote' : 'Promote to Seller')

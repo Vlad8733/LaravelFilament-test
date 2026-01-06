@@ -80,7 +80,7 @@ class CustomerReview extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'Pending Review',
             'approved' => 'Approved',
             'rejected' => 'Rejected',
@@ -90,7 +90,7 @@ class CustomerReview extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'warning',
             'approved' => 'success',
             'rejected' => 'danger',

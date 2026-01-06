@@ -54,7 +54,7 @@ return [
     'select_variant_first' => 'Please select a variant first',
     'variant_out_of_stock' => 'Selected variant is out of stock',
     'adding' => 'Adding...',
-    
+
     // Product page
     'description' => 'Description',
     'details' => 'Details',
@@ -74,12 +74,12 @@ return [
     'view_details' => 'View Details',
     'off' => 'OFF',
     'category' => 'Category',
-    
+
     // Ratings
     'delivery' => 'Delivery',
     'packaging' => 'Packaging',
     'product' => 'Product',
-    
+
     // Reviews - для trans_choice используем отдельный ключ
     'reviews_count' => '{0} No reviews|{1} :count review|[2,*] :count reviews',
 ];

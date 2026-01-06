@@ -27,9 +27,9 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table) {
             $table->dropForeign(['category_id']);
             $table->dropColumn([
-                'category_id', 'slug', 'long_description', 'sale_price', 
-                'stock_quantity', 'sku', 'is_featured', 'is_active', 
-                'weight', 'attributes'
+                'category_id', 'slug', 'long_description', 'sale_price',
+                'stock_quantity', 'sku', 'is_featured', 'is_active',
+                'weight', 'attributes',
             ]);
         });
     }

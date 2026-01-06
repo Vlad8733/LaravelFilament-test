@@ -38,10 +38,10 @@ class Order extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($order) {
             if (empty($order->order_number)) {
-                $order->order_number = 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+                $order->order_number = 'ORD-'.date('Ymd').'-'.strtoupper(Str::random(6));
             }
         });
     }
@@ -74,9 +74,9 @@ class Order extends Model
     public function updateStatus($statusId, $notes = null, $changedBy = null)
     {
         $oldStatusId = $this->order_status_id;
-        
+
         $this->update(['order_status_id' => $statusId]);
-        
+
         OrderStatusHistory::create([
             'order_id' => $this->id,
             'order_status_id' => $statusId,
@@ -84,23 +84,23 @@ class Order extends Model
             'notes' => $notes,
             'changed_at' => now(),
         ]);
-        
+
         // Отправка email уведомления (опционально)
         if ($oldStatusId !== $statusId) {
             try {
                 \Illuminate\Support\Facades\Notification::route('mail', $this->customer_email)
                     ->notify(new \App\Notifications\OrderStatusChanged($this));
             } catch (\Exception $e) {
-                \Log::warning('Failed to send order status notification: ' . $e->getMessage());
+                \Log::warning('Failed to send order status notification: '.$e->getMessage());
             }
         }
-        
+
         return $this;
     }
 
     public function getStatusColorAttribute()
     {
-        return match($this->order_status) {
+        return match ($this->order_status) {
             'pending' => 'yellow',
             'processing' => 'blue',
             'shipped' => 'indigo',

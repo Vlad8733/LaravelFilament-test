@@ -34,7 +34,7 @@ class RefundController extends Controller
 
         // Проверяем что заказ уже доставлен или обработан
         $allowedStatuses = ['delivered', 'completed', 'shipped'];
-        if (!in_array($order->status->slug ?? '', $allowedStatuses)) {
+        if (! in_array($order->status->slug ?? '', $allowedStatuses)) {
             return back()->with('error', 'Refund can only be requested for delivered orders.');
         }
 
@@ -63,7 +63,7 @@ class RefundController extends Controller
 
         $request->validate([
             'type' => 'required|in:full,partial',
-            'amount' => 'required_if:type,partial|nullable|numeric|min:0.01|max:' . $order->total,
+            'amount' => 'required_if:type,partial|nullable|numeric|min:0.01|max:'.$order->total,
             'reason' => 'required|string|min:10|max:1000',
         ]);
 
@@ -109,7 +109,7 @@ class RefundController extends Controller
             abort(403);
         }
 
-        if (!$refund->isPending()) {
+        if (! $refund->isPending()) {
             return back()->with('error', __('refunds.error_only_pending_can_cancel'));
         }
 
