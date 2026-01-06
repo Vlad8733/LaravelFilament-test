@@ -421,6 +421,34 @@
             gap: 16px;
         }
 
+        .mobile-menu-btn {
+            display: none;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: #9f9e9e;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+            .nav-wrap {
+                grid-template-columns: auto auto 1fr auto;
+            }
+        }
+
         .logo-img { height: 40px; width: auto; display: block; }
 
         .search-input {
@@ -966,10 +994,186 @@
         /* Theme overrides live in built CSS files; no emergency overrides here. */
     </style>
 </head>
-<body>
+<body x-data="{ mobileMenuOpen: false }" 
+      x-init="$watch('mobileMenuOpen', value => { 
+          if(value) { 
+              document.body.classList.add('mobile-menu-open'); 
+          } else { 
+              document.body.classList.remove('mobile-menu-open'); 
+          } 
+      })">
+    
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" :class="{ 'open': mobileMenuOpen }" @click="mobileMenuOpen = false"></div>
+    
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer" :class="{ 'open': mobileMenuOpen }" @touchmove.stop>
+        <div class="mobile-nav-header">
+            <a href="{{ url('/products') }}">
+                <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="mobile-nav-logo" alt="ShopLy">
+            </a>
+            <button class="mobile-nav-close" @click="mobileMenuOpen = false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mobile-nav-search">
+            <div class="relative">
+                <svg class="icon-left w-5 h-5" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <form action="{{ route('products.index') }}" method="GET">
+                    <input type="text" name="search" placeholder="{{ __('nav.search_placeholder') }}">
+                </form>
+            </div>
+        </div>
+        
+        <div class="mobile-nav-links">
+            <a href="{{ route('products.index') }}" class="mobile-nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                {{ __('nav.products') }}
+            </a>
+            
+            <a href="{{ route('companies.index') }}" class="mobile-nav-link {{ request()->routeIs('companies.*') ? 'active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                {{ __('nav.companies') }}
+            </a>
+            
+            @auth
+            <a href="{{ route('wishlist.index') }}" class="mobile-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                {{ __('nav.wishlist') }}
+                <span x-show="$store.global.wishlistCount > 0" class="badge" x-text="$store.global.wishlistCount" x-cloak></span>
+            </a>
+            
+            <a href="{{ route('cart.index') }}" class="mobile-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                {{ __('nav.cart') }}
+                <span x-show="$store.global.cartCount > 0" class="badge" x-text="$store.global.cartCount" x-cloak></span>
+            </a>
+            
+            <a href="{{ route('compare.index') }}" class="mobile-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 -960 960 960" fill="currentColor">
+                    <path d="M400-40v-80H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h200v-80h80v880h-80ZM200-240h200v-240L200-240Zm360 120v-360l200 240v-520H560v-80h200q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H560Z"/>
+                </svg>
+                {{ __('compare.title') }}
+                <span x-show="$store.global.compareCount > 0" class="badge" x-text="$store.global.compareCount" x-cloak></span>
+            </a>
+            
+            <a href="{{ route('notifications.index') }}" class="mobile-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                {{ __('nav.notifications') }}
+                <span x-show="$store.global.notificationsCount > 0" class="badge" x-text="$store.global.notificationsCount" x-cloak></span>
+            </a>
+            
+            <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0;"></div>
+            
+            <a href="{{ route('profile.edit') }}" class="mobile-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {{ __('nav.my_profile') }}
+            </a>
+            
+            <a href="{{ route('orders.tracking.search') }}" class="mobile-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                {{ __('nav.track_orders') }}
+            </a>
+            
+            <a href="{{ route('tickets.index') }}" class="mobile-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                </svg>
+                {{ __('nav.support_tickets') }}
+            </a>
+            
+            <a href="{{ route('settings.index') }}" class="mobile-nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                {{ __('nav.settings') }}
+            </a>
+            
+            @if(auth()->user()->is_admin)
+            <div style="height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0;"></div>
+            <a href="/admin" class="mobile-nav-link" style="color: #a78bfa;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 0 1 2 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+                </svg>
+                {{ __('nav.admin_panel') }}
+            </a>
+            @endif
+            @endauth
+        </div>
+        
+        @auth
+        <div class="mobile-nav-user">
+            <div class="mobile-nav-user-info">
+                <img src="{{ auth()->user()?->avatar_url ?? asset('storage/logo/no_avatar.png') }}" class="mobile-nav-avatar" alt="avatar">
+                <div>
+                    <div class="mobile-nav-user-name">{{ auth()->user()->name }}</div>
+                    <div class="mobile-nav-user-email">{{ auth()->user()->email }}</div>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="mobile-nav-link" style="width: 100%; color: #f87171;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    {{ __('nav.sign_out') }}
+                </button>
+            </form>
+        </div>
+        @else
+        <div class="mobile-nav-user">
+            <a href="{{ route('login') }}" class="mobile-nav-link" style="justify-content: center; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 600;">
+                {{ __('nav.sign_in') }}
+            </a>
+        </div>
+        @endauth
+    </div>
     
     <nav id="site-nav">
         <div class="nav-wrap">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" @click="mobileMenuOpen = true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            
             <a href="{{ url('/products') }}">
                 <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="logo-img" alt="ShopLy">
             </a>

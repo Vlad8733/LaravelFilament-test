@@ -508,11 +508,73 @@ textarea.form-input {
     .checkout-card { padding: 20px; }
     .checkout-header h1 { font-size: 1.5rem; }
     .summary-items { max-height: 200px; }
+    
+    /* Form inputs larger touch targets */
+    .form-input {
+        padding: 14px 16px !important;
+        font-size: 1rem !important;
+    }
+    
+    /* Payment options */
+    .payment-option {
+        padding: 14px 16px !important;
+    }
+    
+    /* Modal adjustments */
+    .modal-content,
+    .payment-modal {
+        max-width: calc(100vw - 24px) !important;
+        margin: 12px !important;
+    }
+    
+    .modal-header {
+        padding: 16px !important;
+    }
+    
+    .modal-body {
+        padding: 16px !important;
+    }
+    
+    .modal-footer {
+        padding: 16px !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-footer button {
+        width: 100% !important;
+    }
 }
 
 @media (max-width: 480px) {
+    .checkout-page { padding: 16px 0 40px; }
+    .checkout-container { padding: 0 12px; }
+    .checkout-card { padding: 16px; border-radius: 16px; }
+    .checkout-header h1 { font-size: 1.25rem; }
+    
     .coupon-form { flex-direction: column; }
     .coupon-btn { width: 100%; }
+    
+    /* Two column form to single column */
+    .form-row {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .card-title {
+        font-size: 1rem !important;
+    }
+    
+    /* Summary item */
+    .summary-item img {
+        width: 48px !important;
+        height: 48px !important;
+    }
+    
+    /* Submit button */
+    .submit-btn,
+    .place-order-btn {
+        padding: 14px 20px !important;
+        font-size: 1rem !important;
+    }
 }
 
 /* ============================================

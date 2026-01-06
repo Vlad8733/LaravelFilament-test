@@ -175,6 +175,47 @@
     .wishlist-page { padding: 24px 0 60px; }
     .wishlist-page .container { padding: 0 16px; }
     .page-header { flex-direction: column; gap: 12px; text-align: center; }
+    
+    /* Larger touch targets */
+    .btn-cart {
+        padding: 14px 16px !important;
+    }
+    
+    .btn-view {
+        width: 48px !important;
+        height: 48px !important;
+    }
+    
+    .remove-btn {
+        width: 40px !important;
+        height: 40px !important;
+        opacity: 1 !important;
+    }
+    
+    .remove-btn svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .wishlist-page { padding: 16px 0 40px; }
+    .wishlist-page .container { padding: 0 12px; }
+    .page-header h1 { font-size: 1.5rem; }
+    
+    .wishlist-grid { gap: 12px !important; }
+    
+    .card-body { padding: 12px !important; }
+    .card-body h3 { font-size: 0.875rem !important; }
+    .card-category { font-size: 0.75rem !important; }
+    .price-current { font-size: 1rem !important; }
+    .price-old { font-size: 0.75rem !important; }
+    
+    .empty-state { padding: 48px 24px; }
+    .empty-icon { width: 64px; height: 64px; }
+    .empty-icon svg { width: 28px; height: 28px; }
+    .empty-state h2 { font-size: 1.25rem; }
+    .btn-browse { padding: 12px 20px; font-size: 0.9375rem; }
 }
 
 /* ============================================

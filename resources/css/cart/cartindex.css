@@ -219,5 +219,70 @@ html.theme-light hr {
         margin: 16px auto 32px !important;
         padding: 0 12px !important;
     }
+    
+    .bg-white {
+        padding: 16px !important;
+        border-radius: 16px !important;
+    }
+    
+    /* Cart item grid to stack */
+    .flex.flex-wrap.items-center {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+    
+    /* Cart item image larger */
+    .flex.flex-wrap.items-center img {
+        width: 80px !important;
+        height: 80px !important;
+    }
+    
+    /* Quantity controls */
+    .flex.items-center.space-x-2 button {
+        min-width: 40px !important;
+        height: 40px !important;
+    }
+    
+    /* Remove button touch friendly */
+    .remove-item-btn {
+        width: 44px !important;
+        height: 44px !important;
+    }
+    
+    /* Checkout button full width */
+    .cart-checkout-btn {
+        padding: 16px !important;
+        font-size: 1.0625rem !important;
+    }
+    
+    /* Coupon input */
+    .flex.space-x-2 {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    
+    .flex.space-x-2 input {
+        width: 100% !important;
+    }
+    
+    .cart-apply-btn {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .bg-white {
+        padding: 12px !important;
+    }
+    
+    h1, h2 {
+        font-size: 1.25rem !important;
+    }
+    
+    .flex.flex-wrap.items-center img {
+        width: 64px !important;
+        height: 64px !important;
+    }
 }
 

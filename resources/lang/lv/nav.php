@@ -3,6 +3,7 @@
 return [
     'home' => 'Sākums',
     'products' => 'Preces',
+    'companies' => 'Uzņēmumi',
     'categories' => 'Kategorijas',
     'cart' => 'Grozs',
     'wishlist' => 'Vēlmju saraksts',

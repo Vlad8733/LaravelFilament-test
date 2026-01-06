@@ -3,6 +3,10 @@
 return [
     'search_placeholder' => 'Search products…',
     'checkout' => 'Checkout',
+    'products' => 'Products',
+    'companies' => 'Companies',
+    'wishlist' => 'Wishlist',
+    'cart' => 'Cart',
     'my_profile' => 'My Profile',
     'track_orders' => 'Track Orders',
     'support_tickets' => 'Support Tickets',

@@ -10,6 +10,7 @@
 @import './_components.css';
 @import './_utilities.css';
 @import './_toasts.css';
+@import './_responsive.css';
 
 @tailwind base;
 @tailwind components;

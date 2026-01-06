@@ -3,6 +3,10 @@
 return [
     'search_placeholder' => 'Поиск товаров…',
     'checkout' => 'Оформить',
+    'products' => 'Товары',
+    'companies' => 'Компании',
+    'wishlist' => 'Избранное',
+    'cart' => 'Корзина',
     'my_profile' => 'Мой профиль',
     'track_orders' => 'Отследить заказы',
     'support_tickets' => 'Поддержка',

@@ -499,6 +499,78 @@
     }
 }
 
+@media (max-width: 480px) {
+    .compare-page {
+        padding: 1rem 0 2rem;
+    }
+    
+    .compare-page .container {
+        padding: 0 0.75rem;
+    }
+    
+    .compare-page .header-content h1 {
+        font-size: 1.25rem;
+    }
+    
+    .compare-page .header-content .subtitle {
+        font-size: 0.8125rem;
+    }
+    
+    .compare-page .btn-clear {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
+    }
+    
+    .compare-table .label-cell {
+        width: 100px;
+        min-width: 100px;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+    
+    .compare-table .product-cell,
+    .compare-table .data-cell {
+        padding: 0.5rem;
+        min-width: 120px;
+    }
+    
+    .compare-table .product-image {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .compare-table .product-name {
+        font-size: 0.8rem;
+    }
+    
+    .price-sale,
+    .price-regular {
+        font-size: 1rem;
+    }
+    
+    .empty-state {
+        padding: 48px 24px;
+    }
+    
+    .empty-state .empty-icon {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .empty-state h2 {
+        font-size: 1.25rem;
+    }
+    
+    .empty-state p {
+        font-size: 0.875rem;
+    }
+    
+    .btn-browse {
+        padding: 12px 20px;
+        font-size: 0.9375rem;
+    }
+}
+
 /* Light Theme Overrides */
 [data-theme="light"] .compare-page {
     background: #f5f5f5;

@@ -477,20 +477,20 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Product Grid */
-main .grid { display: grid !important; gap: 10px !important; grid-template-columns: repeat(1, 1fr) !important; grid-auto-rows: 1fr !important; }
+main .grid { display: grid !important; gap: 10px !important; grid-template-columns: repeat(2, 1fr) !important; grid-auto-rows: 1fr !important; }
 @media (min-width: 640px) { main .grid { grid-template-columns: repeat(2, 1fr) !important; } }
 @media (min-width: 768px) { main .grid { grid-template-columns: repeat(3, 1fr) !important; } }
 @media (min-width: 1024px) { main .grid { grid-template-columns: repeat(4, 1fr) !important; } }
 @media (min-width: 1400px) { main .grid { grid-template-columns: repeat(5, 1fr) !important; } }
 
 main .grid > .bg-white {
-    padding: 0.5rem !important; border-radius: 12px !important;
+    padding: 0 !important; border-radius: 12px !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.45) !important;
     overflow: hidden; display: flex; flex-direction: column;
 }
-main .grid > .bg-white .aspect-square { aspect-ratio: auto !important; height: 170px !important; overflow: hidden !important; background: var(--bg-secondary) !important; }
-@media (min-width: 1024px) { main .grid > .bg-white .aspect-square { height: 190px !important; } }
-@media (min-width: 1400px) { main .grid > .bg-white .aspect-square { height: 210px !important; } }
+main .grid > .bg-white .aspect-square { aspect-ratio: 1 / 1 !important; height: auto !important; width: 100% !important; overflow: hidden !important; background: var(--bg-secondary) !important; border-radius: 12px 12px 0 0 !important; }
+@media (min-width: 1024px) { main .grid > .bg-white .aspect-square { aspect-ratio: 1 / 1 !important; height: auto !important; } }
+@media (min-width: 1400px) { main .grid > .bg-white .aspect-square { aspect-ratio: 1 / 1 !important; height: auto !important; } }
 main .grid > .bg-white .aspect-square img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; }
 main .grid > .bg-white .p-4 { padding: 0.6rem !important; gap: 0.35rem !important; display: flex; flex-direction: column; flex: 1; }
 main .grid > .bg-white h3 { font-size: 0.95rem !important; margin: 0 !important; }
@@ -946,4 +946,117 @@ body.filters-open main {
     filter: blur(4px) brightness(0.7) !important;
     pointer-events: none !important;
     transition: filter 0.3s ease !important;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 1024px) {
+    .products-page .products-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 16px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .products-page .products-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+    
+    .products-toolbar {
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+    
+    .products-toolbar > div {
+        width: 100% !important;
+    }
+    
+    .products-page h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Product card image fix for mobile */
+    main .grid > .bg-white .aspect-square {
+        aspect-ratio: 1 / 1 !important;
+        height: auto !important;
+        max-height: 200px !important;
+    }
+    
+    main .grid > .bg-white .aspect-square img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+    }
+    
+    /* Only show primary image, hide gallery in card */
+    main .grid > .bg-white .aspect-square > a {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Card body */
+    main .grid > .bg-white .p-4 {
+        padding: 12px !important;
+    }
+    
+    main .grid > .bg-white h3 {
+        font-size: 0.875rem !important;
+        line-height: 1.3 !important;
+    }
+    
+    /* Rating and reviews - stack vertically on mobile */
+    main .grid > .bg-white .p-4 > .flex.items-center.mb-2 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 2px !important;
+    }
+    
+    main .grid > .bg-white .p-4 > .flex.items-center.mb-2 > span {
+        margin-left: 0 !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-page .products-grid {
+        gap: 8px !important;
+    }
+    
+    .product-card,
+    .products-card {
+        border-radius: 10px !important;
+    }
+    
+    .product-card-title,
+    .products-card-title {
+        font-size: 0.8125rem !important;
+        -webkit-line-clamp: 2 !important;
+    }
+    
+    .product-card-price,
+    .products-card-price {
+        font-size: 0.9375rem !important;
+    }
+    
+    .wish,
+    .products-wish,
+    .products-compare {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .wish .wish-icon,
+    .products-wish .wish-icon,
+    .products-compare .compare-icon {
+        width: 14px !important;
+        height: 14px !important;
+    }
+    
+    .products-page h1 {
+        font-size: 1.25rem !important;
+    }
 }
