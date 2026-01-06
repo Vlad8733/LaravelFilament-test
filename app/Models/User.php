@@ -196,10 +196,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $this->hasMany(\App\Models\Product::class);
     }
 
-    public function profile()
-    {
-        return $this->hasOne(Profile::class);
-    }
+    // Note: Profile model not yet implemented
+    // public function profile()
+    // {
+    //     return $this->hasOne(Profile::class);
+    // }
 
     public function parent(): BelongsTo
     {

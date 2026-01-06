@@ -1,0 +1,57 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    # Start with level 4, gradually increase to find more issues
+    level: 4
+
+    paths:
+        - app/
+
+    excludePaths:
+        - app/Http/Kernel.php
+
+    # Ignore specific errors that are false positives or intentional
+    ignoreErrors:
+        # Filament dynamic method calls
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::(form|table|infolist)\(\)#'
+        # Livewire dynamic properties
+        - '#Access to an undefined property Livewire\\Component::\$[a-zA-Z0-9_]+#'
+        # Filament pages $form property
+        - '#Access to an undefined property App\\Filament\\[a-zA-Z0-9\\_]+::\$form#'
+        # Match expressions with default cases
+        - '#Match expression does not handle remaining value: string#'
+        # Eloquent model magic properties (relations loaded dynamically)
+        - '#Relation .+ is not found in App\\Models\\[a-zA-Z]+ model#'
+        - '#Access to an undefined property App\\Models\\[a-zA-Z0-9]+::\$(product|variant|user|orderStatus)#'
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$#'
+        # Filament record type inference
+        - '#Cannot (access property|call method) .+ on Illuminate\\Database\\Eloquent\\Model\|int\|string#'
+        # View string type
+        - message: '#Parameter .+ of function view expects view-string#'
+        # Notification trait
+        - '#Access to an undefined property App\\Models\\User::\$unreadNotifications#'
+        # Match arm always true (ordered matches)
+        - '#Match arm comparison between .+ is always true#'
+        # Ternary/boolean conditions from PHPDoc types
+        - '#Ternary operator condition is always true#'
+        - '#Left side of && is always true#'
+        - '#Variable .+ on left side of \?\? always exists and is not nullable#'
+        - '#Property .+ on left side of \?\? is not nullable#'
+        # Eloquent scope methods
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany::active#'
+        # Controller model type inference
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Model::attachments#'
+        # Anonymous function return types
+        - '#Anonymous function never returns null so it can be removed from the return type#'
+        # Nullsafe on non-null
+        - '#Using nullsafe property access .+ on left side of \?\? is unnecessary#'
+        # Dynamic aggregate properties
+        - '#Access to an undefined property App\\Models\\(OrderItem|Order)::\$(total_sold|total_revenue|count)#'
+
+    # Don't check undefined methods on Eloquent models
+    checkModelProperties: false
+
+    # Additional Laravel-specific settings
+    checkOctaneCompatibility: false
+    reportUnmatchedIgnoredErrors: false

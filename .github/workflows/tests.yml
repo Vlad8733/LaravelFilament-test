@@ -90,3 +90,22 @@ jobs:
 
       - name: Run Pint (code style)
         run: vendor/bin/pint --test
+
+  static-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Run Larastan
+        run: vendor/bin/phpstan analyse --memory-limit=512M

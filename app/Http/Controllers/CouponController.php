@@ -18,7 +18,7 @@ class CouponController extends Controller
 
         $coupon = Coupon::where('code', strtoupper($request->code))->first();
 
-        if (! $coupon || ! $coupon->isValid($request->amount)) {
+        if (! $coupon || ! $coupon->isValid()) {
             return response()->json([
                 'valid' => false,
                 'message' => 'Invalid or expired coupon code',

@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Ticket;
+use App\Models\User;
 use App\Notifications\TicketStatusChanged;
 
 class TicketObserver
@@ -26,7 +27,9 @@ class TicketObserver
             $newStatus = $ticket->status;
 
             // Отправляем уведомление пользователю
-            $ticket->user->notify(new TicketStatusChanged($ticket, $oldStatus, $newStatus));
+            /** @var User $user */
+            $user = $ticket->user;
+            $user->notify(new TicketStatusChanged($ticket, $oldStatus, $newStatus));
         }
     }
 
