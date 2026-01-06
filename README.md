@@ -55,7 +55,8 @@
 
 | Resource | Capabilities |
 |----------|--------------|
-| **Products** | CRUD, variants, images, categories, CSV import/export |
+| **Products** | CRUD, variants, images, categories, CSV import/export, company assignment |
+| **Companies** | Verify/unverify seller companies, view company details |
 | **Orders** | Status management, order history, status transitions |
 | **Customers** | User management, account details |
 | **Coupons** | Fixed/percentage discounts, validity periods, usage limits |
@@ -66,7 +67,24 @@
 
 ### 👨‍💼 Seller Panel
 
-Separate dashboard for sellers to manage their own products with limited access.
+Dedicated dashboard for sellers to manage their companies and products:
+
+| Feature | Description |
+|---------|-------------|
+| **Company Profile** | Create and manage your company (name, description, logo, banner) |
+| **Products** | Full product management with automatic company assignment |
+| **Public Storefront** | Customers can visit `/companies/{slug}` to see company profile |
+| **Followers** | Customers can follow companies to stay updated |
+
+### 🏢 Company System
+
+| Feature | Description |
+|---------|-------------|
+| **Company Profiles** | Each seller can create one company with public profile page |
+| **Company Directory** | Browse all companies at `/companies` with search and filters |
+| **Follow System** | Users can follow companies they like |
+| **Verified Badge** | Admins can verify trusted companies |
+| **Product Ownership** | All products belong to a specific company |
 
 ### 🔔 System Features
 
@@ -262,7 +280,8 @@ npm run build
 app/
 ├── Filament/
 │   ├── Resources/           # Admin CRUD resources
-│   │   ├── ProductResource  # Products management
+│   │   ├── ProductResource  # Products management & moderation
+│   │   ├── CompanyResource  # Company verification & moderation
 │   │   ├── OrderResource    # Orders management
 │   │   ├── CouponResource   # Discount coupons
 │   │   ├── UserResource     # Customer accounts
@@ -270,10 +289,13 @@ app/
 │   │   └── ...
 │   └── Seller/              # Seller panel
 │       └── Resources/       # Seller-specific resources
+│           ├── CompanyResource  # Manage own company
+│           └── ProductResource  # Manage company products
 ├── Http/
 │   ├── Controllers/         # Web controllers
 │   │   ├── CartController   # Shopping cart operations
 │   │   ├── ProductController
+│   │   ├── CompanyController # Company pages & follow
 │   │   ├── WishlistController
 │   │   ├── TicketController
 │   │   └── ...
@@ -281,6 +303,7 @@ app/
 │   └── Middleware/          # Custom middleware
 ├── Models/                  # Eloquent models (20+)
 │   ├── Product, ProductVariant, ProductImage
+│   ├── Company, CompanyFollow
 │   ├── Order, OrderItem, OrderStatus
 │   ├── User, CartItem, WishlistItem
 │   ├── Coupon, Review, Ticket
@@ -329,7 +352,8 @@ Access the admin panel at `/admin` after logging in with an admin account.
 
 | Resource | Features |
 |----------|----------|
-| **Products** | Create/edit products, manage variants, upload images, import/export CSV |
+| **Products** | Create/edit products, manage variants, upload images, import/export CSV, assign to companies |
+| **Companies** | Verify/unverify seller companies, moderate company profiles |
 | **Orders** | View order details, update status, view status history |
 | **Order Statuses** | Define custom order statuses |
 | **Users** | Manage customer accounts |
@@ -350,7 +374,15 @@ Access the admin panel at `/admin` after logging in with an admin account.
 | GET | `/products` | Product listing |
 | GET | `/products/{slug}` | Product details |
 | GET | `/category/{slug}` | Products by category |
-| GET | `/search` | Global search |
+| GET | `/search` | Global search (products & companies) |
+
+### Companies
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/companies` | Browse all companies |
+| GET | `/companies/{slug}` | Company profile with products |
+| POST | `/companies/{company}/follow` | Follow/unfollow company |
 
 ### Cart
 
