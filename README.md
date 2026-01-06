@@ -118,7 +118,62 @@ Separate dashboard for sellers to manage their own products with limited access.
 - Node.js 18+ with npm
 - MySQL 8.0+ / PostgreSQL 14+ / SQLite
 
-### Quick Setup
+**Or use Docker** (recommended for quick start):
+- Docker & Docker Compose
+
+---
+
+### 🐳 Docker Installation (Recommended)
+
+The fastest way to get started:
+
+```bash
+# Clone and enter directory
+git clone <repository-url>
+cd filament-test
+
+# Copy Docker environment
+cp .env.docker .env
+
+# Build and start everything
+make init
+```
+
+This will:
+1. Build PHP 8.3 container with all extensions
+2. Start MySQL 8.0 and Redis containers
+3. Install Composer dependencies
+4. Generate app key and run migrations
+5. Build frontend assets
+
+**Access the app at:** http://localhost:8080
+
+#### Docker Commands
+
+| Command | Description |
+|---------|-------------|
+| `make up` | Start all containers |
+| `make down` | Stop all containers |
+| `make shell` | Open shell in app container |
+| `make logs` | View container logs |
+| `make test` | Run tests |
+| `make fresh` | Fresh migration with seeders |
+| `make mysql` | Open MySQL CLI |
+| `make redis` | Open Redis CLI |
+| `make pint` | Run code style fixer |
+
+#### Docker Services
+
+| Service | Port | Description |
+|---------|------|-------------|
+| **nginx** | 8080 | Web server |
+| **mysql** | 3306 | Database |
+| **redis** | 6379 | Cache & sessions |
+| **queue** | — | Background jobs |
+
+---
+
+### Quick Setup (without Docker)
 
 ```bash
 # Clone and enter directory
