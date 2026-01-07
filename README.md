@@ -7,7 +7,8 @@
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![Filament](https://img.shields.io/badge/Filament-3.2-FDAE4B?style=for-the-badge&logo=laravel&logoColor=white)](https://filamentphp.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
-[![Tests](https://img.shields.io/badge/Tests-84%20passed-22C55E?style=for-the-badge&logo=phpunit&logoColor=white)](#-testing)
+[![Tests](https://img.shields.io/badge/Tests-Passing-22C55E?style=for-the-badge&logo=phpunit&logoColor=white)](#-testing)
+[![Code Style](https://img.shields.io/badge/Code%20Style-PSR--12-8A2BE2?style=for-the-badge)](#-development)
 
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=flat-square&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
@@ -50,6 +51,8 @@
 | **Reviews & Ratings** | Submit product reviews with moderation system |
 | **Order Tracking** | Track order status by order number |
 | **Recently Viewed** | Quick access to previously viewed products |
+| **User Settings** | Comprehensive settings page (Profile, Orders, Addresses, Security, Notifications) |
+| **Two-Factor Auth** | Email-based 2FA for enhanced account security |
 
 ### 🎛️ Admin Panel (Filament)
 
@@ -61,9 +64,10 @@
 | **Customers** | User management, account details |
 | **Coupons** | Fixed/percentage discounts, validity periods, usage limits |
 | **Reviews** | Moderate customer reviews (approve/reject) |
-| **Tickets** | Customer support with real-time chat |
+| **Tickets** | Customer support with **real-time chat** (3s polling), file uploads, image previews |
 | **Refunds** | Process refund requests with status history |
 | **Import Jobs** | Monitor bulk product imports with error tracking |
+| **Users** | Role management (Super Admin only can assign Admin/Seller roles) |
 
 ### 👨‍💼 Seller Panel
 
@@ -73,6 +77,7 @@ Dedicated dashboard for sellers to manage their companies and products:
 |---------|-------------|
 | **Company Profile** | Create and manage your company (name, description, logo, banner) |
 | **Products** | Full product management with automatic company assignment |
+| **Orders** | View and manage company orders with status updates |
 | **Public Storefront** | Customers can visit `/companies/{slug}` to see company profile |
 | **Followers** | Customers can follow companies to stay updated |
 
@@ -86,16 +91,27 @@ Dedicated dashboard for sellers to manage their companies and products:
 | **Verified Badge** | Admins can verify trusted companies |
 | **Product Ownership** | All products belong to a specific company |
 
-### 🔔 System Features
+### � Role System
+
+| Role | Capabilities |
+|------|-------------|
+| **Super Admin** | Full system access, assign Admin/Seller roles, manage all resources |
+| **Admin** | Manage tickets, orders, products, moderate reviews, verify companies |
+| **Seller** | Manage own company, products, and company orders |
+| **User** | Browse products, place orders, submit tickets, manage profile |
+
+### �🔔 System Features
 
 | Feature | Description |
 |---------|-------------|
-| **Notifications** | In-app and email notifications for order updates |
-| **Support Tickets** | Built-in ticketing with file attachments |
+| **Real-time Notifications** | In-app notifications with live polling (30s), email notifications via SMTP |
+| **Support Tickets** | Real-time chat system with file attachments, image previews, AJAX messaging |
 | **Activity Log** | Track user actions across the platform |
+| **Role-based Access** | Super Admin, Admin, Seller, User with granular permissions |
 | **Multi-language** | English, Russian, Latvian (en, ru, lv) |
 | **PDF Invoices** | Generate downloadable invoices (DomPDF) |
 | **Dark/Light Theme** | User preference for theme switching |
+| **Email Integration** | Gmail/Yandex SMTP support for real email delivery |
 
 ---
 
@@ -284,12 +300,22 @@ Access the admin panel at `/admin` after logging in with an admin account.
 | **Companies** | Verify/unverify seller companies, moderate company profiles |
 | **Orders** | View order details, update status, view status history |
 | **Order Statuses** | Define custom order statuses |
-| **Users** | Manage customer accounts |
+| **Users** | Manage customer accounts, assign roles (Super Admin only) |
 | **Coupons** | Create discount codes (fixed/percentage), set validity, usage limits |
 | **Customer Reviews** | Approve/reject product reviews |
-| **Tickets** | Respond to support tickets, change status |
+| **Tickets** | **Real-time chat** with customers, file uploads, auto-refresh every 3s |
 | **Refund Requests** | Process customer refund requests |
 | **Import Jobs** | Monitor CSV imports, download failed rows |
+
+### Seller Panel Features
+
+Access at `/seller` for users with Seller role:
+
+| Resource | Features |
+|----------|----------|
+| **Company** | Create/edit company profile, upload logo and banner |
+| **Products** | Manage company products with automatic ownership |
+| **Orders** | View and update company order statuses |
 
 ---
 
@@ -350,7 +376,18 @@ Access the admin panel at `/admin` after logging in with an admin account.
 | GET | `/support` | List tickets |
 | POST | `/support` | Create ticket |
 | GET | `/support/{ticket}` | View ticket |
-| POST | `/support/{ticket}/reply` | Reply to ticket |
+| POST | `/support/{ticket}/reply` | Reply to ticket (AJAX) |
+| GET | `/support/{ticket}/check-new-messages` | Poll for new messages (3s) |
+
+### Notifications
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/notifications` | View all notifications |
+| GET | `/notifications/count` | Get unread count (30s polling) |
+| POST | `/notifications/{id}/read` | Mark as read |
+| POST | `/notifications/mark-all-read` | Mark all as read |
+| DELETE | `/notifications/{id}` | Delete notification |
 
 ---
 
@@ -412,12 +449,20 @@ DB_PASSWORD=
 # Queue (required for imports & notifications)
 QUEUE_CONNECTION=database
 
-# Mail
+# Mail (Gmail SMTP for production)
 MAIL_MAILER=smtp
-MAIL_HOST=mailpit
-MAIL_PORT=1025
-MAIL_FROM_ADDRESS="shop@example.com"
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-16-digit-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="your-email@gmail.com"
 MAIL_FROM_NAME="${APP_NAME}"
+
+# Alternative: Yandex Mail
+# MAIL_HOST=smtp.yandex.ru
+# MAIL_PORT=465
+# MAIL_ENCRYPTION=ssl
 
 # Session & Cache
 SESSION_DRIVER=database
@@ -438,6 +483,31 @@ php artisan queue:work
 # Or use the dev script which includes queue
 composer dev
 ```
+
+### Email Configuration
+
+For **real email delivery** (even from localhost):
+
+#### Gmail Setup:
+1. Enable 2-Step Verification: https://myaccount.google.com/security
+2. Generate App Password: https://myaccount.google.com/apppasswords
+3. Update `.env`:
+   ```env
+   MAIL_MAILER=smtp
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME=your-email@gmail.com
+   MAIL_PASSWORD=your-16-digit-app-password
+   MAIL_ENCRYPTION=tls
+   ```
+4. Run: `php artisan config:clear`
+
+#### Notifications Sent:
+- Order status changes
+- New ticket replies
+- Ticket status updates
+- Password resets
+- Email verification
 
 ### Language Configuration
 
