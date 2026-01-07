@@ -9,6 +9,7 @@ return [
     'new_status_label' => 'Jaunais statuss: :status',
     'track_order_action' => 'Izsekot pasūtījumu',
     'thank_you_order' => 'Paldies par jūsu pasūtījumu!',
+    'order_status_message' => 'Pasūtījuma #:order_number statuss mainīts uz :status',
 
     // Ticket notifications
     'ticket_created_subject' => 'Izveidots jauns atbalsta pieteikums',
@@ -46,6 +47,7 @@ return [
     'delete' => 'Dzēst',
     'delete_all' => 'Dzēst visus',
     'view_order' => 'Skatīt pasūtījumu',
+    'view' => 'Skatīt',
     'browse_products' => 'Pārlūkot produktus',
     'no_message' => 'Ziņojums nav pieejams',
 

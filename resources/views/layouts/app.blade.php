@@ -108,11 +108,49 @@
                 notifications: [],
                 loading: false,
                 loaded: false,
+                pollingInterval: null,
+                
+                init() {
+                    // Fetch initial count on page load
+                    this.fetchNotificationsCount();
+                    
+                    // Start polling every 30 seconds
+                    this.pollingInterval = setInterval(() => {
+                        this.fetchNotificationsCount();
+                    }, 30000);
+                },
+                
+                destroy() {
+                    if (this.pollingInterval) {
+                        clearInterval(this.pollingInterval);
+                    }
+                },
                 
                 toggle() {
                     this.open = !this.open;
                     if (this.open && !this.loaded) {
                         this.fetchNotifications();
+                    }
+                },
+                
+                async fetchNotificationsCount() {
+                    try {
+                        const response = await fetch('/notifications/count', {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            const oldCount = Alpine.store('global').notificationsCount;
+                            const newCount = data.count || 0;
+                            Alpine.store('global').notificationsCount = newCount;
+                            
+                            // If we have new notifications and dropdown was already loaded, refresh it
+                            if (newCount > oldCount && this.loaded) {
+                                this.fetchNotifications();
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch notifications count:', error);
                     }
                 },
                 
@@ -173,14 +211,15 @@
                 
                 getNotificationUrl(notification) {
                     const data = notification.data || {};
+                    // Используем url если он есть (приоритет)
+                    if (data.url) {
+                        return data.url;
+                    }
                     if (data.ticket_id) {
                         return '/support/' + data.ticket_id;
                     }
-                    if (data.order_id) {
-                        return '/track-order/' + data.order_id;
-                    }
-                    if (data.url) {
-                        return data.url;
+                    if (data.order_number) {
+                        return '/track-order/' + data.order_number;
                     }
                     return '#';
                 },

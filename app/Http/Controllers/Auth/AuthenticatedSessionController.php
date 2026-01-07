@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\LoginHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,11 @@ class AuthenticatedSessionController extends Controller
         $user = User::where('email', $credentials['email'])->first();
 
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            // Log failed login attempt if user exists
+            if ($user) {
+                LoginHistory::recordLogin($user, $request->ip(), $request->userAgent(), false);
+            }
+            
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
@@ -43,6 +49,9 @@ class AuthenticatedSessionController extends Controller
 
         // No 2FA - log in directly
         Auth::login($user, $request->boolean('remember'));
+        
+        // Record successful login
+        LoginHistory::recordLogin($user, $request->ip(), $request->userAgent(), true);
 
         $request->session()->regenerate();
 

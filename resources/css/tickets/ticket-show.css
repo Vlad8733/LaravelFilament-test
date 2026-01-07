@@ -385,6 +385,27 @@
     margin-top: 2px;
 }
 
+/* --- Attachment Image Preview --- */
+.attachment-image-link {
+    display: block;
+    margin-top: 8px;
+}
+
+.attachment-image-preview {
+    max-width: 300px;
+    max-height: 200px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.attachment-image-preview:hover {
+    transform: scale(1.02);
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
 /* --- Reply Form --- */
 .reply-form {
     border-top: 1px solid var(--border);

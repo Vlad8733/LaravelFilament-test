@@ -47,6 +47,12 @@ return [
     'free' => 'BEZMAKSAS',
     'total' => 'Kopā',
     'place_order' => 'Veikt pasūtījumu',
+    'select_saved_address' => 'Izvēlieties saglabātu adresi',
+    'use_new_address' => 'Izmantot jaunu adresi',
+    'default' => 'Noklusējuma',
+    'select_saved_card' => 'Izvēlieties saglabātu karti',
+    'use_new_card' => 'Izmantot jaunu karti',
+    'expires' => 'Derīgs līdz',
 
     // Payment modal
     'payment_modal_title' => 'Apmaksas apstrāde',

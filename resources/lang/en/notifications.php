@@ -9,6 +9,7 @@ return [
     'new_status_label' => 'New Status: :status',
     'track_order_action' => 'Track Your Order',
     'thank_you_order' => 'Thank you for your order!',
+    'order_status_message' => 'Order #:order_number status changed to :status',
 
     // Ticket notifications
     'ticket_created_subject' => 'New Support Ticket Created',
@@ -46,6 +47,7 @@ return [
     'delete' => 'Delete',
     'delete_all' => 'Delete all',
     'view_order' => 'View Order',
+    'view' => 'View',
     'browse_products' => 'Browse Products',
     'no_message' => 'No message available',
 

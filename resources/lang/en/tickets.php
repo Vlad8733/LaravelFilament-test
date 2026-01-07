@@ -52,6 +52,8 @@ return [
     'close_ticket' => 'Close Ticket',
     'reopen_ticket' => 'Reopen Ticket',
     'send_reply' => 'Send Reply',
+    'sending' => 'Sending...',
+    'send_error' => 'Failed to send message',
     'reply_placeholder' => 'Type your reply here...',
 
     // Messages

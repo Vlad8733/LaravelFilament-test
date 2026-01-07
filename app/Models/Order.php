@@ -85,13 +85,23 @@ class Order extends Model
             'changed_at' => now(),
         ]);
 
-        // Отправка email уведомления (опционально)
+        // Отправка уведомлений при смене статуса
         if ($oldStatusId !== $statusId) {
+            // Отправка in-app уведомления пользователю (если есть user_id)
+            if ($this->user_id && $this->user) {
+                try {
+                    $this->user->notify(new \App\Notifications\OrderStatusChanged($this));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to send in-app order notification: '.$e->getMessage());
+                }
+            }
+            
+            // Отправка email уведомления
             try {
                 \Illuminate\Support\Facades\Notification::route('mail', $this->customer_email)
                     ->notify(new \App\Notifications\OrderStatusChanged($this));
             } catch (\Exception $e) {
-                \Log::warning('Failed to send order status notification: '.$e->getMessage());
+                \Log::warning('Failed to send order email notification: '.$e->getMessage());
             }
         }
 

@@ -52,6 +52,8 @@ return [
     'close_ticket' => 'Закрыть обращение',
     'reopen_ticket' => 'Открыть снова',
     'send_reply' => 'Отправить',
+    'sending' => 'Отправка...',
+    'send_error' => 'Ошибка отправки сообщения',
     'reply_placeholder' => 'Введите ваше сообщение...',
 
     // Messages

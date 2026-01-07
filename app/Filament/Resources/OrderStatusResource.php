@@ -82,13 +82,10 @@ class OrderStatusResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                //
             ]);
     }
 
@@ -97,7 +94,7 @@ class OrderStatusResource extends Resource
         return [
             'index' => Pages\ListOrderStatuses::route('/'),
             'create' => Pages\CreateOrderStatus::route('/create'),
-            'edit' => Pages\EditOrderStatus::route('/{record}/edit'),
+            'view' => Pages\ViewOrderStatus::route('/{record}'),
         ];
     }
 }

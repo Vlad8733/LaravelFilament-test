@@ -215,4 +215,52 @@ class TicketController extends Controller
 
         return back()->with('success', 'Ticket reopened');
     }
+    
+    /**
+     * Check for new messages (for real-time polling)
+     */
+    public function checkNewMessages(Request $request, Ticket $ticket)
+    {
+        if ($ticket->user_id !== Auth::id()) {
+            abort(403);
+        }
+        
+        $afterId = $request->get('after', 0);
+        
+        $messages = $ticket->messages()
+            ->where('id', '>', $afterId)
+            ->with(['user', 'attachments'])
+            ->orderBy('id', 'asc')
+            ->get()
+            ->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'message' => $message->message,
+                    'is_admin_reply' => $message->is_admin_reply,
+                    'user_name' => $message->user->name,
+                    'user_avatar' => $message->user->avatar 
+                        ? asset('storage/' . $message->user->avatar)
+                        : 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($message->user->email))) . '?s=80&d=identicon',
+                    'created_at' => $message->created_at->diffForHumans(),
+                    'attachments' => $message->attachments->map(function ($att) {
+                        $isImage = str_starts_with($att->file_type ?? '', 'image/');
+                        return [
+                            'file_name' => $att->file_name,
+                            'file_size' => $att->human_readable_size ?? '',
+                            'url' => asset('storage/' . $att->file_path),
+                            'is_image' => $isImage,
+                        ];
+                    }),
+                ];
+            });
+            
+        // Mark admin messages as read
+        $ticket->messages()
+            ->where('id', '>', $afterId)
+            ->where('is_admin_reply', true)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+        
+        return response()->json(['messages' => $messages]);
+    }
 }

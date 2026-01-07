@@ -115,6 +115,61 @@
                             {{ __('checkout.shipping_info') }}
                         </h2>
                         
+                        @if($savedAddresses->count() > 0)
+                            <!-- Saved Addresses Selection -->
+                            <div class="saved-addresses-section">
+                                <label class="form-label">{{ __('checkout.select_saved_address') }}</label>
+                                <div class="saved-addresses-list">
+                                    @foreach($savedAddresses as $address)
+                                        <label class="saved-address-option {{ $address->is_default ? 'selected' : '' }}">
+                                            <input type="radio" name="saved_address" value="{{ $address->id }}" 
+                                                   data-name="{{ $address->full_name }}"
+                                                   data-phone="{{ $address->phone }}"
+                                                   data-address="{{ $address->address_line_1 }}{{ $address->address_line_2 ? ', ' . $address->address_line_2 : '' }}, {{ $address->city }}, {{ $address->state }} {{ $address->postal_code }}, {{ $address->country }}"
+                                                   {{ $address->is_default ? 'checked' : '' }}>
+                                            <div class="saved-address-content">
+                                                <div class="saved-address-label">
+                                                    {{ $address->label }}
+                                                    @if($address->is_default)
+                                                        <span class="default-badge">{{ __('checkout.default') }}</span>
+                                                    @endif
+                                                </div>
+                                                <div class="saved-address-name">{{ $address->full_name }}</div>
+                                                <div class="saved-address-details">
+                                                    {{ $address->address_line_1 }}{{ $address->address_line_2 ? ', ' . $address->address_line_2 : '' }}<br>
+                                                    {{ $address->city }}, {{ $address->state }} {{ $address->postal_code }}
+                                                </div>
+                                            </div>
+                                            <div class="saved-address-check">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                            </div>
+                                        </label>
+                                    @endforeach
+                                    <label class="saved-address-option new-address-option">
+                                        <input type="radio" name="saved_address" value="new">
+                                        <div class="saved-address-content">
+                                            <div class="saved-address-label">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                </svg>
+                                                {{ __('checkout.use_new_address') }}
+                                            </div>
+                                        </div>
+                                        <div class="saved-address-check">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- New Address Form (hidden by default when saved addresses exist) -->
+                            <div id="newAddressForm" class="new-address-form" style="display: none;">
+                        @endif
+                        
                         <div class="form-group">
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                                 <div>
@@ -122,7 +177,7 @@
                                     <input type="text" 
                                            id="customerName"
                                            placeholder="{{ __('checkout.full_name_placeholder') }}"
-                                           required 
+                                           {{ $savedAddresses->count() > 0 ? '' : 'required' }}
                                            class="form-input">
                                 </div>
                                 <div>
@@ -131,7 +186,8 @@
                                            id="customerEmail"
                                            placeholder="{{ __('checkout.email_placeholder') }}"
                                            required 
-                                           class="form-input">
+                                           class="form-input"
+                                           value="{{ auth()->user()->email ?? '' }}">
                                 </div>
                             </div>
                         </div>
@@ -140,10 +196,14 @@
                             <label class="form-label">{{ __('checkout.shipping_address') }}</label>
                             <textarea id="shippingAddress"
                                       placeholder="{{ __('checkout.address_placeholder') }}"
-                                      required 
+                                      {{ $savedAddresses->count() > 0 ? '' : 'required' }}
                                       rows="3" 
                                       class="form-input"></textarea>
                         </div>
+                        
+                        @if($savedAddresses->count() > 0)
+                            </div>
+                        @endif
 
                         <div class="form-group">
                             <label class="form-label">{{ __('checkout.notes') }}</label>
@@ -185,6 +245,73 @@
 
                         <!-- Body -->
                         <div class="modal-body">
+                            @if($savedPaymentMethods->count() > 0)
+                                <!-- Saved Payment Methods -->
+                                <div class="saved-payments-section">
+                                    <label class="form-label">{{ __('checkout.select_saved_card') }}</label>
+                                    <div class="saved-payments-list">
+                                        @foreach($savedPaymentMethods as $method)
+                                            <label class="saved-payment-option {{ $method->is_default ? 'selected' : '' }}">
+                                                <input type="radio" name="saved_payment" value="{{ $method->id }}" 
+                                                       data-last-four="{{ $method->last_four }}"
+                                                       data-brand="{{ $method->brand }}"
+                                                       {{ $method->is_default ? 'checked' : '' }}>
+                                                <div class="saved-payment-icon">
+                                                    @if($method->brand === 'visa')
+                                                        <svg viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <rect width="50" height="35" rx="4" fill="#1A1F71"/>
+                                                            <path d="M21.5 23H18.5L20.5 12H23.5L21.5 23ZM16.5 12L13.7 19.7L13.4 18.4L12.5 13.3C12.5 13.3 12.4 12 10.8 12H6.1L6 12.2C6 12.2 7.8 12.6 9.9 13.9L12.5 23H15.6L19.7 12H16.5ZM37 23H39.5L37.4 12H35C33.7 12 33.4 13 33.4 13L29 23H32.1L32.7 21.3H36.5L37 23ZM33.5 19L35.2 14.4L36.2 19H33.5ZM30.6 15.3L31 13.1C31 13.1 29.2 12.4 27.3 12.4C25.2 12.4 20.6 13.3 20.6 17.4C20.6 21.3 25.9 21.3 25.9 23.3C25.9 25.3 21.2 24.8 19.5 23.5L19.1 25.8C19.1 25.8 20.9 26.6 23.5 26.6C26.1 26.6 30.5 25.2 30.5 21.5C30.5 17.6 25.2 17.3 25.2 15.6C25.2 13.9 28.9 14.1 30.6 15.3Z" fill="white"/>
+                                                        </svg>
+                                                    @elseif($method->brand === 'mastercard')
+                                                        <svg viewBox="0 0 50 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <rect width="50" height="35" rx="4" fill="#000"/>
+                                                            <circle cx="19" cy="17.5" r="8" fill="#EB001B"/>
+                                                            <circle cx="31" cy="17.5" r="8" fill="#F79E1B"/>
+                                                            <path d="M25 11.5C26.9 13 28.1 15.1 28.1 17.5C28.1 19.9 26.9 22 25 23.5C23.1 22 21.9 19.9 21.9 17.5C21.9 15.1 23.1 13 25 11.5Z" fill="#FF5F00"/>
+                                                        </svg>
+                                                    @else
+                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                                        </svg>
+                                                    @endif
+                                                </div>
+                                                <div class="saved-payment-content">
+                                                    <div class="saved-payment-number">•••• {{ $method->last_four }}</div>
+                                                    <div class="saved-payment-meta">{{ $method->holder_name }} • {{ __('checkout.expires') }} {{ $method->expiry_month }}/{{ $method->expiry_year }}</div>
+                                                    @if($method->is_default)
+                                                        <span class="default-badge small">{{ __('checkout.default') }}</span>
+                                                    @endif
+                                                </div>
+                                                <div class="saved-payment-check">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                    </svg>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                        <label class="saved-payment-option new-card-option">
+                                            <input type="radio" name="saved_payment" value="new">
+                                            <div class="saved-payment-icon">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                </svg>
+                                            </div>
+                                            <div class="saved-payment-content">
+                                                <div class="saved-payment-number">{{ __('checkout.use_new_card') }}</div>
+                                            </div>
+                                            <div class="saved-payment-check">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- New Card Form (hidden by default) -->
+                                <div id="newCardForm" class="new-card-form" style="display: none;">
+                            @endif
+                            
                             <!-- Payment Method Selection -->
                             <div class="payment-options" style="margin-bottom: 24px;">
                                 <label class="payment-option active">
@@ -245,6 +372,10 @@
                                        placeholder="{{ __('checkout.cardholder_placeholder') }}"
                                        class="form-input">
                             </div>
+                            
+                            @if($savedPaymentMethods->count() > 0)
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Footer -->

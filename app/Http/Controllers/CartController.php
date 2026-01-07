@@ -209,8 +209,13 @@ class CartController extends Controller
         $total = $subtotal - $discount;
 
         $cartCount = $cartItems->sum('quantity');
+        
+        // Get saved addresses and payment methods
+        $user = Auth::user();
+        $savedAddresses = $user->addresses()->orderByDesc('is_default')->get();
+        $savedPaymentMethods = $user->paymentMethods()->orderByDesc('is_default')->get();
 
-        return view('checkout.index', compact('cartItems', 'subtotal', 'discount', 'total', 'cartCount'));
+        return view('checkout.index', compact('cartItems', 'subtotal', 'discount', 'total', 'cartCount', 'savedAddresses', 'savedPaymentMethods'));
     }
 
     // Place order
@@ -285,6 +290,7 @@ class CartController extends Controller
             // Создаём заказ
             $order = Order::create([
                 'order_number' => 'ORD-'.strtoupper(uniqid()),
+                'user_id' => auth()->id(),
                 'order_status_id' => $pendingStatus ? $pendingStatus->id : null,
                 'customer_name' => $request->name,
                 'customer_email' => $request->email,

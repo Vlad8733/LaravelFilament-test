@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LoginHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PragmaRX\Google2FA\Google2FA;
@@ -71,6 +72,9 @@ class TwoFactorChallengeController extends Controller
         $request->session()->forget(['2fa:user:id', '2fa:user:remember']);
 
         Auth::login($user, $remember);
+        
+        // Record successful login with 2FA
+        LoginHistory::recordLogin($user, $request->ip(), $request->userAgent(), true);
 
         $request->session()->regenerate();
 

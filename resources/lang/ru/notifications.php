@@ -9,6 +9,7 @@ return [
     'new_status_label' => 'Новый статус: :status',
     'track_order_action' => 'Отследить заказ',
     'thank_you_order' => 'Спасибо за ваш заказ!',
+    'order_status_message' => 'Статус заказа #:order_number изменён на :status',
 
     // Ticket notifications
     'ticket_created_subject' => 'Создан новый тикет поддержки',
@@ -45,8 +46,7 @@ return [
     'mark_all_read' => 'Отметить все как прочитанные',
     'delete' => 'Удалить',
     'delete_all' => 'Удалить все',
-    'view_order' => 'Посмотреть заказ',
-    'browse_products' => 'Смотреть товары',
+    'view_order' => 'Посмотреть заказ',    'view' => 'Посмотреть',    'browse_products' => 'Смотреть товары',
     'no_message' => 'Сообщение отсутствует',
 
     // Filters

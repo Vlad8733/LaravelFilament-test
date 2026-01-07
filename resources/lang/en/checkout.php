@@ -28,6 +28,9 @@ return [
     'notes' => 'Notes (Optional)',
     'notes_placeholder' => 'Add delivery instructions...',
     'place_order' => 'Place Order',
+    'select_saved_address' => 'Select a saved address',
+    'use_new_address' => 'Use a new address',
+    'default' => 'Default',
 
     // Payment Modal
     'payment_info' => 'Payment Information',
@@ -46,6 +49,9 @@ return [
     'cancel' => 'Cancel',
     'pay' => 'Pay',
     'processing' => 'Processing...',
+    'select_saved_card' => 'Select a saved card',
+    'use_new_card' => 'Use a new card',
+    'expires' => 'Expires',
 
     // Messages
     'order_success' => 'Order placed successfully!',

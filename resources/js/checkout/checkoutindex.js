@@ -101,12 +101,30 @@ if (typeof window !== 'undefined') {
 
 // ГЛОБАЛЬНЫЕ ФУНКЦИИ ДЛЯ onclick:
 window.openPaymentModal = function() {
-    const name = document.getElementById('customerName').value;
-    const email = document.getElementById('customerEmail').value;
-    const address = document.getElementById('shippingAddress').value;
+    const savedAddressRadio = document.querySelector('input[name="saved_address"]:checked');
+    const newAddressForm = document.getElementById('newAddressForm');
     
-    if (!name || !email || !address) {
-        alert('Please fill in all shipping information');
+    let name, email, address;
+    
+    if (savedAddressRadio && savedAddressRadio.value !== 'new') {
+        // Using saved address
+        name = savedAddressRadio.dataset.name;
+        address = savedAddressRadio.dataset.address;
+        email = document.getElementById('customerEmail').value;
+    } else {
+        // Using new address
+        name = document.getElementById('customerName').value;
+        email = document.getElementById('customerEmail').value;
+        address = document.getElementById('shippingAddress').value;
+        
+        if (!name || !email || !address) {
+            alert(window.checkoutTranslations?.fill_required || 'Please fill in all shipping information');
+            return;
+        }
+    }
+    
+    if (!email) {
+        alert(window.checkoutTranslations?.fill_required || 'Please fill in your email');
         return;
     }
     
@@ -124,14 +142,20 @@ window.submitOrder = async function() {
     
     if (payButton.disabled) return;
     
-    const cardNumber = document.getElementById('cardNumber').value;
-    const cardExpiry = document.getElementById('cardExpiry').value;
-    const cardCvv = document.getElementById('cardCvv').value;
-    const cardName = document.getElementById('cardName').value;
+    // Check if using saved payment or new card
+    const savedPaymentRadio = document.querySelector('input[name="saved_payment"]:checked');
+    const usingSavedPayment = savedPaymentRadio && savedPaymentRadio.value !== 'new';
     
-    if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
-        alert('Please fill in all card details');
-        return;
+    if (!usingSavedPayment) {
+        const cardNumber = document.getElementById('cardNumber').value;
+        const cardExpiry = document.getElementById('cardExpiry').value;
+        const cardCvv = document.getElementById('cardCvv').value;
+        const cardName = document.getElementById('cardName').value;
+        
+        if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
+            alert(window.checkoutTranslations?.fill_card_details || 'Please fill in all card details');
+            return;
+        }
     }
     
     payButton.disabled = true;
@@ -141,11 +165,26 @@ window.submitOrder = async function() {
     try {
         const formData = new FormData();
         formData.append('_token', document.querySelector('input[name="_token"]').value);
-        formData.append('name', document.getElementById('customerName').value);
+        
+        // Get address info
+        const savedAddressRadio = document.querySelector('input[name="saved_address"]:checked');
+        if (savedAddressRadio && savedAddressRadio.value !== 'new') {
+            formData.append('name', savedAddressRadio.dataset.name);
+            formData.append('address', savedAddressRadio.dataset.address);
+            formData.append('saved_address_id', savedAddressRadio.value);
+        } else {
+            formData.append('name', document.getElementById('customerName').value);
+            formData.append('address', document.getElementById('shippingAddress').value);
+        }
+        
         formData.append('email', document.getElementById('customerEmail').value);
-        formData.append('address', document.getElementById('shippingAddress').value);
         formData.append('notes', document.getElementById('notes').value || '');
         formData.append('payment_method', 'fake');
+        
+        // Add saved payment method if used
+        if (usingSavedPayment) {
+            formData.append('saved_payment_id', savedPaymentRadio.value);
+        }
         
         const response = await fetch('/checkout', {
             method: 'POST',
@@ -174,5 +213,57 @@ window.submitOrder = async function() {
         processingText.classList.add('hidden');
     }
 };
+
+// Handle saved address selection
+document.addEventListener('DOMContentLoaded', function() {
+    const savedAddressInputs = document.querySelectorAll('input[name="saved_address"]');
+    const newAddressForm = document.getElementById('newAddressForm');
+    
+    savedAddressInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Update selection styling
+            document.querySelectorAll('.saved-address-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.closest('.saved-address-option').classList.add('selected');
+            
+            // Show/hide new address form
+            if (newAddressForm) {
+                if (this.value === 'new') {
+                    newAddressForm.style.display = 'block';
+                    document.getElementById('customerName').setAttribute('required', 'required');
+                    document.getElementById('shippingAddress').setAttribute('required', 'required');
+                } else {
+                    newAddressForm.style.display = 'none';
+                    document.getElementById('customerName').removeAttribute('required');
+                    document.getElementById('shippingAddress').removeAttribute('required');
+                }
+            }
+        });
+    });
+    
+    // Handle saved payment selection
+    const savedPaymentInputs = document.querySelectorAll('input[name="saved_payment"]');
+    const newCardForm = document.getElementById('newCardForm');
+    
+    savedPaymentInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Update selection styling
+            document.querySelectorAll('.saved-payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.closest('.saved-payment-option').classList.add('selected');
+            
+            // Show/hide new card form
+            if (newCardForm) {
+                if (this.value === 'new') {
+                    newCardForm.style.display = 'block';
+                } else {
+                    newCardForm.style.display = 'none';
+                }
+            }
+        });
+    });
+});
 
 // Checkout JS loaded

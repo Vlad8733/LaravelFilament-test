@@ -31,13 +31,15 @@ class OrderResource extends Resource
                             ->dehydrated()
                             ->maxLength(255),
 
-                        // ДОБАВЛЯЕМ СТАТУС
+                        // СТАТУС - только для просмотра в админке
                         Forms\Components\Select::make('order_status_id')
                             ->relationship('status', 'name')
                             ->required()
                             ->default(fn () => \App\Models\OrderStatus::pending()?->id)
                             ->native(false)
-                            ->preload(),
+                            ->preload()
+                            ->disabled()
+                            ->dehydrated(),
 
                         // ДОБАВЛЯЕМ TRACKING NUMBER
                         Forms\Components\TextInput::make('tracking_number')
@@ -168,34 +170,6 @@ class OrderResource extends Resource
                     ->label('Order Status'),
             ])
             ->actions([
-                // ДОБАВЛЯЕМ ACTION ДЛЯ СМЕНЫ СТАТУСА
-                Tables\Actions\Action::make('change_status')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('warning')
-                    ->form([
-                        Forms\Components\Select::make('order_status_id')
-                            ->label('New Status')
-                            ->options(\App\Models\OrderStatus::where('is_active', true)->pluck('name', 'id'))
-                            ->required()
-                            ->native(false),
-                        Forms\Components\Textarea::make('notes')
-                            ->rows(3)
-                            ->placeholder('Add notes about this status change...'),
-                    ])
-                    ->action(function (array $data, $record): void {
-                        $record->updateStatus(
-                            $data['order_status_id'],
-                            $data['notes'] ?? null,
-                            auth()->id()
-                        );
-
-                        \Filament\Notifications\Notification::make()
-                            ->success()
-                            ->title('Status Updated')
-                            ->body('Order status has been changed successfully.')
-                            ->send();
-                    }),
-
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])

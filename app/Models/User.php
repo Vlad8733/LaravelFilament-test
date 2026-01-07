@@ -40,6 +40,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'is_seller',
         'username',
         'locale',
+        'newsletter_subscribed',
+        'newsletter_subscribed_at',
     ];
 
     protected $hidden = [
@@ -57,6 +59,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'is_seller' => 'boolean',
             'two_factor_enabled' => 'boolean',
             'two_factor_confirmed_at' => 'datetime',
+            'newsletter_subscribed' => 'boolean',
+            'newsletter_subscribed_at' => 'datetime',
         ];
     }
 
@@ -271,6 +275,54 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function reviews(): HasMany
     {
         return $this->hasMany(CustomerReview::class);
+    }
+
+    /**
+     * История входов пользователя
+     */
+    public function loginHistories(): HasMany
+    {
+        return $this->hasMany(LoginHistory::class);
+    }
+
+    /**
+     * Адреса доставки пользователя
+     */
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    /**
+     * Адрес по умолчанию
+     */
+    public function defaultAddress(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(UserAddress::class)->where('is_default', true);
+    }
+
+    /**
+     * Способы оплаты пользователя
+     */
+    public function paymentMethods(): HasMany
+    {
+        return $this->hasMany(PaymentMethod::class);
+    }
+
+    /**
+     * Способ оплаты по умолчанию
+     */
+    public function defaultPaymentMethod(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(PaymentMethod::class)->where('is_default', true);
+    }
+
+    /**
+     * Связанные социальные аккаунты
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
     }
 
     /**

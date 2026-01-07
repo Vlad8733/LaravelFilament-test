@@ -46,6 +46,16 @@ class NotificationController extends Controller
     }
 
     /**
+     * Получить только количество непрочитанных уведомлений (для polling)
+     */
+    public function count()
+    {
+        return response()->json([
+            'count' => Auth::user()->unreadNotifications()->count(),
+        ]);
+    }
+
+    /**
      * Пометить уведомление как прочитанное
      */
     public function markAsRead($id)

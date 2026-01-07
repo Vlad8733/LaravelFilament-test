@@ -88,7 +88,11 @@ class TicketResource extends Resource
 
                         Forms\Components\Select::make('assigned_to')
                             ->label('Assigned To')
-                            ->relationship('assignedTo', 'name')
+                            ->options(function () {
+                                return \App\Models\User::where('role', 'admin')
+                                    ->orWhere('role', 'super_admin')
+                                    ->pluck('name', 'id');
+                            })
                             ->searchable()
                             ->preload()
                             ->placeholder('Unassigned'),

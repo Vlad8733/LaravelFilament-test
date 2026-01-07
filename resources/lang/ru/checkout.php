@@ -28,6 +28,9 @@ return [
     'notes' => 'Примечания (необязательно)',
     'notes_placeholder' => 'Добавьте инструкции по доставке...',
     'place_order' => 'Оформить заказ',
+    'select_saved_address' => 'Выберите сохранённый адрес',
+    'use_new_address' => 'Использовать новый адрес',
+    'default' => 'По умолчанию',
 
     // Payment Modal
     'payment_info' => 'Данные оплаты',
@@ -46,6 +49,9 @@ return [
     'cancel' => 'Отмена',
     'pay' => 'Оплатить',
     'processing' => 'Обработка...',
+    'select_saved_card' => 'Выберите сохранённую карту',
+    'use_new_card' => 'Использовать новую карту',
+    'expires' => 'Действует до',
 
     // Messages
     'order_success' => 'Заказ успешно оформлен!',
