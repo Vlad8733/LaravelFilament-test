@@ -50,4 +50,8 @@ return [
     'reset_password' => 'Сброс пароля',
     'new_password' => 'Новый пароль',
     'reset' => 'Сбросить пароль',
+
+    // Confirm password
+    'confirm_password_title' => 'Подтвердите пароль',
+    'confirm_password_btn' => 'Подтвердить',
 ];

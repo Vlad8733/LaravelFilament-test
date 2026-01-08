@@ -76,4 +76,11 @@ return [
     // Create form
     'create_title' => 'Izveidot jaunu pieteikumu',
     'create_subtitle' => 'Aprakstiet savu problēmu, un mēs jums atbildēsim pēc iespējas ātrāk.',
+
+    // Chat
+    'support' => 'Atbalsts',
+    'no_messages_yet' => 'Vēl nav ziņojumu',
+    'type_your_reply' => 'Ievadiet atbildi...',
+    'type_your_message' => 'Ievadiet ziņojumu...',
+    'attach_files' => 'Pievienot failus',
 ];

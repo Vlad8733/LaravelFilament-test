@@ -221,6 +221,16 @@ class Product extends Model
             ?? $this->images()->orderBy('sort_order')->first();
     }
 
+    public function getPrimaryImageUrlAttribute()
+    {
+        $primaryImage = $this->getPrimaryImage();
+        if (! $primaryImage) {
+            return asset('images/placeholder.png');
+        }
+
+        return asset('storage/'.$primaryImage->image_path);
+    }
+
     public function getImageGallery()
     {
         return $this->images()->orderBy('sort_order')->get();

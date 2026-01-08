@@ -6,6 +6,7 @@ use App\Filament\Resources\TicketResource;
 use App\Models\Ticket;
 use App\Notifications\TicketReplied;
 use Filament\Resources\Pages\Page;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithFileUploads;
 
@@ -24,6 +25,11 @@ class TicketChat extends Page
     public $attachments = [];
 
     public $messagesCount = 0;
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
 
     public function mount($record): void
     {

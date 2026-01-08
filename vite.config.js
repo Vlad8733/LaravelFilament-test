@@ -41,6 +41,7 @@ export default defineConfig({
                 'resources/css/products/productindex.css',
                 'resources/css/products/show.css',
                 'resources/js/products/productindex.js',
+                'resources/js/products/show.js',
                 // Pages
                 'resources/css/pages/pages.css',
                 // Tickets

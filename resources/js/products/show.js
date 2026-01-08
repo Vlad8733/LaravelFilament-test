@@ -353,6 +353,36 @@ document.addEventListener('alpine:init', () => {
 
 // Note: DOM fallback removed. All toasts are now dispatched via `app:toast` CustomEvent
 
+// Thumbnail gallery handler - must work immediately
+function initThumbnails() {
+    const thumbs = document.querySelectorAll('.thumb-btn');
+    if (thumbs.length === 0) return;
+    
+    thumbs.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const src = this.getAttribute('data-thumb-src');
+            if (!src) return;
+            
+            const mainImage = document.getElementById('main-product-image');
+            if (mainImage) {
+                mainImage.src = src;
+            }
+            
+            // Update active state
+            thumbs.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        }, { once: false });
+    });
+}
+
+// Initialize as soon as possible
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThumbnails);
+} else {
+    initThumbnails();
+}
+
 // Fallback DOM handlers so UI works even if Alpine isn't ready
 document.addEventListener('DOMContentLoaded', () => {
     // Try again after DOM is ready in case Alpine was loaded late
@@ -369,16 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
             qtyInput.dispatchEvent(new Event('input', { bubbles: true }));
         }
     }
-
-    // Thumbnail clicks -> update main image
-    document.querySelectorAll('.thumb-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const src = btn.getAttribute('data-thumb-src');
-            if (!src) return;
-            const main = document.getElementById('main-product-image');
-            if (main) main.src = src;
-        });
-    });
 
     // Quantity buttons fallback
     document.querySelectorAll('[data-qty-action]').forEach(btn => {

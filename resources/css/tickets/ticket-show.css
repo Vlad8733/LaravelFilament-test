@@ -82,7 +82,6 @@
     font-size: 0.938rem;
     color: var(--text-secondary);
     line-height: 1.7;
-    white-space: pre-wrap;
     padding: 20px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: var(--radius-md);

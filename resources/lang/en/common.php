@@ -34,4 +34,12 @@ return [
     'optional' => 'Optional',
     'required' => 'Required',
     'failed' => 'Failed',
+    'company' => 'Company',
+
+    // Product Chat
+    'seller' => 'Seller',
+    'no_messages_yet' => 'No messages yet',
+    'type_your_reply' => 'Type your reply...',
+    'attach_files' => 'Attach Files',
+    'send_reply' => 'Send Reply',
 ];

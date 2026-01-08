@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
-    <title>Confirm Password — ShopLy</title>
+    <title>{{ __('auth.confirm_password_title') }} — ShopLy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
@@ -29,25 +29,25 @@
     <div class="card">
         <div class="brand">
             <h1>ShopLy</h1>
-            <p>Confirm your password</p>
+            <p>{{ __('auth.confirm_password_title') }}</p>
         </div>
 
         <form method="POST" action="{{ route('password.confirm') }}">
             @csrf
 
             <div class="field">
-                <label for="password">Password</label>
+                <label for="password">{{ __('auth.password_field') }}</label>
                 <input id="password" name="password" type="password" required autofocus>
                 @error('password') <div class="error">{{ $message }}</div> @enderror
             </div>
 
             <div>
-                <button type="submit">Confirm password</button>
+                <button type="submit">{{ __('auth.confirm_password_btn') }}</button>
             </div>
         </form>
 
         <div class="footer">
-            <a href="{{ route('login') }}">Back to login</a>
+            <a href="{{ route('login') }}">{{ __('auth.back_to_login') }}</a>
         </div>
     </div>
 </body>

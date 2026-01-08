@@ -50,4 +50,8 @@ return [
     'reset_password' => 'Atiestatīt paroli',
     'new_password' => 'Jaunā parole',
     'reset' => 'Atiestatīt',
+
+    // Confirm password
+    'confirm_password_title' => 'Apstipriniet paroli',
+    'confirm_password_btn' => 'Apstiprināt paroli',
 ];

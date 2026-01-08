@@ -101,10 +101,7 @@
         .badge-status-resolved { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; }
         .badge-status-closed { background: rgba(161, 161, 170, 0.15); border: 1px solid rgba(161, 161, 170, 0.3); color: #a1a1aa; }
         
-        .badge-priority-low { background: rgba(161, 161, 170, 0.15); border: 1px solid rgba(161, 161, 170, 0.3); color: #a1a1aa; }
-        .badge-priority-medium { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; }
-        .badge-priority-high { background: rgba(249, 115, 22, 0.15); border: 1px solid rgba(249, 115, 22, 0.3); color: #f97316; }
-        .badge-priority-urgent { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
+        .badge-type-chat { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; }
         
         .ticket-customer {
             font-size: 0.875rem;
@@ -113,6 +110,44 @@
         
         .ticket-customer strong {
             color: var(--chat-text);
+        }
+        
+        .ticket-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .btn-action-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .btn-action-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+        
+        .btn-action-success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        
+        .btn-action-success:hover {
+            background: rgba(34, 197, 94, 0.25);
         }
         
         /* Chat Container */
@@ -418,8 +453,8 @@
             opacity: 0.5;
         }
         
-        /* Closed Ticket Alert */
-        .ticket-closed-alert {
+        /* Closed Chat Alert */
+        .chat-closed-alert {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -432,7 +467,7 @@
             margin-bottom: 16px;
         }
         
-        .ticket-closed-alert svg {
+        .chat-closed-alert svg {
             width: 20px;
             height: 20px;
             flex-shrink: 0;
@@ -440,42 +475,65 @@
     </style>
 
     <div class="admin-chat-page" style="max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 20px !important;">
-        <!-- Ticket Info Card -->
+        <!-- Chat Info Card -->
         <div class="ticket-info-card" style="max-width: 100% !important;">
             <div class="ticket-info-header">
                 <div class="ticket-info-main">
-                    <div class="ticket-id">Ticket #{{ $record->id }}</div>
-                    <h1 class="ticket-subject">{{ $record->subject }}</h1>
+                    <div class="ticket-id">Product Chat #{{ $this->record->id }}</div>
+                    <h1 class="ticket-subject">{{ $this->record->product->name }}</h1>
                     <div class="ticket-badges">
-                        <span class="ticket-badge badge-status-{{ $record->status }}">
-                            {{ ucfirst(str_replace('_', ' ', $record->status)) }}
+                        <span class="ticket-badge badge-status-{{ $this->record->status }}">
+                            {{ ucfirst(str_replace('_', ' ', $this->record->status)) }}
                         </span>
-                        <span class="ticket-badge badge-priority-{{ $record->priority }}">
-                            {{ ucfirst($record->priority) }}
+                        <span class="ticket-badge badge-type-chat">
+                            Product Chat
                         </span>
                     </div>
                     <div class="ticket-customer">
-                        Customer: <strong>{{ $record->user->name }}</strong> ({{ $record->user->email }})
+                        Customer: <strong>{{ $this->record->customer->name }}</strong> ({{ $this->record->customer->email }})
                     </div>
+                </div>
+                
+                <div class="ticket-actions">
+                    @if($this->record->status === 'open')
+                        <button 
+                            wire:click="closeChat"
+                            wire:confirm="Are you sure you want to close this chat?"
+                            class="btn-action btn-action-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Close Chat
+                        </button>
+                    @else
+                        <button 
+                            wire:click="reopenChat"
+                            class="btn-action btn-action-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Reopen Chat
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
         
-        @if($record->status === 'closed')
-            <div class="ticket-closed-alert">
+        @if($this->record->status === 'closed')
+            <div class="chat-closed-alert">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                This ticket is closed. Reopen it to continue the conversation.
+                This chat is closed. Reopen it to continue the conversation.
             </div>
         @endif
 
         <!-- Chat Container -->
         <div class="chat-container" style="max-width: 100% !important; width: 100% !important;">
             <!-- Messages Area with polling -->
-            <div class="messages-area" id="messagesArea" wire:poll.3s="checkNewMessages">
-                @forelse($record->messages as $message)
-                    <div class="message-bubble {{ $message->is_admin_reply ? 'admin-message' : 'user-message' }}">
+            <div class="messages-area" id="messagesArea" wire:poll.3s>
+                @forelse($this->record->messages as $message)
+                    <div class="message-bubble {{ $message->is_seller ? 'admin-message' : 'user-message' }}">
                         <img 
                             src="{{ $message->user->avatar ? asset('storage/'.$message->user->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($message->user->email))).'?s=80&d=identicon' }}" 
                             alt="{{ $message->user->name }}" 
@@ -484,29 +542,30 @@
                         <div class="message-content">
                             <div class="message-header">
                                 <span class="message-author">{{ $message->user->name }}</span>
-                                @if($message->is_admin_reply)
-                                    <span class="message-badge-admin">{{ __('tickets.support') }}</span>
+                                @if($message->is_seller)
+                                    <span class="message-badge-admin">{{ __('common.seller') }}</span>
                                 @endif
                                 <span class="message-time">{{ $message->created_at->diffForHumans() }}</span>
                             </div>
                             <div class="message-text">{{ $message->message }}</div>
                             
-                            @if($message->attachments->count() > 0)
+                            @if($message->attachment_path)
                                 <div class="message-attachments">
-                                    @foreach($message->attachments as $attachment)
-                                        @if(str_starts_with($attachment->file_type ?? '', 'image/'))
-                                            <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank">
-                                                <img src="{{ asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}" class="attachment-image">
-                                            </a>
-                                        @else
-                                            <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank" class="attachment-item">
-                                                <svg class="attachment-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                                </svg>
-                                                <span class="attachment-name">{{ $attachment->file_name }}</span>
-                                            </a>
-                                        @endif
-                                    @endforeach
+                                    @php
+                                        $isImage = str_starts_with($message->attachment_type ?? '', 'image/');
+                                    @endphp
+                                    @if($isImage)
+                                        <a href="{{ asset('storage/' . $message->attachment_path) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $message->attachment_path) }}" alt="{{ $message->attachment_name }}" class="attachment-image">
+                                        </a>
+                                    @else
+                                        <a href="{{ asset('storage/' . $message->attachment_path) }}" target="_blank" class="attachment-item">
+                                            <svg class="attachment-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            <span class="attachment-name">{{ $message->attachment_name }}</span>
+                                        </a>
+                                    @endif
                                 </div>
                             @endif
                         </div>
@@ -516,18 +575,18 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        <div>{{ __('tickets.no_messages_yet') }}</div>
+                        <div>{{ __('common.no_messages_yet') }}</div>
                     </div>
                 @endforelse
             </div>
 
             <!-- Reply Form -->
-            @if($record->status !== 'closed')
+            @if($this->record->status !== 'closed')
                 <form wire:submit="sendMessage" class="reply-form">
                     <textarea 
                         wire:model="newMessage" 
                         class="reply-textarea"
-                        placeholder="{{ __('tickets.type_your_reply') }}"
+                        placeholder="{{ __('common.type_your_reply') }}"
                     ></textarea>
                     
                     <div class="reply-actions">
@@ -535,7 +594,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                             </svg>
-                            {{ __('tickets.attach_files') }}
+                            {{ __('common.attach_files') }}
                             <input type="file" wire:model="attachments" multiple accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
                         </label>
                         
@@ -543,11 +602,11 @@
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
-                            {{ __('tickets.send_reply') }}
+                            {{ __('common.send_reply') }}
                         </button>
                     </div>
                     
-                    @if(count($attachments) > 0)
+                    @if(!empty($attachments) && count($attachments) > 0)
                         <div class="attachments-preview">
                             @foreach($attachments as $index => $file)
                                 <div class="attachment-preview-item">
@@ -567,31 +626,30 @@
                 </form>
             @else
                 <div style="padding: 20px; text-align: center; color: var(--chat-text-muted); border-top: 1px solid var(--chat-border);">
-                    This ticket is closed. Reopen it to send messages.
+                    This chat is closed. Reopen it to send messages.
                 </div>
             @endif
         </div>
     </div>
 
+    @script
     <script>
-        document.addEventListener('livewire:navigated', scrollToBottom);
-        document.addEventListener('DOMContentLoaded', scrollToBottom);
-        
-        // Listen for scroll event from Livewire
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('scroll-to-bottom', () => {
-                setTimeout(scrollToBottom, 100);
-            });
-        });
-        
         function scrollToBottom() {
             const messagesArea = document.getElementById('messagesArea');
             if (messagesArea) {
                 messagesArea.scrollTop = messagesArea.scrollHeight;
             }
         }
-        
-        // Scroll on initial load
+
         setTimeout(scrollToBottom, 300);
+
+        $wire.on('message-sent', () => {
+            setTimeout(scrollToBottom, 100);
+        });
+
+        document.addEventListener('livewire:update', () => {
+            setTimeout(scrollToBottom, 100);
+        });
     </script>
+    @endscript
 </x-filament-panels::page>

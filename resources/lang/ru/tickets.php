@@ -78,4 +78,11 @@ return [
     // Create form
     'create_title' => 'Новое обращение',
     'create_subtitle' => 'Опишите проблему, и мы ответим как можно скорее.',
+
+    // Chat
+    'support' => 'Поддержка',
+    'no_messages_yet' => 'Сообщений пока нет',
+    'type_your_reply' => 'Введите ответ...',
+    'type_your_message' => 'Введите сообщение...',
+    'attach_files' => 'Прикрепить файлы',
 ];

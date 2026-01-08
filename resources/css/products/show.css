@@ -109,7 +109,12 @@
 }
 
 .thumb-btn img { width: 100%; height: 100%; object-fit: cover; }
-.thumb-btn:hover, .thumb-btn.active { opacity: 1; border-color: var(--accent); }
+.thumb-btn:hover, .thumb-btn.active { 
+    opacity: 1; 
+    border-color: var(--accent);
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
 
 /* Product Info */
 .product-info {
@@ -382,6 +387,30 @@
 }
 
 .btn-cart svg { width: 20px; height: 20px; color: #000 !important; stroke: #000 !important; }
+
+.btn-chat {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    color: white !important;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+    text-decoration: none;
+}
+
+.btn-chat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
+}
 
 /* Section Card */
 .section-card {
@@ -794,5 +823,90 @@ html.theme-light .variant-icon {
     
     .related-price {
         font-size: 0.9375rem !important;
+    }
+}
+
+/* Chat FAB (Floating Action Button) */
+.chat-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.chat-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 28px rgba(59, 130, 246, 0.5), 0 4px 12px rgba(0, 0, 0, 0.25);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.chat-fab:active {
+    transform: scale(1.05);
+}
+
+.chat-fab svg {
+    stroke: white;
+}
+
+.chat-fab-tooltip {
+    position: absolute;
+    right: 72px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.chat-fab-tooltip::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-left-color: rgba(0, 0, 0, 0.85);
+}
+
+.chat-fab:hover .chat-fab-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .chat-fab {
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+    }
+    
+    .chat-fab svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .chat-fab-tooltip {
+        display: none;
     }
 }

@@ -71,4 +71,12 @@ return [
     'date' => 'Datums',
     'time' => 'Laiks',
     'failed' => 'Neizdevās',
+    'company' => 'Kompānija',
+
+    // Product Chat
+    'seller' => 'Pārdevējs',
+    'no_messages_yet' => 'Vēl nav ziņojumu',
+    'type_your_reply' => 'Ievadiet atbildi...',
+    'attach_files' => 'Pievienot failus',
+    'send_reply' => 'Nosūtīt atbildi',
 ];

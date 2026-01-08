@@ -9,6 +9,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProductChatController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
@@ -188,6 +189,14 @@ Route::middleware(['auth'])->prefix('support')->name('tickets.')->group(function
     Route::get('/{ticket}/check-new-messages', [TicketController::class, 'checkNewMessages'])->name('check-new-messages');
     Route::post('/{ticket}/close', [TicketController::class, 'close'])->name('close');
     Route::post('/{ticket}/reopen', [TicketController::class, 'reopen'])->name('reopen');
+});
+
+// Product Chat Routes (Customer <-> Seller)
+Route::middleware(['auth'])->prefix('product-chat')->name('product-chat.')->group(function () {
+    Route::get('/list', [ProductChatController::class, 'index'])->name('index');
+    Route::get('/product/{product}', [ProductChatController::class, 'show'])->name('show');
+    Route::post('/{chat}/send', [ProductChatController::class, 'sendMessage'])->name('send');
+    Route::get('/{chat}/check-new', [ProductChatController::class, 'checkNewMessages'])->name('check-new');
 });
 
 // Notifications Routes

@@ -399,4 +399,22 @@
         @endif
     </div>
 </div>
+
+@auth
+    @if($product->company && $product->company->user_id && Auth::id() !== $product->company->user_id)
+        <!-- Fixed Chat Button -->
+        <a href="{{ route('product-chat.show', $product) }}" 
+           class="chat-fab"
+           title="{{ __('product_chat.chat_with_seller') }}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="28" height="28">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <span class="chat-fab-tooltip">{{ __('product_chat.chat_with_seller') }}</span>
+        </a>
+    @endif
+@endauth
 @endsection
+
+@push('scripts')
+    @vite(['resources/js/products/show.js'])
+@endpush

@@ -78,4 +78,11 @@ return [
     // Create form
     'create_title' => 'Create New Ticket',
     'create_subtitle' => "Describe your issue and we'll get back to you as soon as possible.",
+
+    // Chat
+    'support' => 'Support',
+    'no_messages_yet' => 'No messages yet',
+    'type_your_reply' => 'Type your reply...',
+    'type_your_message' => 'Type your message...',
+    'attach_files' => 'Attach Files',
 ];

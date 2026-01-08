@@ -34,4 +34,12 @@ return [
     'optional' => 'Необязательно',
     'required' => 'Обязательно',
     'failed' => 'Не удалось',
+    'company' => 'Компания',
+
+    // Product Chat
+    'seller' => 'Продавец',
+    'no_messages_yet' => 'Сообщений пока нет',
+    'type_your_reply' => 'Введите ответ...',
+    'attach_files' => 'Прикрепить файлы',
+    'send_reply' => 'Отправить',
 ];

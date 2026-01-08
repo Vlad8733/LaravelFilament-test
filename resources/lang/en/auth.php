@@ -50,4 +50,8 @@ return [
     'reset_password' => 'Reset password',
     'new_password' => 'New password',
     'reset' => 'Reset password',
+
+    // Confirm password
+    'confirm_password_title' => 'Confirm your password',
+    'confirm_password_btn' => 'Confirm password',
 ];
