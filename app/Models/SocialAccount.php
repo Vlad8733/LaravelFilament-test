@@ -90,17 +90,11 @@ class SocialAccount extends Model
                 'color' => '#DB4437',
                 'enabled' => true,
             ],
-            'facebook' => [
-                'name' => 'Facebook',
-                'icon' => 'facebook',
-                'color' => '#4267B2',
-                'enabled' => false, // Can be enabled when configured
-            ],
             'github' => [
                 'name' => 'GitHub',
                 'icon' => 'github',
                 'color' => '#333333',
-                'enabled' => false, // Can be enabled when configured
+                'enabled' => true,
             ],
         ];
     }

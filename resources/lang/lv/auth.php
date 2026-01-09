@@ -28,6 +28,10 @@ return [
     'or' => 'vai',
     'google_auth_failed' => 'Neizdevās pieteikties ar Google. Lūdzu, mēģiniet vēlreiz.',
 
+    // GitHub OAuth
+    'continue_with_github' => 'Turpināt ar GitHub',
+    'github_auth_failed' => 'Neizdevās pieteikties ar GitHub. Lūdzu, mēģiniet vēlreiz.',
+
     // Two-Factor Challenge
     'two_factor_challenge' => 'Divfaktoru autentifikācija',
     'two_factor_code' => 'Verifikācijas kods',

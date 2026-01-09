@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\GitHubAuthController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CartController;
@@ -49,6 +50,10 @@ Route::post('two-factor-challenge', [TwoFactorChallengeController::class, 'verif
 // Google OAuth
 Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+
+// GitHub OAuth
+Route::get('auth/github', [GitHubAuthController::class, 'redirect'])->name('auth.github');
+Route::get('auth/github/callback', [GitHubAuthController::class, 'callback'])->name('auth.github.callback');
 
 // Guest routes: registration / login
 Route::middleware('guest')->group(function () {

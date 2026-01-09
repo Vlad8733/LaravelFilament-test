@@ -42,6 +42,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'locale',
         'newsletter_subscribed',
         'newsletter_subscribed_at',
+        'google_id',
+        'google_avatar',
+        'github_id',
+        'github_avatar',
     ];
 
     protected $hidden = [

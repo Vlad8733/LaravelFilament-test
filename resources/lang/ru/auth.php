@@ -28,6 +28,10 @@ return [
     'or' => 'или',
     'google_auth_failed' => 'Не удалось войти через Google. Попробуйте снова.',
 
+    // GitHub OAuth
+    'continue_with_github' => 'Продолжить с GitHub',
+    'github_auth_failed' => 'Не удалось войти через GitHub. Попробуйте снова.',
+
     // Two-Factor Challenge
     'two_factor_challenge' => 'Двухфакторная аутентификация',
     'two_factor_code' => 'Код подтверждения',

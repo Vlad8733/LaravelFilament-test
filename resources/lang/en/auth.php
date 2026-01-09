@@ -28,6 +28,10 @@ return [
     'or' => 'or',
     'google_auth_failed' => 'Failed to authenticate with Google. Please try again.',
 
+    // GitHub OAuth
+    'continue_with_github' => 'Continue with GitHub',
+    'github_auth_failed' => 'Failed to authenticate with GitHub. Please try again.',
+
     // Two-Factor Challenge
     'two_factor_challenge' => 'Two-Factor Authentication',
     'two_factor_code' => 'Verification code',
