@@ -18,6 +18,8 @@
 
 **Full-stack e-commerce platform with admin panel, seller dashboard, and customer storefront**
 
+⚠️ **Demo Mode**: This project includes a configurable demo banner for educational/portfolio deployments
+
 </div>
 
 ---
@@ -99,14 +101,17 @@ Dedicated dashboard for sellers to manage their companies and products:
 | **Seller** | Manage own company, products, and company orders |
 | **User** | Browse products, place orders, submit tickets, manage profile |
 
-### �🔔 System Features
+### 🔔 System Features
 
 | Feature | Description |
 |---------|-------------|
+| **Demo Mode** | Configurable demo banner with multi-language support (en, ru, lv) |
 | **Real-time Notifications** | In-app notifications with live polling (30s), email notifications via SMTP |
 | **Support Tickets** | Real-time chat system with file attachments, image previews, AJAX messaging |
+| **Rate Limiting** | API protection for cart, coupons, contact forms, and tickets |
 | **Activity Log** | Track user actions across the platform |
 | **Role-based Access** | Super Admin, Admin, Seller, User with granular permissions |
+| **Authorization Policies** | Fine-grained access control for all resources |
 | **Multi-language** | English, Russian, Latvian (en, ru, lv) |
 | **PDF Invoices** | Generate downloadable invoices (DomPDF) |
 | **Dark/Light Theme** | User preference for theme switching |
@@ -225,8 +230,20 @@ npm run build
 ### Code Style
 
 ```bash
-vendor/bin/pint
+vendor/bin/pint          # Fix code style
+vendor/bin/phpstan analyse  # Static analysis
 ```
+
+### Architecture Highlights
+
+| Pattern | Implementation |
+|---------|----------------|
+| **Single Responsibility** | Controllers split by concern (Cart, Checkout, Coupon) |
+| **Form Requests** | Validation extracted to dedicated request classes |
+| **Service Layer** | Business logic in OrderService, not controllers |
+| **Authorization Policies** | Fine-grained access control for all models |
+| **Reusable Traits** | Common model behavior (HasSlug, BelongsToUser, etc.) |
+| **Rate Limiting** | API protection via RateLimitServiceProvider |
 
 ---
 
@@ -249,12 +266,19 @@ app/
 │           └── ProductResource  # Manage company products
 ├── Http/
 │   ├── Controllers/         # Web controllers
-│   │   ├── CartController   # Shopping cart operations
+│   │   ├── CartController       # Shopping cart operations
+│   │   ├── CheckoutController   # Order placement & checkout
+│   │   ├── CartCouponController # Coupon application
 │   │   ├── ProductController
-│   │   ├── CompanyController # Company pages & follow
+│   │   ├── CompanyController    # Company pages & follow
 │   │   ├── WishlistController
 │   │   ├── TicketController
+│   │   ├── InvoiceController    # PDF invoice generation
+│   │   ├── Settings/            # User settings controllers
+│   │   │   ├── AddressController
+│   │   │   └── PaymentMethodController
 │   │   └── ...
+│   ├── Requests/            # Form request validation
 │   ├── Livewire/            # Livewire components
 │   └── Middleware/          # Custom middleware
 ├── Models/                  # Eloquent models (20+)
@@ -264,9 +288,23 @@ app/
 │   ├── User, CartItem, WishlistItem
 │   ├── Coupon, Review, Ticket
 │   └── ...
+├── Services/                # Business logic services
+│   └── OrderService         # Order creation & coupon validation
+├── Traits/                  # Reusable model traits
+│   ├── BelongsToUser        # User relationship
+│   ├── HasSlug              # Auto slug generation
+│   ├── HasDefaultItem       # Default item management
+│   ├── HasStatusLabels      # Status color labels
+│   └── HasStorageFile       # File storage helpers
 ├── Notifications/           # Email & database notifications
 ├── Observers/               # Model event observers
 ├── Policies/                # Authorization policies
+│   ├── OrderPolicy, TicketPolicy, CompanyPolicy
+│   ├── RefundRequestPolicy, CustomerReviewPolicy
+│   └── UserAddressPolicy, PaymentMethodPolicy
+├── Providers/
+│   ├── AuthServiceProvider      # Policy registration
+│   └── RateLimitServiceProvider # API rate limiting
 └── Jobs/                    # Queue jobs (ImportProductsJob)
 
 database/
@@ -278,7 +316,14 @@ resources/
 ├── css/                     # Modular stylesheets
 ├── js/                      # Alpine.js components
 ├── lang/                    # Translations (en, ru, lv)
+│   ├── en/demo.php          # Demo banner translations
+│   ├── ru/demo.php
+│   └── lv/demo.php
 └── views/                   # Blade templates
+
+config/
+├── invoice.php              # Invoice company settings
+└── ...
 
 tests/
 ├── Feature/                 # Feature tests
