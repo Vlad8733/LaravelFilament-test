@@ -32,6 +32,10 @@ return [
     'continue_with_github' => 'Продолжить с GitHub',
     'github_auth_failed' => 'Не удалось войти через GitHub. Попробуйте снова.',
 
+    // Discord OAuth
+    'continue_with_discord' => 'Продолжить с Discord',
+    'discord_auth_failed' => 'Не удалось войти через Discord. Попробуйте снова.',
+
     // Two-Factor Challenge
     'two_factor_challenge' => 'Двухфакторная аутентификация',
     'two_factor_code' => 'Код подтверждения',

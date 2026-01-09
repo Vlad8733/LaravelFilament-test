@@ -55,6 +55,10 @@ Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])->n
 Route::get('auth/github', [GitHubAuthController::class, 'redirect'])->name('auth.github');
 Route::get('auth/github/callback', [GitHubAuthController::class, 'callback'])->name('auth.github.callback');
 
+// Discord OAuth
+Route::get('auth/discord', [\App\Http\Controllers\Auth\DiscordAuthController::class, 'redirect'])->name('auth.discord');
+Route::get('auth/discord/callback', [\App\Http\Controllers\Auth\DiscordAuthController::class, 'callback'])->name('auth.discord.callback');
+
 // Guest routes: registration / login
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');

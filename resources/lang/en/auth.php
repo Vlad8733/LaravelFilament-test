@@ -32,6 +32,10 @@ return [
     'continue_with_github' => 'Continue with GitHub',
     'github_auth_failed' => 'Failed to authenticate with GitHub. Please try again.',
 
+    // Discord OAuth
+    'continue_with_discord' => 'Continue with Discord',
+    'discord_auth_failed' => 'Failed to authenticate with Discord. Please try again.',
+
     // Two-Factor Challenge
     'two_factor_challenge' => 'Two-Factor Authentication',
     'two_factor_code' => 'Verification code',

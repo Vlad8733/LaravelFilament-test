@@ -44,6 +44,7 @@ class SocialAccount extends Model
             'google' => '🔴',
             'facebook' => '🔵',
             'github' => '⚫',
+            'discord' => '🟣',
             'twitter', 'x' => '🐦',
             'apple' => '🍎',
             default => '🔗',
@@ -59,6 +60,7 @@ class SocialAccount extends Model
             'google' => 'Google',
             'facebook' => 'Facebook',
             'github' => 'GitHub',
+            'discord' => 'Discord',
             'twitter' => 'Twitter',
             'x' => 'X (Twitter)',
             'apple' => 'Apple',
@@ -94,6 +96,12 @@ class SocialAccount extends Model
                 'name' => 'GitHub',
                 'icon' => 'github',
                 'color' => '#333333',
+                'enabled' => true,
+            ],
+            'discord' => [
+                'name' => 'Discord',
+                'icon' => 'discord',
+                'color' => '#5865F2',
                 'enabled' => true,
             ],
         ];

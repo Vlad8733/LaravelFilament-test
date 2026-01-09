@@ -46,6 +46,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'google_avatar',
         'github_id',
         'github_avatar',
+        'discord_id',
+        'discord_avatar',
     ];
 
     protected $hidden = [

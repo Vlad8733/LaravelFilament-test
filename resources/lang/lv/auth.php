@@ -32,6 +32,10 @@ return [
     'continue_with_github' => 'Turpināt ar GitHub',
     'github_auth_failed' => 'Neizdevās pieteikties ar GitHub. Lūdzu, mēģiniet vēlreiz.',
 
+    // Discord OAuth
+    'continue_with_discord' => 'Turpināt ar Discord',
+    'discord_auth_failed' => 'Neizdevās pieteikties ar Discord. Lūdzu, mēģiniet vēlreiz.',
+
     // Two-Factor Challenge
     'two_factor_challenge' => 'Divfaktoru autentifikācija',
     'two_factor_code' => 'Verifikācijas kods',
