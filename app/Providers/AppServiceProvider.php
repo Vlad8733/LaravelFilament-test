@@ -12,8 +12,11 @@ use App\Observers\ProductObserver;
 use App\Observers\TicketObserver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use SocialiteProviders\Discord\DiscordExtendSocialite;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,5 +56,8 @@ class AppServiceProvider extends ServiceProvider
         if (class_exists(\App\Http\Livewire\ImportProgress::class)) {
             Livewire::component('import-progress', \App\Http\Livewire\ImportProgress::class);
         }
+
+        // Register Discord Socialite driver
+        Event::listen(SocialiteWasCalled::class, DiscordExtendSocialite::class.'@handle');
     }
 }

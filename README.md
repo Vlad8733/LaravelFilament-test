@@ -1,201 +1,267 @@
 <div align="center">
 
+<img src="public/images/logo.png" alt="e-Shop Logo" width="120" />
+
 # 🛒 e-Shop
 
-### Modern E-Commerce Platform
+### ⚡ Modern E-Commerce Platform
+
+<br/>
 
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![Filament](https://img.shields.io/badge/Filament-3.2-FDAE4B?style=for-the-badge&logo=laravel&logoColor=white)](https://filamentphp.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
-[![Tests](https://github.com/Ichiro149/LaravelFilament-test/actions/workflows/tests.yml/badge.svg)](https://github.com/Ichiro149/LaravelFilament-test/actions/workflows/tests.yml)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-[![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=flat-square&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Vite](https://img.shields.io/badge/Vite-7.x-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
-[![Livewire](https://img.shields.io/badge/Livewire-3.x-FB70A9?style=flat-square&logo=livewire&logoColor=white)](https://livewire.laravel.com)
+[![Tests](https://github.com/Ichiro149/e-ShopLaravelFilament-test/actions/workflows/tests.yml/badge.svg)](https://github.com/Ichiro149/e-ShopLaravelFilament-test/actions/workflows/tests.yml)
+[![PHPStan](https://img.shields.io/badge/PHPStan-Level%205-brightgreen?style=flat-square)](https://phpstan.org)
+[![Code Style](https://img.shields.io/badge/Code%20Style-Laravel%20Pint-orange?style=flat-square)](https://laravel.com/docs/pint)
 
----
+<br/>
 
-**Full-stack e-commerce platform with admin panel, seller dashboard, and customer storefront**
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-screenshots">Screenshots</a> •
+  <a href="#-tech-stack">Tech Stack</a> •
+  <a href="#-testing">Testing</a>
+</p>
 
-⚠️ **Demo Mode**: This project includes a configurable demo banner for educational/portfolio deployments
+<br/>
+
+**Full-stack e-commerce solution with Admin Panel, Seller Dashboard, and beautiful Customer Storefront**
+
+<br/>
+
+> ⚠️ **Demo Mode**: This project includes a configurable demo banner for educational/portfolio deployments
 
 </div>
 
----
-
-## 📋 Table of Contents
-
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Installation](#-installation)
-- [Development](#-development)
-- [Project Structure](#-project-structure)
-- [Admin Panel](#-admin-panel)
-- [API Endpoints](#-api-endpoints)
-- [Testing](#-testing)
-- [Configuration](#-configuration)
+<br/>
 
 ---
+
+<br/>
+
+## 🚀 Quick Start
+
+```bash
+# Clone & Install
+git clone https://github.com/Ichiro149/e-ShopLaravelFilament-test.git
+cd filament-test && composer install && npm install
+
+# Setup
+cp .env.example .env && php artisan key:generate
+php artisan migrate --seed && php artisan storage:link
+
+# Run
+npm run build && php artisan serve
+```
+
+**🐳 Docker:** `cp .env.docker .env && make init` → http://localhost:8080
+
+<br/>
+
+---
+
+<br/>
 
 ## ✨ Features
 
-### 🛍️ Customer Storefront
+<table>
+<tr>
+<td width="50%">
 
-| Feature | Description |
-|---------|-------------|
-| **Product Catalog** | Browse products with filtering by categories, search, and sorting |
-| **Product Variants** | Support for product variations (size, color, etc.) with separate stock |
-| **Shopping Cart** | Add/remove items, update quantities, apply discount coupons |
-| **Wishlist** | Save products for later with easy add-to-cart |
-| **Product Comparison** | Compare multiple products side-by-side |
-| **Reviews & Ratings** | Submit product reviews with moderation system |
-| **Order Tracking** | Track order status by order number |
-| **Recently Viewed** | Quick access to previously viewed products |
-| **User Settings** | Comprehensive settings page (Profile, Orders, Addresses, Security, Notifications) |
-| **Two-Factor Auth** | Email-based 2FA for enhanced account security |
+### 🛍️ Customer Experience
 
-### 🎛️ Admin Panel (Filament)
+- 📦 **Product Catalog** with advanced filtering & search
+- 🎨 **Product Variants** (size, color, etc.)
+- 🛒 **Shopping Cart** with coupon support
+- 💝 **Wishlist** & Product Comparison
+- ⭐ **Reviews & Ratings** system
+- 📍 **Order Tracking** by number
+- 🔐 **Two-Factor Authentication** (2FA)
+- 🌍 **Multi-language** (EN, RU, LV)
+- 🌙 **Dark/Light Theme**
 
-| Resource | Capabilities |
-|----------|--------------|
-| **Products** | CRUD, variants, images, categories, CSV import/export, company assignment |
-| **Companies** | Verify/unverify seller companies, view company details |
-| **Orders** | Status management, order history, status transitions |
-| **Customers** | User management, account details |
-| **Coupons** | Fixed/percentage discounts, validity periods, usage limits |
-| **Reviews** | Moderate customer reviews (approve/reject) |
-| **Tickets** | Customer support with **real-time chat** (3s polling), file uploads, image previews |
-| **Refunds** | Process refund requests with status history |
-| **Import Jobs** | Monitor bulk product imports with error tracking |
-| **Users** | Role management (Super Admin only can assign Admin/Seller roles) |
+</td>
+<td width="50%">
 
-### 👨‍💼 Seller Panel
+### 🎛️ Admin Panel
 
-Dedicated dashboard for sellers to manage their companies and products:
+- 📊 **Dashboard** with analytics
+- 📦 **Products** — CRUD, variants, CSV import/export
+- 🏢 **Companies** — verification, moderation
+- 📋 **Orders** — status management, history
+- 🎫 **Coupons** — fixed/percentage discounts
+- 💬 **Support Tickets** — real-time chat
+- ⭐ **Reviews Moderation**
+- 💰 **Refund Requests**
+- 👥 **User Management**
 
-| Feature | Description |
-|---------|-------------|
-| **Company Profile** | Create and manage your company (name, description, logo, banner) |
-| **Products** | Full product management with automatic company assignment |
-| **Orders** | View and manage company orders with status updates |
-| **Public Storefront** | Customers can visit `/companies/{slug}` to see company profile |
-| **Followers** | Customers can follow companies to stay updated |
+</td>
+</tr>
+</table>
 
-### 🏢 Company System
+<br/>
 
-| Feature | Description |
-|---------|-------------|
-| **Company Profiles** | Each seller can create one company with public profile page |
-| **Company Directory** | Browse all companies at `/companies` with search and filters |
-| **Follow System** | Users can follow companies they like |
-| **Verified Badge** | Admins can verify trusted companies |
-| **Product Ownership** | All products belong to a specific company |
+### 🏢 Multi-Vendor System
 
-### � Role System
+<table>
+<tr>
+<td width="33%" align="center">
 
-| Role | Capabilities |
-|------|-------------|
-| **Super Admin** | Full system access, assign Admin/Seller roles, manage all resources |
-| **Admin** | Manage tickets, orders, products, moderate reviews, verify companies |
-| **Seller** | Manage own company, products, and company orders |
-| **User** | Browse products, place orders, submit tickets, manage profile |
+**👨‍💼 Seller Panel**
 
-### 🔔 System Features
+Own dashboard to manage
+company, products & orders
 
-| Feature | Description |
-|---------|-------------|
-| **Demo Mode** | Configurable demo banner with multi-language support (en, ru, lv) |
-| **Real-time Notifications** | In-app notifications with live polling (30s), email notifications via SMTP |
-| **Support Tickets** | Real-time chat system with file attachments, image previews, AJAX messaging |
-| **Rate Limiting** | API protection for cart, coupons, contact forms, and tickets |
-| **Activity Log** | Track user actions across the platform |
-| **Role-based Access** | Super Admin, Admin, Seller, User with granular permissions |
-| **Authorization Policies** | Fine-grained access control for all resources |
-| **Multi-language** | English, Russian, Latvian (en, ru, lv) |
-| **PDF Invoices** | Generate downloadable invoices (DomPDF) |
-| **Dark/Light Theme** | User preference for theme switching |
-| **Email Integration** | Gmail/Yandex SMTP support for real email delivery |
+</td>
+<td width="33%" align="center">
+
+**🏪 Company Profiles**
+
+Public storefront pages
+at `/companies/{slug}`
+
+</td>
+<td width="33%" align="center">
+
+**👥 Follow System**
+
+Customers can follow
+their favorite sellers
+
+</td>
+</tr>
+</table>
+
+<br/>
+
+### 🔐 Role System
+
+| Role | Access Level |
+|:-----|:-------------|
+| 🔴 **Super Admin** | Full system access, role management |
+| 🟠 **Admin** | Manage orders, products, tickets, reviews |
+| 🟡 **Seller** | Manage own company, products, orders |
+| 🟢 **User** | Browse, purchase, submit tickets |
+
+<br/>
+
+### 🔔 Notifications & Integrations
+
+<table>
+<tr>
+<td>📧 Email (Gmail/Yandex SMTP)</td>
+<td>🔔 Real-time in-app notifications</td>
+<td>📄 PDF Invoice generation</td>
+</tr>
+<tr>
+<td>🔑 OAuth (Google, GitHub, Discord)</td>
+<td>💬 Live ticket chat (3s polling)</td>
+<td>📊 Activity logging</td>
+</tr>
+</table>
+
+<br/>
 
 ---
+
+<br/>
 
 ## 🛠️ Tech Stack
 
-### Backend
+<table>
+<tr>
+<td align="center" width="20%">
+<img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="80"/><br/>
+<b>Laravel 12</b><br/>
+<sub>Backend Framework</sub>
+</td>
+<td align="center" width="20%">
+<img src="https://filamentphp.com/favicon/apple-touch-icon.png" width="50"/><br/>
+<b>Filament 3.2</b><br/>
+<sub>Admin Panel</sub>
+</td>
+<td align="center" width="20%">
+<img src="https://livewire.laravel.com/favicon.ico" width="50"/><br/>
+<b>Livewire 3</b><br/>
+<sub>Reactive UI</sub>
+</td>
+<td align="center" width="20%">
+<img src="https://alpinejs.dev/alpine_long.svg" width="80"/><br/>
+<b>Alpine.js</b><br/>
+<sub>JavaScript</sub>
+</td>
+<td align="center" width="20%">
+<img src="https://tailwindcss.com/_next/static/media/tailwindcss-mark.3c5441fc7a190f0.svg" width="50"/><br/>
+<b>Tailwind CSS</b><br/>
+<sub>Styling</sub>
+</td>
+</tr>
+</table>
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| PHP | 8.2+ | Runtime |
-| Laravel | 12.x | Framework |
-| Filament | 3.2 | Admin/Seller panels |
-| Livewire | 3.x | Reactive components |
-| DomPDF | 3.1 | PDF generation |
+<br/>
 
-### Frontend
+| Layer | Technologies |
+|:------|:------------|
+| **Backend** | PHP 8.2+, Laravel 12, Filament 3.2, Livewire 3, DomPDF |
+| **Frontend** | Alpine.js 3, Tailwind CSS 3, Vite 7 |
+| **Database** | MySQL 8.0+ (prod), SQLite (testing) |
+| **Auth** | Laravel Socialite (Google, GitHub, Discord), 2FA |
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Alpine.js | 3.x | JavaScript framework |
-| Tailwind CSS | 3.x | Styling |
-| Vite | 7.x | Build tool |
+<br/>
 
-### Database & Cache
+---
 
-| Technology | Purpose |
-|------------|---------|
-| MySQL 8.0+ | Primary database |
-| SQLite | Testing |
-| Redis | Cache & sessions (optional) |
+<br/>
+
+## 🧪 Testing
+
+<div align="center">
+
+```
+✅ 139 Tests | ✅ 243 Assertions | ⚡ 2.9s
+```
+
+</div>
+
+<br/>
+
+```bash
+# Run all tests
+php artisan test
+
+# With coverage
+php artisan test --coverage
+
+# Specific suite
+php artisan test --filter=OrderTest
+```
+
+<br/>
+
+### Test Coverage
+
+| Module | Tests | What's Covered |
+|:-------|:-----:|:---------------|
+| 🔐 Auth | 14 | Registration, login, OAuth, 2FA |
+| 🛒 Cart | 12 | Add, update, remove, stock validation |
+| 📦 Orders | 9 | Checkout, placement, tracking |
+| 🏢 Company | 11 | Creation, followers, products |
+| 💬 Tickets | 12 | Creation, messages, status |
+| 💝 Wishlist | 9 | Add, remove, isolation |
+| 🎫 Coupons | 14 | Validation, calculation |
+| ⭐ Reviews | 7 | Submit, moderation |
+| 📊 Comparison | 10 | Add, remove, clear |
+| 📜 Login History | 11 | Tracking, timestamps |
+
+<br/>
 
 ---
 
-## 🚀 Installation
-
-### Prerequisites
-
-- PHP 8.2 or higher
-- Composer 2.x
-- Node.js 18+ with npm
-- MySQL 8.0+ or SQLite
-
-### Quick Start
-
-```bash
-# Clone repository
-git clone https://github.com/Ichiro149/LaravelFilament-test.git
-cd filament-test
-
-# Install dependencies
-composer install
-npm install
-
-# Environment setup
-cp .env.example .env
-php artisan key:generate
-
-# Database
-php artisan migrate --seed
-
-# Build assets
-npm run build
-
-# Storage link
-php artisan storage:link
-
-# Start server
-php artisan serve
-```
-
-### Docker Installation
-
-```bash
-cp .env.docker .env
-make init
-```
-
-Access at http://localhost:8080
-
----
+<br/>
 
 ## 💻 Development
 
@@ -206,376 +272,201 @@ Access at http://localhost:8080
 composer dev
 ```
 
-This starts:
-- Laravel server (localhost:8000)
-- Vite with HMR
-- Queue worker
-- Log tailing (Pail)
+This starts: **Laravel** (8000) + **Vite** (HMR) + **Queue** + **Pail** (logs)
 
-### Individual Commands
+<br/>
+
+### Code Quality
 
 ```bash
-php artisan serve        # Laravel server
-npm run dev              # Vite HMR
-php artisan queue:work   # Queue worker
-php artisan pail         # Log tailing
+# Fix code style
+vendor/bin/pint
+
+# Static analysis
+vendor/bin/phpstan analyse
+
+# Run tests
+php artisan test
 ```
 
-### Build for Production
-
-```bash
-npm run build
-```
-
-### Code Style
-
-```bash
-vendor/bin/pint          # Fix code style
-vendor/bin/phpstan analyse  # Static analysis
-```
-
-### Architecture Highlights
-
-| Pattern | Implementation |
-|---------|----------------|
-| **Single Responsibility** | Controllers split by concern (Cart, Checkout, Coupon) |
-| **Form Requests** | Validation extracted to dedicated request classes |
-| **Service Layer** | Business logic in OrderService, not controllers |
-| **Authorization Policies** | Fine-grained access control for all models |
-| **Reusable Traits** | Common model behavior (HasSlug, BelongsToUser, etc.) |
-| **Rate Limiting** | API protection via RateLimitServiceProvider |
+<br/>
 
 ---
+
+<br/>
 
 ## 📁 Project Structure
 
 ```
 app/
-├── Filament/
-│   ├── Resources/           # Admin CRUD resources
-│   │   ├── ProductResource  # Products management & moderation
-│   │   ├── CompanyResource  # Company verification & moderation
-│   │   ├── OrderResource    # Orders management
-│   │   ├── CouponResource   # Discount coupons
-│   │   ├── UserResource     # Customer accounts
-│   │   ├── TicketResource   # Support tickets
-│   │   └── ...
-│   └── Seller/              # Seller panel
-│       └── Resources/       # Seller-specific resources
-│           ├── CompanyResource  # Manage own company
-│           └── ProductResource  # Manage company products
-├── Http/
-│   ├── Controllers/         # Web controllers
-│   │   ├── CartController       # Shopping cart operations
-│   │   ├── CheckoutController   # Order placement & checkout
-│   │   ├── CartCouponController # Coupon application
-│   │   ├── ProductController
-│   │   ├── CompanyController    # Company pages & follow
-│   │   ├── WishlistController
-│   │   ├── TicketController
-│   │   ├── InvoiceController    # PDF invoice generation
-│   │   ├── Settings/            # User settings controllers
-│   │   │   ├── AddressController
-│   │   │   └── PaymentMethodController
-│   │   └── ...
-│   ├── Requests/            # Form request validation
-│   ├── Livewire/            # Livewire components
-│   └── Middleware/          # Custom middleware
-├── Models/                  # Eloquent models (20+)
-│   ├── Product, ProductVariant, ProductImage
-│   ├── Company, CompanyFollow
-│   ├── Order, OrderItem, OrderStatus
-│   ├── User, CartItem, WishlistItem
-│   ├── Coupon, Review, Ticket
-│   └── ...
-├── Services/                # Business logic services
-│   └── OrderService         # Order creation & coupon validation
-├── Traits/                  # Reusable model traits
-│   ├── BelongsToUser        # User relationship
-│   ├── HasSlug              # Auto slug generation
-│   ├── HasDefaultItem       # Default item management
-│   ├── HasStatusLabels      # Status color labels
-│   └── HasStorageFile       # File storage helpers
-├── Notifications/           # Email & database notifications
-├── Observers/               # Model event observers
-├── Policies/                # Authorization policies
-│   ├── OrderPolicy, TicketPolicy, CompanyPolicy
-│   ├── RefundRequestPolicy, CustomerReviewPolicy
-│   └── UserAddressPolicy, PaymentMethodPolicy
-├── Providers/
-│   ├── AuthServiceProvider      # Policy registration
-│   └── RateLimitServiceProvider # API rate limiting
-└── Jobs/                    # Queue jobs (ImportProductsJob)
+├── 📂 Filament/
+│   ├── Resources/          # Admin CRUD (Products, Orders, Tickets...)
+│   └── Seller/Resources/   # Seller panel (Company, Products)
+│
+├── 📂 Http/
+│   ├── Controllers/        # Web controllers
+│   ├── Requests/           # Form validation
+│   └── Middleware/         # Custom middleware
+│
+├── 📂 Models/              # 20+ Eloquent models
+├── 📂 Services/            # Business logic (OrderService)
+├── 📂 Policies/            # Authorization
+├── 📂 Notifications/       # Email & in-app
+└── 📂 Jobs/                # Queue jobs
 
 database/
-├── factories/               # Model factories for testing
-├── migrations/              # Database schema
-└── seeders/                 # Sample data
+├── 📂 factories/           # Test factories
+├── 📂 migrations/          # Schema
+└── 📂 seeders/             # Sample data
 
 resources/
-├── css/                     # Modular stylesheets
-├── js/                      # Alpine.js components
-├── lang/                    # Translations (en, ru, lv)
-│   ├── en/demo.php          # Demo banner translations
-│   ├── ru/demo.php
-│   └── lv/demo.php
-└── views/                   # Blade templates
-
-config/
-├── invoice.php              # Invoice company settings
-└── ...
+├── 📂 css/                 # Modular styles
+├── 📂 js/                  # Alpine components
+├── 📂 lang/                # Translations (en, ru, lv)
+└── 📂 views/               # Blade templates
 
 tests/
-├── Feature/                 # Feature tests
-└── Unit/                    # Unit tests
+├── 📂 Feature/             # 139 feature tests
+└── 📂 Unit/                # Unit tests
 ```
 
----
-
-## 🎛️ Admin Panel
-
-Access the admin panel at `/admin` after logging in with an admin account.
-
-### Available Resources
-
-| Resource | Features |
-|----------|----------|
-| **Products** | Create/edit products, manage variants, upload images, import/export CSV, assign to companies |
-| **Companies** | Verify/unverify seller companies, moderate company profiles |
-| **Orders** | View order details, update status, view status history |
-| **Order Statuses** | Define custom order statuses |
-| **Users** | Manage customer accounts, assign roles (Super Admin only) |
-| **Coupons** | Create discount codes (fixed/percentage), set validity, usage limits |
-| **Customer Reviews** | Approve/reject product reviews |
-| **Tickets** | **Real-time chat** with customers, file uploads, auto-refresh every 3s |
-| **Refund Requests** | Process customer refund requests |
-| **Import Jobs** | Monitor CSV imports, download failed rows |
-
-### Seller Panel Features
-
-Access at `/seller` for users with Seller role:
-
-| Resource | Features |
-|----------|----------|
-| **Company** | Create/edit company profile, upload logo and banner |
-| **Products** | Manage company products with automatic ownership |
-| **Orders** | View and update company order statuses |
+<br/>
 
 ---
 
-## 🔌 API Endpoints
-
-### Products
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/products` | Product listing |
-| GET | `/products/{slug}` | Product details |
-| GET | `/category/{slug}` | Products by category |
-| GET | `/search` | Global search (products & companies) |
-
-### Companies
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/companies` | Browse all companies |
-| GET | `/companies/{slug}` | Company profile with products |
-| POST | `/companies/{company}/follow` | Follow/unfollow company |
-
-### Cart
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/cart` | View cart |
-| POST | `/cart/add/{productId}` | Add to cart |
-| PATCH | `/cart/update/{itemId}` | Update quantity |
-| DELETE | `/cart/remove/{itemId}` | Remove item |
-| GET | `/cart/count` | Get cart count |
-| POST | `/cart/coupon/apply` | Apply coupon |
-| DELETE | `/cart/coupon/remove` | Remove coupon |
-
-### Wishlist
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/wishlist` | View wishlist |
-| POST | `/wishlist/add/{productId}` | Add product |
-| DELETE | `/wishlist/remove/{productId}` | Remove product |
-| GET | `/wishlist/count` | Get count |
-
-### Orders
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/checkout` | Checkout page |
-| POST | `/checkout` | Place order |
-| GET | `/track-order` | Order tracking form |
-| POST | `/track-order` | Search by order number |
-| GET | `/track-order/{orderNumber}` | View order status |
-
-### Support
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/support` | List tickets |
-| POST | `/support` | Create ticket |
-| GET | `/support/{ticket}` | View ticket |
-| POST | `/support/{ticket}/reply` | Reply to ticket (AJAX) |
-| GET | `/support/{ticket}/check-new-messages` | Poll for new messages (3s) |
-
-### Notifications
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/notifications` | View all notifications |
-| GET | `/notifications/count` | Get unread count (30s polling) |
-| POST | `/notifications/{id}/read` | Mark as read |
-| POST | `/notifications/mark-all-read` | Mark all as read |
-| DELETE | `/notifications/{id}` | Delete notification |
-
----
-
-## 🧪 Testing
-
-The project includes a comprehensive test suite with **84 tests** covering all major features.
-
-### Run Tests
-
-```bash
-# Run all tests
-php artisan test
-
-# Run with verbose output
-php artisan test -v
-
-# Run specific test suite
-php artisan test --filter=CartTest
-php artisan test --filter=OrderTest
-
-# Using composer script
-composer test
-```
-
-### Test Coverage
-
-| Suite | Tests | Coverage |
-|-------|-------|----------|
-| AuthTest | 14 | Registration, login, logout, profile, password |
-| CartTest | 12 | Add, update, remove, stock validation |
-| OrderTest | 9 | Checkout, order placement, tracking |
-| ProductTest | 11 | Listing, details, slug generation |
-| WishlistTest | 9 | Add, remove, user isolation |
-| CouponTest | 14 | Validation, calculation, apply/remove |
-| ReviewTest | 7 | Submit, moderation, queries |
-| Import Tests | 6 | Bulk import, failures, variants |
-
----
+<br/>
 
 ## ⚙️ Configuration
 
 ### Environment Variables
 
 ```env
-# Application
+# App
 APP_NAME=e-Shop
-APP_ENV=local
-APP_DEBUG=true
 APP_URL=http://localhost:8000
 
 # Database
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=velorashop
-DB_USERNAME=root
-DB_PASSWORD=
+DB_DATABASE=eshop
 
-# Queue (required for imports & notifications)
+# Queue (required)
 QUEUE_CONNECTION=database
 
-# Mail (Gmail SMTP for production)
+# Mail (Gmail SMTP)
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=your-email@gmail.com
-MAIL_PASSWORD=your-16-digit-app-password
+MAIL_PASSWORD=your-app-password
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS="your-email@gmail.com"
-MAIL_FROM_NAME="${APP_NAME}"
 
-# Alternative: Yandex Mail
-# MAIL_HOST=smtp.yandex.ru
-# MAIL_PORT=465
-# MAIL_ENCRYPTION=ssl
-
-# Session & Cache
-SESSION_DRIVER=database
-CACHE_STORE=database
+# OAuth (optional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
 ```
 
-### Queue Configuration
+<br/>
 
-Background jobs are used for:
-- Bulk product imports
-- Email notifications
-- Order status notifications
+### 📧 Gmail Setup
 
-```bash
-# Start queue worker
-php artisan queue:work
+1. Enable [2-Step Verification](https://myaccount.google.com/security)
+2. Create [App Password](https://myaccount.google.com/apppasswords)
+3. Add to `.env` and run `php artisan config:clear`
 
-# Or use the dev script which includes queue
-composer dev
-```
-
-### Email Configuration
-
-For **real email delivery** (even from localhost):
-
-#### Gmail Setup:
-1. Enable 2-Step Verification: https://myaccount.google.com/security
-2. Generate App Password: https://myaccount.google.com/apppasswords
-3. Update `.env`:
-   ```env
-   MAIL_MAILER=smtp
-   MAIL_HOST=smtp.gmail.com
-   MAIL_PORT=587
-   MAIL_USERNAME=your-email@gmail.com
-   MAIL_PASSWORD=your-16-digit-app-password
-   MAIL_ENCRYPTION=tls
-   ```
-4. Run: `php artisan config:clear`
-
-#### Notifications Sent:
-- Order status changes
-- New ticket replies
-- Ticket status updates
-- Password resets
-- Email verification
-
-### Language Configuration
-
-Supported languages: **English** (en), **Russian** (ru), **Latvian** (lv)
-
-Change language via:
-- URL: `/language/{locale}` (en, ru, lv)
-- Session-based preference
+<br/>
 
 ---
+
+<br/>
+
+## 🔌 API Endpoints
+
+<details>
+<summary><b>📦 Products</b></summary>
+
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/products` | Product listing |
+| GET | `/products/{slug}` | Product details |
+| GET | `/category/{slug}` | By category |
+| GET | `/search` | Global search |
+
+</details>
+
+<details>
+<summary><b>🛒 Cart</b></summary>
+
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/cart` | View cart |
+| POST | `/cart/add/{id}` | Add item |
+| PATCH | `/cart/update/{id}` | Update qty |
+| DELETE | `/cart/remove/{id}` | Remove item |
+| POST | `/cart/coupon/apply` | Apply coupon |
+
+</details>
+
+<details>
+<summary><b>🏢 Companies</b></summary>
+
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/companies` | All companies |
+| GET | `/companies/{slug}` | Company page |
+| POST | `/companies/{id}/follow` | Follow/unfollow |
+
+</details>
+
+<details>
+<summary><b>💬 Support</b></summary>
+
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/support` | List tickets |
+| POST | `/support` | Create ticket |
+| GET | `/support/{id}` | View ticket |
+| POST | `/support/{id}/reply` | Send message |
+
+</details>
+
+<br/>
+
+---
+
+<br/>
 
 ## 📝 License
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced under the [MIT License](https://opensource.org/licenses/MIT).
+
+<br/>
 
 ---
 
+<br/>
+
 <div align="center">
 
-### Built with
+### 🌟 Star this repo if you find it helpful!
+
+<br/>
+
+**Built with ❤️ using**
+
+<br/>
 
 [![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![Filament](https://img.shields.io/badge/Filament-FDAE4B?style=for-the-badge&logo=laravel&logoColor=white)](https://filamentphp.com)
+[![Livewire](https://img.shields.io/badge/Livewire-FB70A9?style=for-the-badge&logo=livewire&logoColor=white)](https://livewire.laravel.com)
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpine.js&logoColor=white)](https://alpinejs.dev)
 [![Tailwind](https://img.shields.io/badge/Tailwind-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+
+<br/>
+
+<sub>Made by <a href="https://github.com/Ichiro149">@Ichiro149</a></sub>
 
 </div>

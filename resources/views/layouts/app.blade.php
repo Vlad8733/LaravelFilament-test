@@ -25,17 +25,34 @@
                 theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
 
-            // remove any existing theme-* classes from html and body
+            // Store resolved theme for later use
+            window.__resolvedTheme = theme;
+
+            // remove any existing theme-* classes
             function stripThemeClasses(el) {
                 if (!el || !el.className) return;
                 el.className = el.className.replace(/(^|\s)theme-\S+/g, '');
             }
 
+            // Apply to html immediately
             stripThemeClasses(document.documentElement);
-            stripThemeClasses(document.body);
-
             document.documentElement.classList.add('theme-' + theme);
-            document.body.classList.add('theme-' + theme);
+
+            // Apply to body when it exists
+            function applyToBody() {
+                if (document.body) {
+                    stripThemeClasses(document.body);
+                    document.body.classList.add('theme-' + theme);
+                }
+            }
+
+            // Try immediately (won't work in head)
+            applyToBody();
+
+            // Also apply when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', applyToBody);
+            }
 
             // keep normalized keys so other scripts read the same value
             try {
@@ -488,7 +505,7 @@
             }
         }
 
-        .logo-img { height: 40px; width: auto; display: block; }
+        .logo-img { height: 70px; width: auto; display: block; }
 
         .search-input {
             width: 100%;
@@ -568,7 +585,7 @@
 
         #site-nav .logo-img {
             width: auto !important;
-            height: 40px !important;
+            height: 70px !important;
             max-width: none !important;
         }
 
@@ -687,6 +704,31 @@
         .notification-content { flex: 1; min-width: 0; }
         .notification-message { font-size: 0.9rem; color: #e5e7eb; line-height: 1.4; margin-bottom: 4px; }
         .notification-time { font-size: 0.75rem; color: #6b7280; }
+        
+        .notification-dropdown-footer {
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .notification-dropdown-footer a {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #000 !important;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .notification-dropdown-footer a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
         
         .checkout-btn {
             display: inline-flex;
@@ -911,7 +953,48 @@
         }
 
         html.theme-light .profile-dropdown-header {
-            background: #fafafa !important;
+            background: #ffffff !important;
+            border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        html.theme-light .profile-dropdown-header::before,
+        html.theme-light .profile-dropdown-header::after {
+            display: none !important;
+            content: none !important;
+        }
+
+        html.theme-light .profile-dropdown-header * {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            --tw-ring-shadow: none !important;
+            --tw-ring-color: transparent !important;
+        }
+
+        html.theme-light .profile-dropdown-avatar {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            --tw-ring-shadow: none !important;
+            --tw-ring-color: transparent !important;
+        }
+
+        html.theme-light .profile-dropdown-avatar img {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        html.theme-light .profile-dropdown-info {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
         }
 
         html.theme-light .profile-dropdown-name {
@@ -923,20 +1006,44 @@
         }
 
         html.theme-light .profile-dropdown-divider {
-            background: #e5e7eb !important;
+            background: transparent !important;
+            display: none !important;
         }
 
         html.theme-light .profile-dropdown-section-title {
             color: #9ca3af !important;
         }
 
-        html.theme-light .profile-dropdown-item {
-            color: #3f3f46 !important;
+        html.theme-light .profile-dropdown-section {
+            background: transparent !important;
         }
 
-        html.theme-light .profile-dropdown-item:hover {
+        html.theme-light .profile-dropdown-item,
+        html.theme-light a.profile-dropdown-item,
+        html.theme-light button.profile-dropdown-item {
+            color: #3f3f46 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        html.theme-light .profile-dropdown-item:hover,
+        html.theme-light a.profile-dropdown-item:hover,
+        html.theme-light button.profile-dropdown-item:hover {
             background: #f5f5f5 !important;
             color: #18181b !important;
+            border: none !important;
+        }
+
+        html.theme-light .profile-dropdown-item svg {
+            color: #71717a !important;
+            stroke: #71717a !important;
+        }
+
+        html.theme-light .profile-dropdown-item:hover svg {
+            color: #18181b !important;
+            stroke: #18181b !important;
         }
 
         html.theme-light .profile-dropdown-item.admin-link {
@@ -966,11 +1073,21 @@
 
         html.theme-light .notification-dropdown-header {
             background: #fafafa !important;
-            border-color: #e5e7eb !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        html.theme-light .notification-dropdown-header * {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
         }
 
         html.theme-light .notification-dropdown-title {
             color: #18181b !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
         }
 
         html.theme-light .notification-item {
@@ -994,7 +1111,33 @@
         }
 
         html.theme-light .notification-dropdown-empty {
-            color: #9ca3af !important;
+            color: #71717a !important;
+        }
+
+        html.theme-light .notification-dropdown-empty svg {
+            color: #d4d4d8 !important;
+        }
+
+        html.theme-light .notification-dropdown-footer {
+            background: #fafafa !important;
+            border-color: #e5e7eb !important;
+        }
+
+        html.theme-light .notification-dropdown-footer a {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            color: #000 !important;
+        }
+
+        html.theme-light .notification-message {
+            color: #18181b !important;
+        }
+
+        html.theme-light .profile-dropdown-item svg {
+            color: #71717a !important;
+        }
+
+        html.theme-light .profile-dropdown-item:hover svg {
+            color: #18181b !important;
         }
 
         /* Nav icons - Light Theme */
