@@ -43,7 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('change', function() {
             themeCards.forEach(i => i.closest('.theme-card').classList.remove('selected'));
             this.closest('.theme-card').classList.add('selected');
+            // Save to all theme keys for consistency
             localStorage.setItem('theme', this.value);
+            localStorage.setItem('settings_theme', this.value);
+            localStorage.setItem('site_theme', this.value);
             applyTheme(this.value);
             showToast('{{ __("settings.theme_saved") }}', 'success');
         });
