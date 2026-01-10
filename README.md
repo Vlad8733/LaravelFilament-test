@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛒 ShopLy
+# 🛒 e-Shop
 
 ### Modern E-Commerce Platform
 
@@ -477,7 +477,7 @@ composer test
 
 ```env
 # Application
-APP_NAME=ShopLy
+APP_NAME=e-Shop
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:8000
@@ -486,7 +486,7 @@ APP_URL=http://localhost:8000
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=shoply
+DB_DATABASE=velorashop
 DB_USERNAME=root
 DB_PASSWORD=
 

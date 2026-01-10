@@ -1,4 +1,4 @@
-# ShopLy Docker Commands
+# VeloraShop Docker Commands
 # Usage: make <target>
 
 .PHONY: help build up down restart logs shell mysql redis test fresh assets queue
@@ -9,7 +9,7 @@ GREEN := \033[32m
 RESET := \033[0m
 
 help: ## Show this help
-	@echo "$(BLUE)ShopLy Docker Commands$(RESET)"
+	@echo "$(BLUE)VeloraShop Docker Commands$(RESET)"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(GREEN)%-15s$(RESET) %s\n", $$1, $$2}'
 
@@ -43,7 +43,7 @@ shell: ## Open shell in app container
 	docker compose exec app bash
 
 mysql: ## Open MySQL CLI
-	docker compose exec mysql mysql -u shoply -psecret shoply
+	docker compose exec mysql mysql -u eshop -psecret eshop
 
 redis: ## Open Redis CLI
 	docker compose exec redis redis-cli
@@ -127,7 +127,7 @@ npm-build: ## Build assets for production
 # ========================================
 
 init: build up install npm-install npm-build ## Full project initialization
-	@echo "$(GREEN)✓ ShopLy is ready at http://localhost:8080$(RESET)"
+	@echo "$(GREEN)✓ VeloraShop is ready at http://localhost:8080$(RESET)"
 
 dev: up ## Start development environment
 	@echo "$(GREEN)✓ Development server running at http://localhost:8080$(RESET)"

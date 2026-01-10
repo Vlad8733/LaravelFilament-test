@@ -62,7 +62,7 @@
             <section class="legal-section">
                 <h2>{{ __('pages.cookies_contact_title') }}</h2>
                 <p>{{ __('pages.cookies_contact_text') }}</p>
-                <p><a href="mailto:privacy@shoply.com">privacy@shoply.com</a></p>
+                <p><a href="mailto:privacy@e-shop.com">privacy@e-shop.com</a></p>
             </section>
         </div>
     </div>

@@ -34,7 +34,7 @@ class SellerPanelProvider extends PanelProvider
                 'info' => Color::Blue,
             ])
             ->darkMode(true, true)
-            ->brandName('ShopLy Seller')
+            ->brandName('e-Shop Seller')
             ->brandLogo(asset('storage/logo/ShopLySellerlogo.png'))
             ->brandLogoHeight('6rem')
             ->favicon(asset('favicon.ico'))

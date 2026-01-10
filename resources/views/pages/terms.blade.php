@@ -82,7 +82,7 @@
             <section class="legal-section">
                 <h2>{{ __('pages.terms_contact_title') }}</h2>
                 <p>{{ __('pages.terms_contact_text') }}</p>
-                <p><a href="mailto:legal@shoply.com">legal@shoply.com</a></p>
+                <p><a href="mailto:legal@e-shop.com">legal@e-shop.com</a></p>
             </section>
         </div>
     </div>

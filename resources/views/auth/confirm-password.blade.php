@@ -2,7 +2,7 @@
 <html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
-    <title>{{ __('auth.confirm_password_title') }} — ShopLy</title>
+    <title>{{ __('auth.confirm_password_title') }} — e-Shop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
@@ -28,7 +28,7 @@
 <body>
     <div class="card">
         <div class="brand">
-            <h1>ShopLy</h1>
+            <h1><span style="color: #ffffff;">e-</span><span style="color: #f59e0b;">Shop</span></h1>
             <p>{{ __('auth.confirm_password_title') }}</p>
         </div>
 

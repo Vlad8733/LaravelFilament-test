@@ -2,7 +2,7 @@
 <html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
-    <title>{{ __('auth.register') }} — ShopLy</title>
+    <title>{{ __('auth.register') }} — e-Shop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
@@ -143,7 +143,7 @@
 <body>
     <div class="card">
         <div class="brand">
-            <h2>ShopLy</h2>
+            <h2><span style="color: #ffffff;">e-</span><span style="color: #f59e0b;">Shop</span></h2>
             <p>{{ __('auth.register_title') }}</p>
         </div>
 

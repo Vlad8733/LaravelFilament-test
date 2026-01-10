@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('compare.title') . ' - ShopLy')
+@section('title', __('compare.title') . ' - e-Shop')
 
 @push('styles')
     @vite('resources/css/compare/compare.css')

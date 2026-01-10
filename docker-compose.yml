@@ -4,14 +4,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: shoply-app
+    container_name: eshop-app
     restart: unless-stopped
     working_dir: /var/www
     volumes:
       - ./:/var/www
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
-      - shoply-network
+      - eshop-network
     depends_on:
       - mysql
       - redis
@@ -19,7 +19,7 @@ services:
   # Nginx Web Server
   nginx:
     image: nginx:alpine
-    container_name: shoply-nginx
+    container_name: eshop-nginx
     restart: unless-stopped
     ports:
       - "8080:80"
@@ -27,26 +27,26 @@ services:
       - ./:/var/www
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
-      - shoply-network
+      - eshop-network
     depends_on:
       - app
 
   # MySQL Database
   mysql:
     image: mysql:8.0
-    container_name: shoply-mysql
+    container_name: eshop-mysql
     restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-shoply}
+      MYSQL_DATABASE: ${DB_DATABASE:-eshop}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_USER: ${DB_USERNAME:-shoply}
+      MYSQL_USER: ${DB_USERNAME:-eshop}
       MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - shoply-network
+      - eshop-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -56,14 +56,14 @@ services:
   # Redis Cache
   redis:
     image: redis:alpine
-    container_name: shoply-redis
+    container_name: eshop-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
     networks:
-      - shoply-network
+      - eshop-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -75,14 +75,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: shoply-queue
+    container_name: eshop-queue
     restart: unless-stopped
     working_dir: /var/www
     command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
     volumes:
       - ./:/var/www
     networks:
-      - shoply-network
+      - eshop-network
     depends_on:
       - app
       - mysql
@@ -91,17 +91,17 @@ services:
   # Node.js for assets (development only)
   node:
     image: node:20-alpine
-    container_name: shoply-node
+    container_name: eshop-node
     working_dir: /var/www
     volumes:
       - ./:/var/www
     networks:
-      - shoply-network
+      - eshop-network
     profiles:
       - dev
 
 networks:
-  shoply-network:
+  eshop-network:
     driver: bridge
 
 volumes:

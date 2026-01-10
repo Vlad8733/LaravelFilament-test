@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'ShopLy')</title>
+    <title>@yield('title', 'e-Shop')</title>
 
     <!-- Apply theme before CSS loads to prevent flash -->
     <script>
@@ -1097,7 +1097,7 @@
     <div class="mobile-nav-drawer" :class="{ 'open': mobileMenuOpen }" @touchmove.stop>
         <div class="mobile-nav-header">
             <a href="{{ url('/products') }}">
-                <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="mobile-nav-logo" alt="ShopLy">
+                <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="mobile-nav-logo" alt="e-Shop">
             </a>
             <button class="mobile-nav-close" @click="mobileMenuOpen = false">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1262,7 +1262,7 @@
             </button>
             
             <a href="{{ url('/products') }}">
-                <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="logo-img" alt="ShopLy">
+                <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="logo-img" alt="e-Shop">
             </a>
 
             <div class="relative" x-data="searchBox()" @click.away="showResults=false">

@@ -36,7 +36,7 @@ class AdminPanelProvider extends PanelProvider
                 'info' => Color::Blue,
             ])
             ->darkMode(true, true)
-            ->brandName('ShopLy Admin')
+            ->brandName('e-Shop Admin')
             ->brandLogo(asset('storage/logo/ShopLyAdminlogo.png'))
             ->brandLogoHeight('6rem')
             ->favicon(asset('favicon.ico'))

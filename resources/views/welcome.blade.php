@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>{{ config('app.name', 'ShopLy') }} — Welcome</title>
+    <title>{{ config('app.name', 'e-Shop') }} — Welcome</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -484,8 +484,8 @@
         <!-- Header -->
         <header class="header">
             <a href="/" class="logo">
-                <div class="logo-icon">SL</div>
-                <span class="logo-text">ShopLy</span>
+                <div class="logo-icon">eS</div>
+                <span class="logo-text"><span style="color: #ffffff;">e-</span><span style="color: #f59e0b;">Shop</span></span>
             </a>
             <div class="header-actions">
                 @php
@@ -608,7 +608,7 @@
         <!-- Footer -->
         <footer class="footer">
             <div class="footer-text">
-                © {{ date('Y') }} ShopLy. {{ __('welcome.footer_rights') }}
+                © {{ date('Y') }} e-Shop. {{ __('welcome.footer_rights') }}
             </div>
             <div class="footer-links">
                 <a href="https://github.com/Vlad8733/LaravelFilament-test.git">{{ __('welcome.footer_github') }}</a>
