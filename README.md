@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="public/images/logo.png" alt="e-Shop Logo" width="120" />
-
 # 🛒 e-Shop
 
 ### ⚡ Modern E-Commerce Platform
@@ -195,7 +193,7 @@ their favorite sellers
 <sub>JavaScript</sub>
 </td>
 <td align="center" width="20%">
-<img src="https://tailwindcss.com/_next/static/media/tailwindcss-mark.3c5441fc7a190f0.svg" width="50"/><br/>
+<img src="https://www.vectorlogo.zone/logos/tailwindcss/tailwindcss-icon.svg" width="50"/><br/>
 <b>Tailwind CSS</b><br/>
 <sub>Styling</sub>
 </td>

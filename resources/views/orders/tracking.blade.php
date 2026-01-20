@@ -32,19 +32,25 @@
 
         <div class="tracking-grid">
             <!-- Main Timeline -->
+            @php
+                $statusColor = $order->status?->color ?? '#6b7280';
+                $statusName = $order->status?->translated_name ?? __('order.status_pending');
+                $statusDesc = $order->status?->translated_description ?? __('order.status_pending_desc');
+                $statusSlug = $order->status?->slug ?? 'pending';
+            @endphp
             <div class="tracking-main">
                 <!-- Current Status Card -->
                 <div class="tracking-card">
                     <div class="status-card">
                         <div class="status-info">
-                            <h2 style="color: {{ $order->status->color }}">{{ $order->status->translated_name }}</h2>
-                            <p>{{ $order->status->translated_description }}</p>
+                            <h2 style="color: {{ $statusColor }}">{{ $statusName }}</h2>
+                            <p>{{ $statusDesc }}</p>
                         </div>
-                        <div class="status-icon" style="background: {{ $order->status->color }}15; border-color: {{ $order->status->color }}">
-                            <svg style="color: {{ $order->status->color }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                @if($order->status->slug === 'delivered')
+                        <div class="status-icon" style="background: {{ $statusColor }}15; border-color: {{ $statusColor }}">
+                            <svg style="color: {{ $statusColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                @if($statusSlug === 'delivered')
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                @elseif(in_array($order->status->slug, ['shipped', 'in-transit', 'out-for-delivery']))
+                                @elseif(in_array($statusSlug, ['shipped', 'in-transit', 'out-for-delivery']))
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
                                 @else
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -75,14 +81,18 @@
                     
                     <div class="timeline">
                         @foreach($order->statusHistory as $history)
+                        @php
+                            $historyColor = $history->status?->color ?? '#6b7280';
+                            $historyName = $history->status?->translated_name ?? __('order.status_changed');
+                        @endphp
                         <div class="timeline-item">
                             <div class="timeline-dot {{ $loop->first ? 'active' : '' }}" 
-                                 style="border-color: {{ $history->status->color }}; {{ $loop->first ? 'background: ' . $history->status->color . ';' : '' }}"></div>
+                                 style="border-color: {{ $historyColor }}; {{ $loop->first ? 'background: ' . $historyColor . ';' : '' }}"></div>
                             
                             <div class="timeline-content">
                                 <div class="timeline-header">
-                                    <span class="timeline-status" style="color: {{ $history->status->color }}">
-                                        {{ $history->status->translated_name }}
+                                    <span class="timeline-status" style="color: {{ $historyColor }}">
+                                        {{ $historyName }}
                                     </span>
                                     <span class="timeline-date">
                                         {{ $history->changed_at->format('M d, Y') }} · {{ $history->changed_at->format('H:i') }}

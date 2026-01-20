@@ -95,7 +95,28 @@ class ImportJobResource extends Resource
                     })
                     ->visible(fn ($record) => in_array($record->status, ['completed', 'failed', 'cancelled'])),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'processing' => 'Processing',
+                        'completed' => 'Completed',
+                        'failed' => 'Failed',
+                        'cancelled' => 'Cancelled',
+                    ]),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('from')
+                            ->label('From'),
+                        \Filament\Forms\Components\DatePicker::make('until')
+                            ->label('Until'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query
+                        ->when($data['from'], fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+                        ->when($data['until'], fn ($q, $date) => $q->whereDate('created_at', '<=', $date))
+                    ),
+            ]);
     }
 
     public static function getPages(): array
@@ -109,6 +130,14 @@ class ImportJobResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery();
+        $query = parent::getEloquentQuery();
+
+        // Non-admins can only see their own imports
+        $user = auth()->user();
+        if ($user && ! $user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query;
     }
 }

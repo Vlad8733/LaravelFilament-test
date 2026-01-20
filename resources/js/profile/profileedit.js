@@ -6,9 +6,21 @@ document.addEventListener('DOMContentLoaded', () => {
         avatarInput.addEventListener('change', e => {
             const file = e.target.files && e.target.files[0];
             if (!file) return;
+            
+            // Validate file type for security
+            if (!file.type.startsWith('image/')) {
+                console.warn('Invalid file type selected');
+                return;
+            }
+            
             const reader = new FileReader();
             reader.onload = ev => {
-                avatarPreview.innerHTML = '<img src="' + ev.target.result + '" alt="avatar">';
+                // Use DOM API instead of innerHTML to prevent XSS
+                const img = document.createElement('img');
+                img.src = ev.target.result;
+                img.alt = 'avatar';
+                img.className = 'w-full h-full object-cover rounded-full';
+                avatarPreview.replaceChildren(img);
             };
             reader.readAsDataURL(file);
         });

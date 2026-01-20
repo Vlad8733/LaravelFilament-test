@@ -18,7 +18,7 @@ class CompanyFactory extends Factory
         return [
             'user_id' => User::factory(),
             'name' => $name,
-            'slug' => Str::slug($name) . '-' . fake()->unique()->randomNumber(5),
+            'slug' => Str::slug($name).'-'.fake()->unique()->randomNumber(5),
             'description' => fake()->paragraphs(3, true),
             'short_description' => fake()->sentence(),
             'email' => fake()->companyEmail(),

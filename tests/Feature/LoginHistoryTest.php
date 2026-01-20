@@ -14,7 +14,7 @@ class LoginHistoryTest extends TestCase
     public function test_login_history_can_be_created(): void
     {
         $user = User::factory()->create();
-        
+
         $history = LoginHistory::create([
             'user_id' => $user->id,
             'ip_address' => '192.168.1.1',
@@ -32,7 +32,7 @@ class LoginHistoryTest extends TestCase
     public function test_login_history_belongs_to_user(): void
     {
         $user = User::factory()->create(['name' => 'Test User']);
-        
+
         $history = LoginHistory::create([
             'user_id' => $user->id,
             'ip_address' => '127.0.0.1',

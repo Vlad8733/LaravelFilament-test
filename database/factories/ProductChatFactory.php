@@ -17,7 +17,7 @@ class ProductChatFactory extends Factory
             'product_id' => Product::factory(),
             'customer_id' => User::factory(),
             'seller_id' => User::factory(),
-            'status' => 'active',
+            'status' => 'open',
             'last_message_at' => now(),
             'last_message_by' => null,
         ];

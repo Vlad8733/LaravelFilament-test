@@ -49,9 +49,13 @@ class ProductChat extends Model
         return $this->hasMany(ProductChatMessage::class)->orderBy('created_at', 'asc');
     }
 
-    public function latestMessage(): HasMany
+    /**
+     * Get the latest message in the chat.
+     * Use with() for eager loading to avoid N+1.
+     */
+    public function latestMessage(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasMany(ProductChatMessage::class)->latest()->limit(1);
+        return $this->hasOne(ProductChatMessage::class)->latestOfMany();
     }
 
     public function unreadMessagesForSeller(): int

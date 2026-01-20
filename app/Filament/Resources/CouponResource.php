@@ -50,13 +50,16 @@ class CouponResource extends Resource
                                         'percentage' => 'Percentage (%)',
                                         'fixed' => 'Fixed Amount ($)',
                                     ])
-                                    ->default('percentage'),
+                                    ->default('percentage')
+                                    ->live(),
 
                                 Forms\Components\TextInput::make('value')
                                     ->required()
                                     ->numeric()
                                     ->minValue(0)
-                                    ->suffix(fn (Get $get) => $get('type') === 'percentage' ? '%' : '$'),
+                                    ->maxValue(fn (Get $get) => $get('type') === 'percentage' ? 100 : 999999)
+                                    ->suffix(fn (Get $get) => $get('type') === 'percentage' ? '%' : '$')
+                                    ->helperText(fn (Get $get) => $get('type') === 'percentage' ? 'Max 100%' : null),
                             ]),
 
                         Forms\Components\TextInput::make('minimum_amount')

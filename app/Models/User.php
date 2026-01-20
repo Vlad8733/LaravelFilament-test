@@ -42,6 +42,13 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'locale',
         'newsletter_subscribed',
         'newsletter_subscribed_at',
+    ];
+
+    /**
+     * Fields that should only be updated through dedicated methods.
+     * Social provider IDs are excluded from fillable for security.
+     */
+    protected $guarded = [
         'google_id',
         'google_avatar',
         'github_id',

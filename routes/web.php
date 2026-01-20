@@ -280,11 +280,14 @@ Route::middleware(['auth'])->prefix('settings')->name('settings.')->group(functi
     Route::get('/login-history', [App\Http\Controllers\SettingsController::class, 'getLoginHistory'])->name('login-history');
 });
 
-// Analytics Routes
-Route::middleware(['auth'])->prefix('analytics')->name('analytics.')->group(function () {
-    Route::get('/', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('index');
-    Route::get('/data', [App\Http\Controllers\AnalyticsController::class, 'getData'])->name('data');
-});
+// Analytics Routes (Admin only)
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->prefix('analytics')
+    ->name('analytics.')
+    ->group(function () {
+        Route::get('/', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('index');
+        Route::get('/data', [App\Http\Controllers\AnalyticsController::class, 'getData'])->name('data');
+    });
 
 // Invoice Routes (protected by authorization)
 Route::prefix('invoice')->name('invoice.')->group(function () {

@@ -45,7 +45,7 @@ class ProductChatTest extends TestCase
     {
         $customer = User::factory()->create(['name' => 'Customer']);
         $seller = User::factory()->create(['name' => 'Seller']);
-        
+
         $chat = ProductChat::factory()->create([
             'customer_id' => $customer->id,
             'seller_id' => $seller->id,
@@ -126,7 +126,7 @@ class ProductChatTest extends TestCase
         ]);
 
         $messages = $chat->messages;
-        
+
         $this->assertEquals($message1->id, $messages->first()->id);
         $this->assertEquals($message2->id, $messages->last()->id);
     }
@@ -151,8 +151,9 @@ class ProductChatTest extends TestCase
             'created_at' => now(),
         ]);
 
-        $latest = $chat->latestMessage->first();
-        
+        $chat->refresh();
+        $latest = $chat->latestMessage;
+
         $this->assertEquals('Latest message', $latest->message);
     }
 
@@ -160,7 +161,7 @@ class ProductChatTest extends TestCase
     {
         $customer = User::factory()->create();
         $seller = User::factory()->create(['role' => 'seller']);
-        
+
         $chat = ProductChat::factory()->create([
             'customer_id' => $customer->id,
             'seller_id' => $seller->id,
@@ -173,7 +174,7 @@ class ProductChatTest extends TestCase
     {
         $customer = User::factory()->create();
         $seller = User::factory()->create(['role' => 'seller']);
-        
+
         $chat = ProductChat::factory()->create([
             'customer_id' => $customer->id,
             'seller_id' => $seller->id,
@@ -181,9 +182,9 @@ class ProductChatTest extends TestCase
         ]);
 
         $this->assertEquals($customer->id, $chat->last_message_by);
-        
+
         $chat->update(['last_message_by' => $seller->id]);
-        
+
         $this->assertEquals($seller->id, $chat->fresh()->last_message_by);
     }
 
@@ -191,7 +192,7 @@ class ProductChatTest extends TestCase
     {
         $customer = User::factory()->create();
         $seller = User::factory()->create(['role' => 'seller']);
-        
+
         $product1 = Product::factory()->create();
         $product2 = Product::factory()->create();
 

@@ -15,7 +15,7 @@ class TicketTest extends TestCase
     public function test_ticket_can_be_created(): void
     {
         $user = User::factory()->create();
-        
+
         $ticket = Ticket::factory()->create([
             'user_id' => $user->id,
             'subject' => 'Test Support Ticket',
@@ -49,13 +49,13 @@ class TicketTest extends TestCase
     public function test_ticket_can_have_messages(): void
     {
         $ticket = Ticket::factory()->create();
-        
+
         TicketMessage::create([
             'ticket_id' => $ticket->id,
             'user_id' => $ticket->user_id,
             'message' => 'First message',
         ]);
-        
+
         TicketMessage::create([
             'ticket_id' => $ticket->id,
             'user_id' => $ticket->user_id,
@@ -68,15 +68,15 @@ class TicketTest extends TestCase
     public function test_ticket_status_changes(): void
     {
         $ticket = Ticket::factory()->create();
-        
+
         $this->assertEquals(Ticket::STATUS_OPEN, $ticket->status);
-        
+
         $ticket->update(['status' => Ticket::STATUS_IN_PROGRESS]);
         $this->assertEquals(Ticket::STATUS_IN_PROGRESS, $ticket->fresh()->status);
-        
+
         $ticket->update(['status' => Ticket::STATUS_RESOLVED]);
         $this->assertEquals(Ticket::STATUS_RESOLVED, $ticket->fresh()->status);
-        
+
         $ticket->update(['status' => Ticket::STATUS_CLOSED]);
         $this->assertEquals(Ticket::STATUS_CLOSED, $ticket->fresh()->status);
     }
@@ -97,12 +97,12 @@ class TicketTest extends TestCase
     public function test_ticket_last_reply_at_updates(): void
     {
         $ticket = Ticket::factory()->create(['last_reply_at' => null]);
-        
+
         $this->assertNull($ticket->last_reply_at);
-        
+
         $now = now();
         $ticket->update(['last_reply_at' => $now]);
-        
+
         $this->assertNotNull($ticket->fresh()->last_reply_at);
     }
 
@@ -124,13 +124,13 @@ class TicketTest extends TestCase
     public function test_ticket_messages_relationship(): void
     {
         $ticket = Ticket::factory()->create();
-        
+
         $message1 = TicketMessage::create([
             'ticket_id' => $ticket->id,
             'user_id' => $ticket->user_id,
             'message' => 'Message 1',
         ]);
-        
+
         $message2 = TicketMessage::create([
             'ticket_id' => $ticket->id,
             'user_id' => $ticket->user_id,
@@ -145,29 +145,29 @@ class TicketTest extends TestCase
     public function test_ticket_can_be_closed(): void
     {
         $ticket = Ticket::factory()->create(['status' => Ticket::STATUS_OPEN]);
-        
+
         $ticket->update(['status' => Ticket::STATUS_CLOSED]);
-        
+
         $this->assertEquals(Ticket::STATUS_CLOSED, $ticket->fresh()->status);
     }
 
     public function test_ticket_can_be_resolved(): void
     {
         $ticket = Ticket::factory()->inProgress()->create();
-        
+
         $this->assertEquals(Ticket::STATUS_IN_PROGRESS, $ticket->status);
-        
+
         $ticket->update(['status' => Ticket::STATUS_RESOLVED]);
-        
+
         $this->assertEquals(Ticket::STATUS_RESOLVED, $ticket->fresh()->status);
     }
 
     public function test_user_can_have_multiple_tickets(): void
     {
         $user = User::factory()->create();
-        
+
         Ticket::factory()->count(5)->create(['user_id' => $user->id]);
-        
+
         $this->assertCount(5, Ticket::where('user_id', $user->id)->get());
     }
 }

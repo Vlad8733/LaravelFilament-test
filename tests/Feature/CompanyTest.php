@@ -15,7 +15,7 @@ class CompanyTest extends TestCase
     public function test_company_can_be_created(): void
     {
         $user = User::factory()->create(['role' => 'seller']);
-        
+
         $company = Company::factory()->create([
             'user_id' => $user->id,
             'name' => 'Test Company',
@@ -39,7 +39,7 @@ class CompanyTest extends TestCase
     public function test_company_can_have_products(): void
     {
         $company = Company::factory()->create();
-        
+
         $products = Product::factory()->count(3)->create([
             'company_id' => $company->id,
         ]);
@@ -77,12 +77,12 @@ class CompanyTest extends TestCase
     public function test_company_active_products_only_returns_active(): void
     {
         $company = Company::factory()->create();
-        
+
         Product::factory()->count(2)->create([
             'company_id' => $company->id,
             'is_active' => true,
         ]);
-        
+
         Product::factory()->create([
             'company_id' => $company->id,
             'is_active' => false,
@@ -95,29 +95,29 @@ class CompanyTest extends TestCase
     public function test_company_can_be_verified(): void
     {
         $company = Company::factory()->create(['is_verified' => false]);
-        
+
         $this->assertFalse($company->is_verified);
-        
+
         $company->update(['is_verified' => true]);
-        
+
         $this->assertTrue($company->fresh()->is_verified);
     }
 
     public function test_company_can_be_deactivated(): void
     {
         $company = Company::factory()->create(['is_active' => true]);
-        
+
         $this->assertTrue($company->is_active);
-        
+
         $company->update(['is_active' => false]);
-        
+
         $this->assertFalse($company->fresh()->is_active);
     }
 
     public function test_company_has_slug(): void
     {
         $company = Company::factory()->create();
-        
+
         $this->assertNotNull($company->slug);
         $this->assertNotEmpty($company->slug);
         $this->assertIsString($company->slug);

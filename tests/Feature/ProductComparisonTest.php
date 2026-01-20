@@ -118,7 +118,7 @@ class ProductComparisonTest extends TestCase
         ProductComparison::create(['user_id' => $user2->id, 'product_id' => $product2->id]);
 
         $user1Comparisons = ProductComparison::where('user_id', $user1->id)->get();
-        
+
         $this->assertCount(1, $user1Comparisons);
         $this->assertEquals($product1->id, $user1Comparisons->first()->product_id);
     }
@@ -159,7 +159,7 @@ class ProductComparisonTest extends TestCase
         $exists1 = ProductComparison::where('user_id', $user->id)
             ->where('product_id', $product1->id)
             ->exists();
-            
+
         $exists2 = ProductComparison::where('user_id', $user->id)
             ->where('product_id', $product2->id)
             ->exists();

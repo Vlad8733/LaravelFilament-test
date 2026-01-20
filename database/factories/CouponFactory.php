@@ -14,7 +14,7 @@ class CouponFactory extends Factory
     {
         return [
             'code' => strtoupper(Str::random(8)),
-            'type' => fake()->randomElement(['fixed', 'percent']),
+            'type' => fake()->randomElement(['fixed', 'percentage']),
             'value' => fake()->randomFloat(2, 5, 50),
             'minimum_amount' => fake()->optional()->randomFloat(2, 20, 100),
             'usage_limit' => fake()->optional()->numberBetween(10, 100),
@@ -34,12 +34,20 @@ class CouponFactory extends Factory
         ]);
     }
 
-    public function percent(float $percent = 10): static
+    public function percentage(float $percent = 10): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'percent',
-            'value' => $percent,
+            'type' => 'percentage',
+            'value' => min($percent, 100), // Max 100%
         ]);
+    }
+
+    /**
+     * Alias for percentage() method.
+     */
+    public function percent(float $percent = 10): static
+    {
+        return $this->percentage($percent);
     }
 
     public function expired(): static
