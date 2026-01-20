@@ -500,6 +500,14 @@
             }
         }
 
+        /* ===== GLOBAL MOBILE CONTENT PADDING ===== */
+        @media (max-width: 900px) {
+            .main-content {
+                padding-top: 100px !important;
+                margin-top: 0 !important;
+            }
+        }
+
         /* ===== MOBILE MENU REDESIGN ===== */
         .mobile-nav-drawer {
             position: fixed !important;
@@ -1884,7 +1892,9 @@
         </div>
     </nav>
 
-    @yield('content')
+    <main class="main-content">
+        @yield('content')
+    </main>
 
     @include('components.footer')
     

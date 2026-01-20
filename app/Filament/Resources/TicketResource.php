@@ -226,7 +226,13 @@ class TicketResource extends Resource
                     )
                     ->toggle(),
             ])
+            ->recordUrl(fn ($record) => static::getUrl('chat', ['record' => $record]))
             ->actions([
+                Tables\Actions\Action::make('chat')
+                    ->label('Chat')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->url(fn ($record) => static::getUrl('chat', ['record' => $record]))
+                    ->color('success'),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])

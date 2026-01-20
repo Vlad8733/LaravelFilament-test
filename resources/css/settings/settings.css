@@ -1897,7 +1897,6 @@
     
     .settings-page {
         padding: 0 !important;
-        padding-top: 100px !important;
         min-height: 100vh !important;
         padding-bottom: env(safe-area-inset-bottom, 20px) !important;
     }
