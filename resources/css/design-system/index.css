@@ -1,0 +1,27 @@
+/* ============================================
+ * ICHIRO SHOP - Design System
+ * A unified, minimal design system
+ * ============================================
+ *
+ * Table of Contents:
+ * 1. Tokens - CSS Custom Properties
+ * 2. Base - Reset & Typography
+ * 3. Layout - Grid, Flexbox, Containers
+ * 4. Buttons - All button variants
+ * 5. Forms - Inputs, Selects, Checkboxes
+ * 6. Cards - Product cards, generic cards
+ * 7. Components - Badge, Alert, Toast, Modal
+ * 8. Navigation - Header, Footer, Tabs
+ * 9. Utilities - Helper classes
+ * ============================================
+ */
+
+@import '_tokens.css';
+@import '_base.css';
+@import '_layout.css';
+@import '_buttons.css';
+@import '_forms.css';
+@import '_cards.css';
+@import '_components.css';
+@import '_navigation.css';
+@import '_utilities.css';

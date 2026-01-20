@@ -5,7 +5,10 @@
  * then Tailwind, then app-specific overrides
  */
 
-/* Import unified design system */
+/* NEW: Unified Design System (2026) */
+@import './design-system/index.css';
+
+/* Legacy imports (gradually migrate to design-system) */
 @import './_variables.css';
 @import './_components.css';
 @import './_utilities.css';

@@ -1,0 +1,202 @@
+/* ============================================
+ * DESIGN SYSTEM - Form Styles
+ * ============================================
+ */
+
+/* Form group */
+.form-group {
+    margin-bottom: var(--space-4);
+}
+
+/* Labels */
+.form-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text);
+    margin-bottom: var(--space-2);
+}
+
+.form-label--required::after {
+    content: ' *';
+    color: var(--color-danger);
+}
+
+/* Base input styles */
+.form-input,
+.form-select,
+.form-textarea {
+    display: block;
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+    font-family: inherit;
+    line-height: 1.5;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+}
+
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+    border-color: var(--color-border-hover);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-muted);
+}
+
+.form-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* Input sizes */
+.form-input--sm {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+}
+
+.form-input--lg {
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--text-lg);
+}
+
+/* Textarea */
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Select */
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-3) center;
+    background-size: 1.25em;
+    padding-right: var(--space-10);
+    cursor: pointer;
+}
+
+/* Checkbox & Radio */
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+}
+
+.form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+}
+
+.form-check-label {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+/* Error state */
+.form-input--error,
+.form-select--error,
+.form-textarea--error {
+    border-color: var(--color-danger);
+}
+
+.form-input--error:focus,
+.form-select--error:focus,
+.form-textarea--error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.form-error {
+    font-size: var(--text-sm);
+    color: var(--color-danger);
+    margin-top: var(--space-1);
+}
+
+/* Help text */
+.form-help {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+}
+
+/* Input with icon */
+.form-input-wrapper {
+    position: relative;
+}
+
+.form-input-wrapper .form-input {
+    padding-left: var(--space-10);
+}
+
+.form-input-icon {
+    position: absolute;
+    left: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.form-input-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Input with button */
+.form-input-group {
+    display: flex;
+}
+
+.form-input-group .form-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.form-input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Number input with +/- */
+.form-number {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.form-number .form-input {
+    text-align: center;
+    border-radius: 0;
+    -moz-appearance: textfield;
+}
+
+.form-number .form-input::-webkit-outer-spin-button,
+.form-number .form-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-number .btn:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.form-number .btn:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}

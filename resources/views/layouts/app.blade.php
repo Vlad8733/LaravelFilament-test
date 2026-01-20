@@ -436,6 +436,249 @@
         }
         
         [x-cloak] { display: none !important; }
+        
+        /* DEMO BANNER - FIXED UNDER NAVBAR */
+        .demo-banner {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin: 0;
+            padding: 10px 20px;
+            background: linear-gradient(90deg, #1a1a2e 0%, #0f3460 50%, #1a1a2e 100%);
+            border: none;
+            border-bottom: 1px solid rgba(255, 193, 7, 0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            box-sizing: border-box;
+        }
+        .demo-banner .demo-icon {
+            width: 18px;
+            height: 18px;
+            color: #ffc107;
+            flex-shrink: 0;
+        }
+        .demo-banner .demo-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .demo-banner .demo-badge {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: #1a1a2e;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        @media (max-width: 480px) {
+            .demo-banner {
+                padding: 8px 12px;
+                gap: 8px;
+                font-size: 12px;
+            }
+            .demo-banner .demo-icon {
+                width: 16px;
+                height: 16px;
+            }
+            .demo-banner .demo-text {
+                max-width: 180px;
+            }
+            .demo-banner .demo-badge {
+                font-size: 9px;
+                padding: 3px 8px;
+            }
+        }
+
+        /* ===== MOBILE MENU REDESIGN ===== */
+        .mobile-nav-drawer {
+            position: fixed !important;
+            top: -1px !important;
+            left: 0 !important;
+            bottom: -1px !important;
+            height: calc(100% + 2px) !important;
+            z-index: 9999 !important;
+            background: linear-gradient(180deg, #0d0d12 0%, #080810 50%, #050508 100%) !important;
+            border-right: 1px solid rgba(245,158,11,0.15) !important;
+            box-shadow: 8px 0 60px rgba(0,0,0,0.9), inset -1px 0 0 rgba(255,255,255,0.05) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .mobile-nav-overlay {
+            position: fixed !important;
+            top: -1px !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: -1px !important;
+            height: calc(100% + 2px) !important;
+            width: 100vw !important;
+            z-index: 9998 !important;
+            background: rgba(0,0,0,0.9) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .mobile-nav-header {
+            background: linear-gradient(180deg, rgba(245,158,11,0.08) 0%, transparent 100%) !important;
+            padding: 24px 20px !important;
+            border-bottom: 1px solid rgba(245,158,11,0.2) !important;
+            position: relative !important;
+            margin: 0 !important;
+        }
+        .mobile-nav-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(245,158,11,0.4), transparent);
+        }
+        .mobile-nav-logo {
+            height: 48px !important;
+            width: auto !important;
+            filter: drop-shadow(0 4px 12px rgba(245,158,11,0.6)) !important;
+        }
+        .mobile-nav-close {
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 12px !important;
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            transition: all 0.2s ease !important;
+        }
+        .mobile-nav-close:hover {
+            background: rgba(239,68,68,0.15) !important;
+            border-color: rgba(239,68,68,0.3) !important;
+            transform: rotate(90deg);
+        }
+        .mobile-nav-search {
+            padding: 16px 20px !important;
+            background: rgba(0,0,0,0.3) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+        }
+        .mobile-nav-search input {
+            background: rgba(255,255,255,0.06) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 14px !important;
+            padding: 14px 16px 14px 48px !important;
+            font-size: 0.9375rem !important;
+            transition: all 0.2s ease !important;
+        }
+        .mobile-nav-search input:focus {
+            background: rgba(255,255,255,0.08) !important;
+            border-color: rgba(245,158,11,0.5) !important;
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.15), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+        }
+        .mobile-nav-links {
+            padding: 16px 12px !important;
+            background: transparent !important;
+        }
+        .mobile-nav-link {
+            padding: 14px 16px !important;
+            border-radius: 14px !important;
+            margin-bottom: 4px !important;
+            font-weight: 500 !important;
+            font-size: 0.9375rem !important;
+            color: rgba(255,255,255,0.75) !important;
+            transition: all 0.2s ease !important;
+            border: 1px solid transparent !important;
+        }
+        .mobile-nav-link:hover {
+            background: rgba(255,255,255,0.06) !important;
+            color: #fff !important;
+            transform: translateX(4px);
+        }
+        .mobile-nav-link.active {
+            background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(217,119,6,0.1) 100%) !important;
+            border-color: rgba(245,158,11,0.3) !important;
+            color: #f59e0b !important;
+            box-shadow: 0 4px 16px rgba(245,158,11,0.15) !important;
+        }
+        .mobile-nav-link svg {
+            opacity: 0.7 !important;
+            transition: all 0.2s ease !important;
+        }
+        .mobile-nav-link:hover svg,
+        .mobile-nav-link.active svg {
+            opacity: 1 !important;
+        }
+        .mobile-nav-link .badge {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            font-size: 0.6875rem !important;
+            padding: 4px 10px !important;
+            border-radius: 20px !important;
+            font-weight: 700 !important;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.4) !important;
+        }
+        .mobile-nav-user {
+            background: linear-gradient(180deg, rgba(245,158,11,0.06) 0%, rgba(0,0,0,0.4) 100%) !important;
+            padding: 20px !important;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+            border-top: 1px solid rgba(245,158,11,0.15) !important;
+            position: relative !important;
+        }
+        .mobile-nav-user::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(245,158,11,0.3), transparent);
+        }
+        .mobile-nav-user-info {
+            padding-bottom: 16px !important;
+            margin-bottom: 16px !important;
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        .mobile-nav-avatar {
+            width: 52px !important;
+            height: 52px !important;
+            border: 2px solid rgba(245,158,11,0.6) !important;
+            box-shadow: 0 4px 20px rgba(245,158,11,0.3), 0 0 0 4px rgba(245,158,11,0.1) !important;
+        }
+        .mobile-nav-user-name {
+            font-weight: 700 !important;
+            font-size: 1.0625rem !important;
+            color: #fff !important;
+            letter-spacing: -0.01em !important;
+        }
+        .mobile-nav-user-email {
+            font-size: 0.8125rem !important;
+            color: rgba(255,255,255,0.45) !important;
+            margin-top: 4px !important;
+        }
+        .mobile-nav-user button.mobile-nav-link {
+            background: rgba(239,68,68,0.1) !important;
+            border-color: rgba(239,68,68,0.2) !important;
+            color: #f87171 !important;
+        }
+        .mobile-nav-user button.mobile-nav-link:hover {
+            background: rgba(239,68,68,0.2) !important;
+            border-color: rgba(239,68,68,0.35) !important;
+        }
+        .mobile-nav-overlay.open {
+            background: rgba(0,0,0,0.75) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+        }
+        /* Dividers in menu */
+        .mobile-nav-links > div[style*="height: 1px"] {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent) !important;
+            margin: 12px 8px !important;
+        }
 
         html, body {
             background: #000 !important;
@@ -448,7 +691,7 @@
 
         body {
             margin: 0;
-            padding-top: var(--nav-h);
+            padding-top: 116px;
             min-height: 100vh;
             background: radial-gradient(ellipse at top, #111 0%, #000 70%) !important;
             background-attachment: fixed !important;
@@ -510,11 +753,17 @@
         .search-input {
             width: 100%;
             height: 40px;
-            padding-left: 2.6rem;
+            padding-left: 3rem;
+            padding-right: 1rem;
             border-radius: 10px;
             background: #0f0f0f;
             border: 1px solid rgba(255,255,255,.05);
             color: #e5e7eb;
+            font-size: 0.9375rem;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,.4);
         }
 
         .icon-left {
@@ -523,6 +772,10 @@
             top: 50%;
             transform: translateY(-50%);
             color: rgba(255,255,255,.4);
+            width: 18px;
+            height: 18px;
+            z-index: 2;
+            pointer-events: none;
         }
 
         .nav-actions {
@@ -1186,83 +1439,46 @@
       })">
     
     <!-- Demo Banner -->
-    <div class="demo-banner">
+    <div class="demo-banner" style="position: fixed !important; top: 64px !important; left: 0 !important; right: 0 !important; z-index: 999 !important; margin: 0 !important; padding: 14px 20px !important;">
         <svg class="demo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/>
             <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
-        <span>{{ __('demo.banner_short') }}</span>
+        <span class="demo-text" style="white-space: normal !important; max-width: none !important; text-align: center;">{{ __('demo.banner_short') }}</span>
         <span class="demo-badge">DEMO</span>
     </div>
-    <style>
-        .demo-banner {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 10px !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 10px 20px !important;
-            background: linear-gradient(90deg, #1a1a2e, #0f3460, #1a1a2e) !important;
-            border: none !important;
-            border-bottom: 1px solid rgba(255, 193, 7, 0.3) !important;
-            box-shadow: none !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            color: rgba(255, 255, 255, 0.9) !important;
-            box-sizing: border-box !important;
-        }
-        .demo-banner .demo-icon {
-            width: 18px !important;
-            height: 18px !important;
-            color: #ffc107 !important;
-            flex-shrink: 0 !important;
-        }
-        .demo-banner .demo-badge {
-            background: linear-gradient(135deg, #ffc107, #ff9800) !important;
-            color: #1a1a2e !important;
-            font-size: 10px !important;
-            font-weight: 700 !important;
-            padding: 3px 10px !important;
-            border-radius: 10px !important;
-            letter-spacing: 0.5px !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-    </style>
 
     <!-- Mobile Navigation Overlay -->
-    <div class="mobile-nav-overlay" :class="{ 'open': mobileMenuOpen }" @click="mobileMenuOpen = false"></div>
+    <div class="mobile-nav-overlay" :class="{ 'open': mobileMenuOpen }" @click="mobileMenuOpen = false" style="position: fixed !important; top: -1px !important; left: 0 !important; right: 0 !important; bottom: -1px !important; width: 100vw !important; height: calc(100% + 2px) !important; background: rgba(0,0,0,0.9) !important; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; z-index: 9998 !important; margin: 0 !important; padding: 0 !important;"></div>
     
     <!-- Mobile Navigation Drawer -->
-    <div class="mobile-nav-drawer" :class="{ 'open': mobileMenuOpen }" @touchmove.stop>
-        <div class="mobile-nav-header">
+    <div class="mobile-nav-drawer" :class="{ 'open': mobileMenuOpen }" @touchmove.stop style="position: fixed !important; top: -1px !important; left: 0 !important; bottom: -1px !important; height: calc(100% + 2px) !important; z-index: 9999 !important; background: linear-gradient(180deg, #0d0d12 0%, #080810 50%, #050508 100%) !important; border-right: 1px solid rgba(245,158,11,0.2) !important; box-shadow: 8px 0 60px rgba(0,0,0,0.9) !important; margin: 0 !important; padding: 0 !important;">
+        <div class="mobile-nav-header" style="background: linear-gradient(180deg, rgba(245,158,11,0.1) 0%, transparent 100%) !important; padding: 24px 20px !important; border-bottom: 1px solid rgba(245,158,11,0.25) !important;">
             <a href="{{ url('/products') }}">
-                <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="mobile-nav-logo" alt="e-Shop">
+                <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="mobile-nav-logo" alt="e-Shop" style="height: 52px !important; filter: drop-shadow(0 4px 16px rgba(245,158,11,0.7)) !important;">
             </a>
-            <button class="mobile-nav-close" @click="mobileMenuOpen = false">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button class="mobile-nav-close" @click="mobileMenuOpen = false" style="width: 42px !important; height: 42px !important; border-radius: 12px !important; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.12) !important; color: #9ca3af !important; display: flex !important; align-items: center !important; justify-content: center !important;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
         </div>
         
-        <div class="mobile-nav-search">
+        <div class="mobile-nav-search" style="padding: 16px 20px !important; background: rgba(0,0,0,0.4) !important; border-bottom: 1px solid rgba(255,255,255,0.08) !important;">
             <div class="relative">
-                <svg class="icon-left w-5 h-5" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); width: 18px; height: 18px; z-index: 2; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <form action="{{ route('products.index') }}" method="GET">
-                    <input type="text" name="search" placeholder="{{ __('nav.search_placeholder') }}">
+                    <input type="text" name="search" placeholder="{{ __('nav.search_placeholder') }}" style="width: 100% !important; padding: 14px 16px 14px 48px !important; background: rgba(255,255,255,0.06) !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 14px !important; color: #e5e7eb !important; font-size: 0.9375rem !important;">
                 </form>
             </div>
         </div>
         
-        <div class="mobile-nav-links">
-            <a href="{{ route('products.index') }}" class="mobile-nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
+        <div class="mobile-nav-links" style="padding: 16px 14px !important;">
+            <a href="{{ route('products.index') }}" class="mobile-nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" style="display: flex !important; align-items: center !important; gap: 14px !important; padding: 14px 16px !important; border-radius: 14px !important; font-weight: 500 !important; color: {{ request()->routeIs('products.*') ? '#f59e0b' : 'rgba(255,255,255,0.8)' }} !important; background: {{ request()->routeIs('products.*') ? 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.1))' : 'transparent' }} !important; border: 1px solid {{ request()->routeIs('products.*') ? 'rgba(245,158,11,0.3)' : 'transparent' }} !important; text-decoration: none !important; margin-bottom: 4px !important;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -1364,12 +1580,12 @@
         </div>
         
         @auth
-        <div class="mobile-nav-user">
+        <div class="mobile-nav-user" style="background: rgba(0,0,0,0.5) !important; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; padding: 20px !important; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important; border-top: 1px solid rgba(255,255,255,0.12) !important;">
             <div class="mobile-nav-user-info">
-                <img src="{{ auth()->user()?->avatar_url ?? asset('storage/logo/no_avatar.png') }}" class="mobile-nav-avatar" alt="avatar">
+                <img src="{{ auth()->user()?->avatar_url ?? asset('storage/logo/no_avatar.png') }}" class="mobile-nav-avatar" alt="avatar" style="width: 48px !important; height: 48px !important; border: 2px solid rgba(245,158,11,0.5) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;">
                 <div>
-                    <div class="mobile-nav-user-name">{{ auth()->user()->name }}</div>
-                    <div class="mobile-nav-user-email">{{ auth()->user()->email }}</div>
+                    <div class="mobile-nav-user-name" style="font-weight: 600 !important; font-size: 1rem !important; color: #fff !important;">{{ auth()->user()->name }}</div>
+                    <div class="mobile-nav-user-email" style="font-size: 0.8125rem !important; color: rgba(255,255,255,0.5) !important; margin-top: 2px !important;">{{ auth()->user()->email }}</div>
                 </div>
             </div>
             <form method="POST" action="{{ route('logout') }}">
@@ -1385,7 +1601,7 @@
             </form>
         </div>
         @else
-        <div class="mobile-nav-user">
+        <div class="mobile-nav-user" style="background: rgba(0,0,0,0.5) !important; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; padding: 20px !important; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important; border-top: 1px solid rgba(255,255,255,0.12) !important;">
             <a href="{{ route('login') }}" class="mobile-nav-link" style="justify-content: center; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 600;">
                 {{ __('nav.sign_in') }}
             </a>
