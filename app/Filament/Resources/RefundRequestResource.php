@@ -24,9 +24,6 @@ class RefundRequestResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    /**
-     * Optimize queries with eager loading
-     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -372,7 +369,7 @@ class RefundRequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+
         ];
     }
 

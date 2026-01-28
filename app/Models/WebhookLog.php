@@ -33,17 +33,11 @@ class WebhookLog extends Model
         'sent_at' => 'datetime',
     ];
 
-    /**
-     * Get the webhook that owns this log.
-     */
     public function webhook(): BelongsTo
     {
         return $this->belongsTo(Webhook::class);
     }
 
-    /**
-     * Mark log as successful.
-     */
     public function markAsSuccess(int $status, ?string $body): void
     {
         $this->update([
@@ -54,9 +48,6 @@ class WebhookLog extends Model
         ]);
     }
 
-    /**
-     * Mark log as failed.
-     */
     public function markAsFailed(?int $status, ?string $error): void
     {
         $this->update([
@@ -67,9 +58,6 @@ class WebhookLog extends Model
         ]);
     }
 
-    /**
-     * Check if can retry.
-     */
     public function canRetry(): bool
     {
         return $this->status === self::STATUS_FAILED

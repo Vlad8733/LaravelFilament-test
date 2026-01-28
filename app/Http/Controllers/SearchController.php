@@ -8,77 +8,43 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $r)
     {
-        $query = $request->input('query', $request->input('q', ''));
-
-        if (strlen($query) < 2) {
+        $q = $r->input('query', $r->input('q', ''));
+        if (strlen($q) < 2) {
             return response()->json([]);
         }
 
-        // Поиск товаров
-        $products = Product::with(['images', 'category', 'company'])
-            ->where('is_active', true)
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'like', '%'.$query.'%')
-                    ->orWhere('description', 'like', '%'.$query.'%');
-            })
-            ->limit(8)
-            ->get();
+        $prods = Product::with(['images', 'category', 'company'])->where('is_active', true)
+            ->where(fn ($qb) => $qb->where('name', 'like', '%'.$q.'%')->orWhere('description', 'like', '%'.$q.'%'))
+            ->limit(8)->get();
 
-        $productResults = $products->map(function ($product) {
-            $image = null;
-
-            if ($product->images && $product->images->count() > 0) {
-                $firstImage = $product->images->first();
-                if ($firstImage && $firstImage->image_path) {
-                    $imagePath = $firstImage->image_path;
-
-                    if (strpos($imagePath, 'public/') === 0) {
-                        $imagePath = substr($imagePath, 7);
+        $prodRes = $prods->map(function ($p) {
+            $img = null;
+            if ($p->images && $p->images->count() > 0) {
+                $first = $p->images->first();
+                if ($first && $first->image_path) {
+                    $path = $first->image_path;
+                    if (strpos($path, 'public/') === 0) {
+                        $path = substr($path, 7);
                     }
-
-                    $image = asset('storage/'.$imagePath);
+                    $img = asset('storage/'.$path);
                 }
             }
 
-            return [
-                'type' => 'product',
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->sale_price ?? $product->price,
-                'image' => $image,
-                'url' => route('products.show', $product->slug),
-                'company' => $product->company?->name,
-            ];
+            return ['type' => 'product', 'id' => $p->id, 'name' => $p->name, 'price' => $p->sale_price ?? $p->price,
+                'image' => $img, 'url' => route('products.show', $p->slug), 'company' => $p->company?->name];
         });
 
-        // Поиск компаний
-        $companies = Company::where('is_active', true)
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'like', '%'.$query.'%')
-                    ->orWhere('description', 'like', '%'.$query.'%')
-                    ->orWhere('short_description', 'like', '%'.$query.'%');
-            })
-            ->withCount(['products' => fn ($q) => $q->where('is_active', true)])
-            ->limit(4)
-            ->get();
+        $comps = Company::where('is_active', true)
+            ->where(fn ($qb) => $qb->where('name', 'like', '%'.$q.'%')->orWhere('description', 'like', '%'.$q.'%')->orWhere('short_description', 'like', '%'.$q.'%'))
+            ->withCount(['products' => fn ($qb) => $qb->where('is_active', true)])->limit(4)->get();
 
-        $companyResults = $companies->map(function ($company) {
-            return [
-                'type' => 'company',
-                'id' => $company->id,
-                'name' => $company->name,
-                'image' => $company->logo_url,
-                'url' => route('companies.show', $company->slug),
-                'products_count' => $company->products_count,
-                'is_verified' => $company->is_verified,
-            ];
-        });
+        $compRes = $comps->map(fn ($c) => [
+            'type' => 'company', 'id' => $c->id, 'name' => $c->name, 'image' => $c->logo_url,
+            'url' => route('companies.show', $c->slug), 'products_count' => $c->products_count, 'is_verified' => $c->is_verified,
+        ]);
 
-        // Объединяем результаты: сначала компании, потом товары
-        $results = $companyResults->merge($productResults);
-
-        return response()->json($results);
+        return response()->json($compRes->merge($prodRes));
     }
 }

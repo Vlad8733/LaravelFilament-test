@@ -3,57 +3,25 @@
 namespace App\Observers;
 
 use App\Models\Ticket;
-use App\Models\User;
 use App\Notifications\TicketStatusChanged;
 
 class TicketObserver
 {
-    /**
-     * Handle the Ticket "created" event.
-     */
-    public function created(Ticket $ticket): void
-    {
-        //
-    }
+    public function created(Ticket $t): void {}
 
-    /**
-     * Handle the Ticket "updated" event.
-     */
-    public function updated(Ticket $ticket): void
+    public function updated(Ticket $t): void
     {
-        // Проверяем, изменился ли статус
-        if ($ticket->isDirty('status')) {
-            $oldStatus = $ticket->getOriginal('status');
-            $newStatus = $ticket->status;
-
-            // Отправляем уведомление пользователю
-            /** @var User $user */
-            $user = $ticket->user;
-            $user->notify(new TicketStatusChanged($ticket, $oldStatus, $newStatus));
+        if (! $t->isDirty('status')) {
+            return;
         }
+        /** @var \App\Models\User $u */
+        $u = $t->user;
+        $u->notify(new TicketStatusChanged($t, $t->getOriginal('status'), $t->status));
     }
 
-    /**
-     * Handle the Ticket "deleted" event.
-     */
-    public function deleted(Ticket $ticket): void
-    {
-        //
-    }
+    public function deleted(Ticket $t): void {}
 
-    /**
-     * Handle the Ticket "restored" event.
-     */
-    public function restored(Ticket $ticket): void
-    {
-        //
-    }
+    public function restored(Ticket $t): void {}
 
-    /**
-     * Handle the Ticket "force deleted" event.
-     */
-    public function forceDeleted(Ticket $ticket): void
-    {
-        //
-    }
+    public function forceDeleted(Ticket $t): void {}
 }

@@ -8,20 +8,14 @@ use Illuminate\Support\Facades\Cache;
 
 class CacheService
 {
-    /**
-     * Cache TTL constants (in seconds)
-     */
-    public const TTL_SHORT = 300;      // 5 minutes
+    public const TTL_SHORT = 300;
 
-    public const TTL_MEDIUM = 1800;    // 30 minutes
+    public const TTL_MEDIUM = 1800;
 
-    public const TTL_LONG = 3600;      // 1 hour
+    public const TTL_LONG = 3600;
 
-    public const TTL_DAY = 86400;      // 24 hours
+    public const TTL_DAY = 86400;
 
-    /**
-     * Cache key prefixes
-     */
     public const PREFIX_CATEGORIES = 'categories';
 
     public const PREFIX_PRODUCTS = 'products';
@@ -30,9 +24,6 @@ class CacheService
 
     public const PREFIX_STATS = 'stats';
 
-    /**
-     * Get all active categories (cached)
-     */
     public static function getActiveCategories(): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember(
@@ -45,9 +36,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get categories for navigation menu (cached)
-     */
     public static function getCategoriesForMenu(): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember(
@@ -60,9 +48,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get featured products (cached)
-     */
     public static function getFeaturedProducts(int $limit = 8): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember(
@@ -77,9 +62,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get new arrivals (cached)
-     */
     public static function getNewArrivals(int $limit = 8): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember(
@@ -93,9 +75,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get on-sale products (cached)
-     */
     public static function getOnSaleProducts(int $limit = 8): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember(
@@ -111,9 +90,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get popular products based on order count (cached)
-     */
     public static function getPopularProducts(int $limit = 8): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember(
@@ -128,9 +104,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get a single product with relations (cached)
-     */
     public static function getProduct(int $productId): ?Product
     {
         return Cache::remember(
@@ -141,9 +114,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get product by slug (cached)
-     */
     public static function getProductBySlug(string $slug): ?Product
     {
         return Cache::remember(
@@ -155,9 +125,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get products by category (cached)
-     */
     public static function getProductsByCategory(int $categoryId, int $limit = 12): \Illuminate\Database\Eloquent\Collection
     {
         return Cache::remember(
@@ -172,9 +139,6 @@ class CacheService
         );
     }
 
-    /**
-     * Get homepage stats (cached)
-     */
     public static function getHomepageStats(): array
     {
         return Cache::remember(
@@ -188,22 +152,17 @@ class CacheService
         );
     }
 
-    /**
-     * Clear all product-related caches
-     */
     public static function clearProductCache(?int $productId = null): void
     {
         if ($productId) {
             Cache::forget(self::PREFIX_PRODUCTS.":single:{$productId}");
 
-            // Find and clear slug cache
             $product = Product::find($productId);
             if ($product) {
                 Cache::forget(self::PREFIX_PRODUCTS.":slug:{$product->slug}");
             }
         }
 
-        // Clear collection caches
         Cache::forget(self::PREFIX_FEATURED.':products:8');
         Cache::forget(self::PREFIX_PRODUCTS.':new:8');
         Cache::forget(self::PREFIX_PRODUCTS.':sale:8');
@@ -211,9 +170,6 @@ class CacheService
         Cache::forget(self::PREFIX_STATS.':homepage');
     }
 
-    /**
-     * Clear all category-related caches
-     */
     public static function clearCategoryCache(): void
     {
         Cache::forget(self::PREFIX_CATEGORIES.':active');
@@ -221,9 +177,6 @@ class CacheService
         Cache::forget(self::PREFIX_STATS.':homepage');
     }
 
-    /**
-     * Clear all caches
-     */
     public static function clearAll(): void
     {
         self::clearProductCache();

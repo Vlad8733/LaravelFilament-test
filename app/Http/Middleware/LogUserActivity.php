@@ -13,7 +13,7 @@ class LogUserActivity
         if (Auth::check()) {
             $route = $request->route();
             $action = $route ? $route->getName() : $request->path();
-            // Не логируем сам просмотр журнала активности
+
             if ($action !== 'activity_log.index') {
                 activity_log('Visited: '.$action);
             }

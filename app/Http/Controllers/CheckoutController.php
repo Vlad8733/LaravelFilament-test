@@ -14,49 +14,33 @@ use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
-    /**
-     * Show the checkout page.
-     */
     public function show()
     {
-        $userId = Auth::id();
+        $uid = Auth::id();
+        $items = CartItem::with(['product.images', 'variant'])->where('user_id', $uid)->get();
 
-        $cartItems = CartItem::with(['product.images', 'variant'])
-            ->where('user_id', $userId)
-            ->get();
-
-        if ($cartItems->isEmpty()) {
+        if ($items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty');
         }
 
-        $subtotal = $this->calculateSubtotal($cartItems);
-        $discount = 0;
-        $total = $subtotal - $discount;
-        $cartCount = $cartItems->sum('quantity');
+        $sub = $this->calculateSubtotal($items);
+        $u = Auth::user();
 
-        $user = Auth::user();
-        $savedAddresses = $user->addresses()->orderByDesc('is_default')->get();
-        $savedPaymentMethods = $user->paymentMethods()->orderByDesc('is_default')->get();
-
-        return view('checkout.index', compact(
-            'cartItems',
-            'subtotal',
-            'discount',
-            'total',
-            'cartCount',
-            'savedAddresses',
-            'savedPaymentMethods'
-        ));
+        return view('checkout.index', [
+            'cartItems' => $items,
+            'subtotal' => $sub,
+            'discount' => 0,
+            'total' => $sub,
+            'cartCount' => $items->sum('quantity'),
+            'savedAddresses' => $u->addresses()->orderByDesc('is_default')->get(),
+            'savedPaymentMethods' => $u->paymentMethods()->orderByDesc('is_default')->get(),
+        ]);
     }
 
-    /**
-     * Place an order.
-     */
     public function placeOrder(Request $request)
     {
-        $userId = auth()->id();
-
-        if (! $userId) {
+        $uid = auth()->id();
+        if (! $uid) {
             return redirect()->route('login');
         }
 
@@ -68,232 +52,165 @@ class CheckoutController extends Controller
                 'payment_method' => 'required|in:fake',
             ]);
 
-            $cartItems = CartItem::with(['product', 'variant'])
-                ->where('user_id', $userId)
-                ->get();
-
-            if ($cartItems->isEmpty()) {
-                return redirect()->route('cart.index')
-                    ->with('error', 'Your cart is empty');
+            $items = CartItem::with(['product', 'variant'])->where('user_id', $uid)->get();
+            if ($items->isEmpty()) {
+                return redirect()->route('cart.index')->with('error', 'Your cart is empty');
             }
 
-            $cartTotal = $this->calculateSubtotal($cartItems);
-            [$discount, $couponId, $couponCode] = $this->applyCouponDiscount($cartItems);
-            $finalTotal = $cartTotal - $discount;
+            $sub = $this->calculateSubtotal($items);
+            [$disc, $cid, $code] = $this->applyCouponDiscount($items);
+            $total = $sub - $disc;
 
-            $order = $this->createOrder($request, $cartTotal, $discount, $couponCode, $finalTotal, $userId);
-            $this->createOrderItems($order, $cartItems);
-            $this->createOrderStatusHistory($order, $userId);
+            $order = $this->createOrder($request, $sub, $disc, $code, $total, $uid);
+            $this->createOrderItems($order, $items);
+            $this->createOrderStatusHistory($order, $uid);
 
-            // Clear cart and coupon
-            CartItem::where('user_id', $userId)->delete();
+            CartItem::where('user_id', $uid)->delete();
             session()->forget('coupon');
             session(['last_order_id' => $order->id, 'recent_order_id' => $order->id]);
-
             activity_log('placed_order:'.__('activity_log.log.placed_order'));
 
             return response()->json([
-                'success' => true,
-                'message' => 'Order placed successfully',
+                'success' => true, 'message' => 'Order placed successfully',
                 'redirect' => route('checkout.success', $order->id),
             ]);
         } catch (\Exception $e) {
             Log::error('Order placement error: '.$e->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to place order: '.$e->getMessage(),
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Failed to place order: '.$e->getMessage()], 500);
         }
     }
 
-    /**
-     * Show the order success page.
-     */
-    public function success($orderId)
+    public function success($id)
     {
-        $order = Order::with(['items.product', 'status'])->findOrFail($orderId);
+        $order = Order::with(['items.product', 'status'])->findOrFail($id);
 
         if (auth()->check()) {
             if ($order->customer_email !== auth()->user()->email) {
-                abort(403, 'Access Denied - You don\'t have permission');
+                abort(403, 'Access Denied');
             }
         } else {
-            $sessionOrderId = session('last_order_id');
-            if ($sessionOrderId != $orderId) {
-                abort(403, 'Access Denied - You don\'t have permission');
+            if (session('last_order_id') != $id) {
+                abort(403, 'Access Denied');
             }
         }
 
-        return view('checkout.success', compact('order'));
+        return view('checkout.success', ['order' => $order]);
     }
 
-    /**
-     * Show order verification form.
-     */
-    public function verifyOrder($orderId)
+    public function verifyOrder($id)
     {
-        $order = Order::findOrFail($orderId);
-
-        return view('checkout.verify-order', compact('order'));
+        return view('checkout.verify-order', ['order' => Order::findOrFail($id)]);
     }
 
-    /**
-     * Handle order verification.
-     */
-    public function verifyOrderPost(Request $request, $orderId)
+    public function verifyOrderPost(Request $request, $id)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        $order = Order::findOrFail($orderId);
+        $request->validate(['email' => 'required|email']);
+        $order = Order::findOrFail($id);
 
         if ($order->customer_email !== $request->email) {
-            return back()->withErrors([
-                'email' => 'Email does not match order email address.',
-            ]);
+            return back()->withErrors(['email' => 'Email does not match order email address.']);
         }
+        session(['recent_order_id' => $id]);
 
-        session(['recent_order_id' => $orderId]);
-
-        return redirect()->route('checkout.success', $orderId);
+        return redirect()->route('checkout.success', $id);
     }
 
-    /**
-     * Calculate cart subtotal.
-     */
-    protected function calculateSubtotal($cartItems): float
+    protected function calculateSubtotal($items): float
     {
-        return $cartItems->sum(function ($item) {
-            $source = $item->variant ?? $item->product;
-            $price = $source->sale_price ?? $source->price ?? 0;
+        return $items->sum(function ($i) {
+            $src = $i->variant ?? $i->product;
 
-            return $price * $item->quantity;
+            return ($src->sale_price ?? $src->price ?? 0) * $i->quantity;
         });
     }
 
-    /**
-     * Apply coupon discount from session.
-     */
-    protected function applyCouponDiscount($cartItems): array
+    protected function applyCouponDiscount($items): array
     {
-        $couponData = session('coupon');
-        $discount = 0;
-        $couponId = null;
-        $couponCode = null;
-
-        if (! $couponData) {
-            return [$discount, $couponId, $couponCode];
+        $data = session('coupon');
+        if (! $data) {
+            return [0, null, null];
         }
 
-        $coupon = Coupon::find($couponData['id']);
-
-        if (! $coupon || ! $coupon->isValid()) {
-            return [$discount, $couponId, $couponCode];
+        $c = Coupon::find($data['id']);
+        if (! $c || ! $c->isValid()) {
+            return [0, null, null];
         }
 
-        $applicableTotal = 0;
-        foreach ($cartItems as $item) {
-            if ($coupon->appliesTo($item->product)) {
-                $applicableTotal += $item->product->getCurrentPrice() * $item->quantity;
+        $applicable = 0;
+        foreach ($items as $i) {
+            if ($c->appliesTo($i->product)) {
+                $applicable += $i->product->getCurrentPrice() * $i->quantity;
             }
         }
 
-        if ($applicableTotal > 0) {
-            $discount = $coupon->calculateDiscount($applicableTotal);
-            $couponId = $coupon->id;
-            $couponCode = $coupon->code;
-            $coupon->incrementUsage();
+        if ($applicable > 0) {
+            $c->incrementUsage();
+
+            return [$c->calculateDiscount($applicable), $c->id, $c->code];
         }
 
-        return [$discount, $couponId, $couponCode];
+        return [0, null, null];
     }
 
-    /**
-     * Create the order record.
-     */
-    protected function createOrder(Request $request, float $cartTotal, float $discount, ?string $couponCode, float $finalTotal, int $userId): Order
+    protected function createOrder(Request $r, float $sub, float $disc, ?string $code, float $total, int $uid): Order
     {
-        $pendingStatus = OrderStatus::where('slug', 'pending')->first();
+        $status = OrderStatus::where('slug', 'pending')->first();
 
         return Order::create([
             'order_number' => 'ORD-'.strtoupper(uniqid()),
-            'user_id' => $userId,
-            'order_status_id' => $pendingStatus?->id,
-            'customer_name' => $request->name,
-            'customer_email' => $request->email,
-            'shipping_address' => $request->address,
-            'notes' => $request->notes,
-            'subtotal' => $cartTotal,
-            'discount_amount' => $discount,
-            'coupon_code' => $couponCode,
-            'total' => $finalTotal,
+            'user_id' => $uid,
+            'order_status_id' => $status?->id,
+            'customer_name' => $r->name,
+            'customer_email' => $r->email,
+            'shipping_address' => $r->address,
+            'notes' => $r->notes,
+            'subtotal' => $sub,
+            'discount_amount' => $disc,
+            'coupon_code' => $code,
+            'total' => $total,
             'payment_method' => 'fake',
             'payment_status' => 'completed',
         ]);
     }
 
-    /**
-     * Create order items and decrement stock.
-     */
-    protected function createOrderItems(Order $order, $cartItems): void
+    protected function createOrderItems(Order $order, $items): void
     {
-        foreach ($cartItems as $item) {
-            $variant = $item->variant;
-            $price = $variant
-                ? ($variant->sale_price ?? $variant->price)
-                : $item->product->getCurrentPrice();
+        foreach ($items as $i) {
+            $v = $i->variant;
+            $price = $v ? ($v->sale_price ?? $v->price) : $i->product->getCurrentPrice();
 
-            $variantName = null;
-            if ($variant) {
-                $attrs = is_array($variant->attributes)
-                    ? collect($variant->attributes)->map(fn ($v, $k) => "$k: $v")->join(', ')
-                    : null;
-                $variantName = $attrs ?: $variant->sku;
+            $vname = null;
+            if ($v) {
+                $attrs = is_array($v->attributes) ? collect($v->attributes)->map(fn ($val, $k) => "$k: $val")->join(', ') : null;
+                $vname = $attrs ?: $v->sku;
             }
 
             OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item->product_id,
-                'variant_id' => $item->variant_id ?? null,
-                'product_name' => $item->product->name,
-                'variant_name' => $variantName,
-                'quantity' => $item->quantity,
-                'product_price' => $price,
-                'total' => $price * $item->quantity,
+                'order_id' => $order->id, 'product_id' => $i->product_id, 'variant_id' => $i->variant_id ?? null,
+                'product_name' => $i->product->name, 'variant_name' => $vname,
+                'quantity' => $i->quantity, 'product_price' => $price, 'total' => $price * $i->quantity,
             ]);
 
             try {
-                if ($variant) {
-                    $variant->decrement('stock_quantity', $item->quantity);
-                } else {
-                    $item->product->decrement('stock_quantity', $item->quantity);
-                }
+                $v ? $v->decrement('stock_quantity', $i->quantity) : $i->product->decrement('stock_quantity', $i->quantity);
             } catch (\Exception $e) {
                 Log::warning('Failed to decrement stock: '.$e->getMessage());
             }
         }
     }
 
-    /**
-     * Create order status history entry.
-     */
-    protected function createOrderStatusHistory(Order $order, int $userId): void
+    protected function createOrderStatusHistory(Order $order, int $uid): void
     {
-        $pendingStatus = OrderStatus::where('slug', 'pending')->first();
-
-        if (! $pendingStatus) {
+        $status = OrderStatus::where('slug', 'pending')->first();
+        if (! $status) {
             return;
         }
 
         try {
             OrderStatusHistory::create([
-                'order_id' => $order->id,
-                'order_status_id' => $pendingStatus->id,
-                'changed_by' => $userId,
-                'notes' => 'Order placed successfully',
-                'changed_at' => now(),
+                'order_id' => $order->id, 'order_status_id' => $status->id, 'changed_by' => $uid,
+                'notes' => 'Order placed successfully', 'changed_at' => now(),
             ]);
         } catch (\Exception $e) {
             Log::warning('Could not create order history: '.$e->getMessage());

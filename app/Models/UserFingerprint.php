@@ -26,9 +26,6 @@ class UserFingerprint extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Обновить или создать fingerprint для пользователя
-     */
     public static function track(
         int $userId,
         string $fingerprint,
@@ -50,9 +47,6 @@ class UserFingerprint extends Model
         );
     }
 
-    /**
-     * Найти всех пользователей с данным fingerprint
-     */
     public static function findUsersByFingerprint(string $fingerprint): \Illuminate\Support\Collection
     {
         return static::where('fingerprint', $fingerprint)
@@ -62,9 +56,6 @@ class UserFingerprint extends Model
             ->filter();
     }
 
-    /**
-     * Найти все fingerprints по IP
-     */
     public static function findByIp(string $ip): \Illuminate\Support\Collection
     {
         return static::where('ip_address', $ip)->get();

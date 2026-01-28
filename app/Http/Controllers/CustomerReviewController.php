@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CustomerReviewController extends Controller
 {
-    /**
-     * Список отзывов пользователя
-     */
     public function index()
     {
         $reviews = CustomerReview::with(['order', 'product.images'])
@@ -22,31 +19,24 @@ class CustomerReviewController extends Controller
         return view('reviews.index', compact('reviews'));
     }
 
-    /**
-     * Форма создания отзыва
-     */
     public function create(Order $order)
     {
-        // Проверяем что заказ принадлежит пользователю
+
         if ($order->customer_email !== Auth::user()->email) {
             abort(403, 'You do not have permission to review this order.');
         }
 
-        // Проверяем что заказ доставлен
         if (! $order->canBeReviewed()) {
             return back()->with('error', 'You can only review delivered orders.');
         }
 
-        // Загружаем items с продуктами и существующими отзывами
         $order->load(['items.product.images']);
 
-        // Получаем уже оставленные отзывы
         $existingReviews = CustomerReview::where('order_id', $order->id)
             ->where('user_id', Auth::id())
             ->pluck('product_id')
             ->toArray();
 
-        // Фильтруем items без отзывов
         $itemsToReview = $order->items->filter(function ($item) use ($existingReviews) {
             return ! in_array($item->product_id, $existingReviews);
         });
@@ -59,17 +49,13 @@ class CustomerReviewController extends Controller
         return view('reviews.create', compact('order', 'itemsToReview'));
     }
 
-    /**
-     * Сохранить отзыв
-     */
     public function store(Request $request, Order $order)
     {
-        // Проверяем что заказ принадлежит пользователю
+
         if ($order->customer_email !== Auth::user()->email) {
             abort(403);
         }
 
-        // Проверяем что заказ доставлен
         if (! $order->canBeReviewed()) {
             return back()->with('error', 'You can only review delivered orders.');
         }
@@ -82,13 +68,11 @@ class CustomerReviewController extends Controller
             'comment' => 'nullable|string|max:2000',
         ]);
 
-        // Проверяем что продукт есть в заказе
         $orderItem = $order->items()->where('product_id', $request->product_id)->first();
         if (! $orderItem) {
             return back()->with('error', 'This product is not in your order.');
         }
 
-        // Проверяем что отзыв ещё не оставлен
         $existingReview = CustomerReview::where('order_id', $order->id)
             ->where('product_id', $request->product_id)
             ->where('user_id', Auth::id())
@@ -109,7 +93,6 @@ class CustomerReviewController extends Controller
             'status' => 'pending',
         ]);
 
-        // Проверяем есть ли ещё продукты для отзыва
         $existingReviews = CustomerReview::where('order_id', $order->id)
             ->where('user_id', Auth::id())
             ->pluck('product_id')
@@ -128,9 +111,6 @@ class CustomerReviewController extends Controller
             ->with('success', 'Thank you for your reviews! They will be published after moderation.');
     }
 
-    /**
-     * Показать отзыв
-     */
     public function show(CustomerReview $review)
     {
         if ($review->user_id !== Auth::id()) {
@@ -142,16 +122,12 @@ class CustomerReviewController extends Controller
         return view('reviews.show', compact('review'));
     }
 
-    /**
-     * Форма редактирования отзыва
-     */
     public function edit(CustomerReview $review)
     {
         if ($review->user_id !== Auth::id()) {
             abort(403);
         }
 
-        // Можно редактировать только pending отзывы
         if (! $review->isPending()) {
             return back()->with('error', 'You can only edit pending reviews.');
         }
@@ -161,9 +137,6 @@ class CustomerReviewController extends Controller
         return view('reviews.edit', compact('review'));
     }
 
-    /**
-     * Обновить отзыв
-     */
     public function update(Request $request, CustomerReview $review)
     {
         if ($review->user_id !== Auth::id()) {
@@ -192,9 +165,6 @@ class CustomerReviewController extends Controller
             ->with('success', 'Review updated successfully.');
     }
 
-    /**
-     * Удалить отзыв
-     */
     public function destroy(CustomerReview $review)
     {
         if ($review->user_id !== Auth::id()) {

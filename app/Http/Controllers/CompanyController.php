@@ -8,94 +8,54 @@ use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
-    /**
-     * Список всех компаний
-     */
     public function index(Request $request)
     {
-        $query = Company::query()
-            ->where('is_active', true)
-            ->withCount(['products' => fn ($q) => $q->where('is_active', true)])
-            ->withCount('followers');
+        $q = Company::query()->where('is_active', true)
+            ->withCount(['products' => fn ($q) => $q->where('is_active', true)])->withCount('followers');
 
-        // Поиск
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
+        if ($s = $request->input('search')) {
+            $q->where(fn ($q) => $q->where('name', 'like', "%{$s}%")->orWhere('description', 'like', "%{$s}%"));
         }
 
-        // Сортировка
-        $sort = $request->input('sort', 'name');
-        match ($sort) {
-            'products' => $query->orderByDesc('products_count'),
-            'followers' => $query->orderByDesc('followers_count'),
-            'newest' => $query->orderByDesc('created_at'),
-            default => $query->orderBy('name'),
+        match ($request->input('sort', 'name')) {
+            'products' => $q->orderByDesc('products_count'),
+            'followers' => $q->orderByDesc('followers_count'),
+            'newest' => $q->orderByDesc('created_at'),
+            default => $q->orderBy('name'),
         };
 
-        $companies = $query->paginate(12);
-
-        return view('companies.index', compact('companies'));
+        return view('companies.index', ['companies' => $q->paginate(12)]);
     }
 
-    /**
-     * Страница компании
-     */
     public function show(string $slug)
     {
-        $company = Company::where('slug', $slug)
-            ->where('is_active', true)
-            ->withCount('followers')
-            ->firstOrFail();
+        $c = Company::where('slug', $slug)->where('is_active', true)->withCount('followers')->firstOrFail();
+        $prods = $c->products()->where('is_active', true)->with(['images', 'category'])->orderByDesc('created_at')->paginate(12);
 
-        $products = $company->products()
-            ->where('is_active', true)
-            ->with(['images', 'category'])
-            ->orderByDesc('created_at')
-            ->paginate(12);
-
-        $isFollowing = auth()->check() && $company->isFollowedBy(auth()->user());
-
-        return view('companies.show', compact('company', 'products', 'isFollowing'));
+        return view('companies.show', [
+            'company' => $c, 'products' => $prods, 'isFollowing' => auth()->check() && $c->isFollowedBy(auth()->user()),
+        ]);
     }
 
-    /**
-     * Подписаться/отписаться от компании
-     */
-    public function toggleFollow(Request $request, Company $company)
+    public function toggleFollow(Request $r, Company $c)
     {
-        $user = $request->user();
-
-        if (! $user) {
+        $u = $r->user();
+        if (! $u) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-
-        // Нельзя подписаться на свою компанию
-        if ($company->user_id === $user->id) {
+        if ($c->user_id === $u->id) {
             return response()->json(['error' => 'Cannot follow your own company'], 400);
         }
 
-        $follow = CompanyFollow::where('user_id', $user->id)
-            ->where('company_id', $company->id)
-            ->first();
-
-        if ($follow) {
-            $follow->delete();
-            $isFollowing = false;
+        $f = CompanyFollow::where('user_id', $u->id)->where('company_id', $c->id)->first();
+        if ($f) {
+            $f->delete();
+            $following = false;
         } else {
-            CompanyFollow::create([
-                'user_id' => $user->id,
-                'company_id' => $company->id,
-            ]);
-            $isFollowing = true;
+            CompanyFollow::create(['user_id' => $u->id, 'company_id' => $c->id]);
+            $following = true;
         }
 
-        return response()->json([
-            'success' => true,
-            'is_following' => $isFollowing,
-            'followers_count' => $company->followers()->count(),
-        ]);
+        return response()->json(['success' => true, 'is_following' => $following, 'followers_count' => $c->followers()->count()]);
     }
 }

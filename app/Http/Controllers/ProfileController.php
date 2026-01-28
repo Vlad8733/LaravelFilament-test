@@ -15,64 +15,49 @@ class ProfileController extends Controller
         $this->middleware('auth');
     }
 
-    // Показывает страницу профиля
-    public function edit(Request $request)
+    public function edit(Request $r)
     {
-        return view('profile.edit', ['user' => $request->user()]);
+        return view('profile.edit', ['user' => $r->user()]);
     }
 
-    // Обновление аккаунта: name, email, password
-    public function update(Request $request)
+    public function update(Request $r)
     {
-        $user = $request->user();
-
-        $data = $request->validate([
+        $u = $r->user();
+        $data = $r->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$u->id,
             'password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
 
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-
+        $u->name = $data['name'];
+        $u->email = $data['email'];
         if (! empty($data['password'])) {
-            $user->password = Hash::make($data['password']);
+            $u->password = Hash::make($data['password']);
         }
-
-        $user->save();
+        $u->save();
 
         return redirect()->route('profile.edit')->with('status', 'Account updated.');
     }
 
-    // Отдельный маршрут для загрузки/обновления аватара
-    public function updateAvatar(Request $request)
+    public function updateAvatar(Request $r)
     {
-        $user = $request->user();
+        $u = $r->user();
+        $r->validate(['avatar' => 'required|image|max:5120']);
 
-        $data = $request->validate([
-            'avatar' => 'required|image|max:5120', // 5MB
-        ]);
-
-        $file = $request->file('avatar');
-        $path = $file->store('avatars', 'public');
-
-        // удалить старый аватар, если есть
-        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-            Storage::disk('public')->delete($user->avatar);
+        $path = $r->file('avatar')->store('avatars', 'public');
+        if ($u->avatar && Storage::disk('public')->exists($u->avatar)) {
+            Storage::disk('public')->delete($u->avatar);
         }
-
-        $user->avatar = $path;
-        $user->save();
+        $u->avatar = $path;
+        $u->save();
 
         return redirect()->route('profile.edit')->with('status', 'Avatar updated.');
     }
 
-    // Удаление аккаунта (удаляет пользователя и логаутит)
     public function destroy(Request $request)
     {
         $user = $request->user();
 
-        // опционально: требовать подтверждение пароля
         if ($request->filled('current_password')) {
             if (! Hash::check($request->input('current_password'), $user->password)) {
                 return back()->withErrors(['current_password' => 'Password is incorrect.']);
@@ -81,13 +66,11 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        // удалить аватар из storage
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
         }
 
         $user->delete();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

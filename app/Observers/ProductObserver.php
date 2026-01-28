@@ -9,55 +9,35 @@ use Illuminate\Support\Arr;
 
 class ProductObserver
 {
-    public function created(Product $product)
+    public function created(Product $p)
     {
-        // Clear product caches
         CacheService::clearProductCache();
-
         ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'created product: '.$product->id.' - '.$product->name,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'subject_type' => Product::class,
-            'subject_id' => $product->id,
-            'created_at' => now(),
+            'user_id' => auth()->id(), 'action' => 'created product: '.$p->id.' - '.$p->name,
+            'ip_address' => request()->ip(), 'user_agent' => request()->userAgent(),
+            'subject_type' => Product::class, 'subject_id' => $p->id, 'created_at' => now(),
         ]);
     }
 
-    public function updated(Product $product)
+    public function updated(Product $p)
     {
-        // Clear product caches
-        CacheService::clearProductCache($product->id);
-
-        $changes = $product->getChanges();
-        // Очищаем служебные поля
-        Arr::forget($changes, ['updated_at']);
-
+        CacheService::clearProductCache($p->id);
+        $ch = $p->getChanges();
+        Arr::forget($ch, ['updated_at']);
         ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'updated product: '.$product->id.' - changes: '.json_encode($changes),
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'subject_type' => Product::class,
-            'subject_id' => $product->id,
-            'created_at' => now(),
+            'user_id' => auth()->id(), 'action' => 'updated product: '.$p->id.' - changes: '.json_encode($ch),
+            'ip_address' => request()->ip(), 'user_agent' => request()->userAgent(),
+            'subject_type' => Product::class, 'subject_id' => $p->id, 'created_at' => now(),
         ]);
     }
 
-    public function deleted(Product $product)
+    public function deleted(Product $p)
     {
-        // Clear product caches
-        CacheService::clearProductCache($product->id);
-
+        CacheService::clearProductCache($p->id);
         ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'deleted product: '.$product->id.' - '.$product->name,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'subject_type' => Product::class,
-            'subject_id' => $product->id,
-            'created_at' => now(),
+            'user_id' => auth()->id(), 'action' => 'deleted product: '.$p->id.' - '.$p->name,
+            'ip_address' => request()->ip(), 'user_agent' => request()->userAgent(),
+            'subject_type' => Product::class, 'subject_id' => $p->id, 'created_at' => now(),
         ]);
     }
 }

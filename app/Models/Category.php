@@ -10,30 +10,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    use HasFactory;
-    use HasSlug;
-    use HasStorageFile;
+    use HasFactory, HasSlug, HasStorageFile;
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'image',
-        'is_active',
-    ];
+    protected $fillable = ['name', 'slug', 'description', 'image', 'is_active'];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    protected $casts = ['is_active' => 'boolean'];
 
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
     }
 
-    /**
-     * Get image URL
-     */
     public function getImageUrlAttribute(): ?string
     {
         return $this->getStorageUrl('image');

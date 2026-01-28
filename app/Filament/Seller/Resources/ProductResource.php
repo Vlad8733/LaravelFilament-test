@@ -42,9 +42,6 @@ class ProductResource extends Resource
         return 'primary';
     }
 
-    /**
-     * Продавец видит ТОЛЬКО товары своей компании
-     */
     public static function getEloquentQuery(): Builder
     {
         $user = Auth::user();
@@ -54,9 +51,6 @@ class ProductResource extends Resource
             ->where('company_id', $companyId);
     }
 
-    /**
-     * Можно создавать товары только если есть компания
-     */
     public static function canCreate(): bool
     {
         $user = Auth::user();
@@ -142,7 +136,7 @@ class ProductResource extends Resource
                             ->relationship('category', 'name')
                             ->preload()
                             ->searchable()
-                            // Продавцы не могут создавать категории — только выбирать
+
                             ->label('Category'),
 
                         Toggle::make('is_featured')
@@ -194,7 +188,6 @@ class ProductResource extends Resource
                             ->defaultItems(0),
                     ]),
 
-                // Скрытые поля — автоматически привязываем к текущему продавцу и его компании
                 Forms\Components\Hidden::make('user_id')
                     ->default(fn () => Auth::id()),
 

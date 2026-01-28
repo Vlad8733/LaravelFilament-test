@@ -10,123 +10,51 @@ class SocialAccount extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'provider',
-        'provider_id',
-        'provider_email',
-        'provider_avatar',
-        'token',
-        'refresh_token',
-        'token_expires_at',
-    ];
+    protected $fillable = ['user_id', 'provider', 'provider_id', 'provider_email', 'provider_avatar', 'token', 'refresh_token', 'token_expires_at'];
 
-    protected $hidden = [
-        'token',
-        'refresh_token',
-    ];
+    protected $hidden = ['token', 'refresh_token'];
 
-    protected $casts = [
-        'token_expires_at' => 'datetime',
-    ];
+    protected $casts = ['token_expires_at' => 'datetime'];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get provider icon
-     */
     public function getProviderIconAttribute(): string
     {
         return match (strtolower($this->provider)) {
-            'google' => '🔴',
-            'facebook' => '🔵',
-            'github' => '⚫',
-            'discord' => '🟣',
-            'twitter', 'x' => '🐦',
-            'apple' => '🍎',
-            default => '🔗',
+            'google' => '🔴', 'facebook' => '🔵', 'github' => '⚫', 'discord' => '🟣', 'twitter', 'x' => '🐦', 'apple' => '🍎', default => '🔗'
         };
     }
 
-    /**
-     * Get provider display name
-     */
     public function getProviderDisplayAttribute(): string
     {
         return match (strtolower($this->provider)) {
-            'google' => 'Google',
-            'facebook' => 'Facebook',
-            'github' => 'GitHub',
-            'discord' => 'Discord',
-            'twitter' => 'Twitter',
-            'x' => 'X (Twitter)',
-            'apple' => 'Apple',
-            default => ucfirst($this->provider),
+            'google' => 'Google', 'facebook' => 'Facebook', 'github' => 'GitHub', 'discord' => 'Discord', 'twitter' => 'Twitter', 'x' => 'X (Twitter)', 'apple' => 'Apple', default => ucfirst($this->provider)
         };
     }
 
-    /**
-     * Check if token is expired
-     */
     public function isTokenExpired(): bool
     {
-        if (! $this->token_expires_at) {
-            return false;
-        }
-
-        return $this->token_expires_at->isPast();
+        return $this->token_expires_at && $this->token_expires_at->isPast();
     }
 
-    /**
-     * Available providers
-     */
     public static function availableProviders(): array
     {
         return [
-            'google' => [
-                'name' => 'Google',
-                'icon' => 'google',
-                'color' => '#DB4437',
-                'enabled' => true,
-            ],
-            'github' => [
-                'name' => 'GitHub',
-                'icon' => 'github',
-                'color' => '#333333',
-                'enabled' => true,
-            ],
-            'discord' => [
-                'name' => 'Discord',
-                'icon' => 'discord',
-                'color' => '#5865F2',
-                'enabled' => true,
-            ],
+            'google' => ['name' => 'Google', 'icon' => 'google', 'color' => '#DB4437', 'enabled' => true],
+            'github' => ['name' => 'GitHub', 'icon' => 'github', 'color' => '#333333', 'enabled' => true],
+            'discord' => ['name' => 'Discord', 'icon' => 'discord', 'color' => '#5865F2', 'enabled' => true],
         ];
     }
 
-    /**
-     * Find or create social account for user
-     */
-    public static function findOrCreateForUser(User $user, string $provider, array $socialUser): self
+    public static function findOrCreateForUser(User $u, string $prov, array $soc): self
     {
-        return self::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'provider' => $provider,
-            ],
-            [
-                'provider_id' => $socialUser['id'],
-                'provider_email' => $socialUser['email'] ?? null,
-                'provider_avatar' => $socialUser['avatar'] ?? null,
-                'token' => $socialUser['token'] ?? null,
-                'refresh_token' => $socialUser['refresh_token'] ?? null,
-                'token_expires_at' => isset($socialUser['expires_in'])
-                    ? now()->addSeconds($socialUser['expires_in'])
-                    : null,
-            ]
-        );
+        return self::updateOrCreate(['user_id' => $u->id, 'provider' => $prov], [
+            'provider_id' => $soc['id'], 'provider_email' => $soc['email'] ?? null, 'provider_avatar' => $soc['avatar'] ?? null,
+            'token' => $soc['token'] ?? null, 'refresh_token' => $soc['refresh_token'] ?? null,
+            'token_expires_at' => isset($soc['expires_in']) ? now()->addSeconds($soc['expires_in']) : null,
+        ]);
     }
 }

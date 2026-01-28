@@ -10,23 +10,9 @@ class ProductVariant extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'product_id',
-        'sku',
-        'price',
-        'sale_price',
-        'stock_quantity',
-        'attributes',
-        'is_default',
-    ];
+    protected $fillable = ['product_id', 'sku', 'price', 'sale_price', 'stock_quantity', 'attributes', 'is_default'];
 
-    protected $casts = [
-        'price' => 'decimal:2',
-        'sale_price' => 'decimal:2',
-        'stock_quantity' => 'integer',
-        'attributes' => 'array',
-        'is_default' => 'boolean',
-    ];
+    protected $casts = ['price' => 'decimal:2', 'sale_price' => 'decimal:2', 'stock_quantity' => 'integer', 'attributes' => 'array', 'is_default' => 'boolean'];
 
     public function product(): BelongsTo
     {

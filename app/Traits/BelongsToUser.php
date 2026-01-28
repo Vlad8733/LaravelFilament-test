@@ -5,46 +5,25 @@ namespace App\Traits;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * Trait for models that belong to a user
- *
- * Usage: Add `use BelongsToUser;` to your model
- */
 trait BelongsToUser
 {
-    /**
-     * Get the user that owns this model
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Scope to filter by user
-     */
-    public function scopeForUser($query, $userId = null)
+    public function scopeForUser($q, $uid = null)
     {
-        $userId = $userId ?? auth()->id();
-
-        return $query->where('user_id', $userId);
+        return $q->where('user_id', $uid ?? auth()->id());
     }
 
-    /**
-     * Scope to filter by current authenticated user
-     */
-    public function scopeForCurrentUser($query)
+    public function scopeForCurrentUser($q)
     {
-        return $query->where('user_id', auth()->id());
+        return $q->where('user_id', auth()->id());
     }
 
-    /**
-     * Check if this model belongs to a specific user
-     */
-    public function belongsToUser($userId = null): bool
+    public function belongsToUser($uid = null): bool
     {
-        $userId = $userId ?? auth()->id();
-
-        return $this->user_id === $userId;
+        return $this->user_id === ($uid ?? auth()->id());
     }
 }

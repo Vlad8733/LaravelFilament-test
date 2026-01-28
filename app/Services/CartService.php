@@ -10,244 +10,169 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
-/**
- * Service for managing shopping cart operations.
- *
- * Handles adding, updating, removing items and calculating totals.
- */
 class CartService
 {
-    /**
-     * Get current cart items for the authenticated user or session
-     */
     public function getCartItems(): Collection
     {
-        $userId = Auth::id();
-        $sessionId = Session::getId();
+        $uid = Auth::id();
+        $sid = Session::getId();
 
         return CartItem::with(['product.images', 'variant'])
-            ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->when($uid, fn ($q) => $q->where('user_id', $uid))
+            ->when(! $uid, fn ($q) => $q->where('session_id', $sid))
             ->get();
     }
 
-    /**
-     * Get cart items count
-     */
     public function getItemCount(): int
     {
-        $userId = Auth::id();
-        $sessionId = Session::getId();
+        $uid = Auth::id();
+        $sid = Session::getId();
 
         return CartItem::query()
-            ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->when($uid, fn ($q) => $q->where('user_id', $uid))
+            ->when(! $sid, fn ($q) => $q->where('session_id', $sid))
             ->sum('quantity');
     }
 
-    /**
-     * Add item to cart or update quantity if already exists
-     *
-     * @throws \Exception if product is inactive or out of stock
-     */
-    public function addItem(int $productId, int $quantity = 1, ?int $variantId = null): CartItem
+    public function addItem(int $productId, int $qty = 1, ?int $variantId = null): CartItem
     {
-        $product = Product::findOrFail($productId);
-
-        if (! $product->is_active) {
+        $prod = Product::findOrFail($productId);
+        if (! $prod->is_active) {
             throw new \Exception(__('cart.product_unavailable'));
         }
 
-        $variant = $variantId ? ProductVariant::find($variantId) : null;
-        $availableStock = $this->getAvailableStock($product, $variant);
-
-        if ($availableStock <= 0) {
+        $var = $variantId ? ProductVariant::find($variantId) : null;
+        $stock = $this->getAvailableStock($prod, $var);
+        if ($stock <= 0) {
             throw new \Exception(__('cart.out_of_stock'));
         }
 
-        $userId = Auth::id();
-        $sessionId = Session::getId();
+        $uid = Auth::id();
+        $sid = Session::getId();
 
-        return DB::transaction(function () use ($product, $variant, $quantity, $userId, $sessionId, $availableStock) {
-            $existingItem = CartItem::query()
-                ->when($userId, fn ($q) => $q->where('user_id', $userId))
-                ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
-                ->where('product_id', $product->id)
-                ->where('variant_id', $variant?->id)
+        return DB::transaction(function () use ($prod, $var, $qty, $uid, $sid, $stock) {
+            $existing = CartItem::query()
+                ->when($uid, fn ($q) => $q->where('user_id', $uid))
+                ->when(! $uid, fn ($q) => $q->where('session_id', $sid))
+                ->where('product_id', $prod->id)
+                ->where('variant_id', $var?->id)
                 ->lockForUpdate()
                 ->first();
 
-            if ($existingItem) {
-                $newQuantity = min($existingItem->quantity + $quantity, $availableStock);
-                $existingItem->update(['quantity' => $newQuantity]);
+            if ($existing) {
+                $existing->update(['quantity' => min($existing->quantity + $qty, $stock)]);
 
-                return $existingItem->fresh();
+                return $existing->fresh();
             }
 
             return CartItem::create([
-                'user_id' => $userId,
-                'session_id' => $userId ? null : $sessionId,
-                'product_id' => $product->id,
-                'variant_id' => $variant?->id,
-                'quantity' => min($quantity, $availableStock),
+                'user_id' => $uid,
+                'session_id' => $uid ? null : $sid,
+                'product_id' => $prod->id,
+                'variant_id' => $var?->id,
+                'quantity' => min($qty, $stock),
             ]);
         });
     }
 
-    /**
-     * Update cart item quantity
-     *
-     * @throws \Exception if quantity exceeds available stock
-     */
-    public function updateQuantity(int $cartItemId, int $quantity): CartItem
+    public function updateQuantity(int $id, int $qty): CartItem
     {
-        $cartItem = $this->findCartItem($cartItemId);
-
-        if (! $cartItem) {
+        $item = $this->findCartItem($id);
+        if (! $item) {
             throw new \Exception(__('cart.item_not_found'));
         }
 
-        $availableStock = $this->getAvailableStock($cartItem->product, $cartItem->variant);
-
-        if ($quantity > $availableStock) {
-            throw new \Exception(__('cart.exceeds_stock', ['available' => $availableStock]));
+        $stock = $this->getAvailableStock($item->product, $item->variant);
+        if ($qty > $stock) {
+            throw new \Exception(__('cart.exceeds_stock', ['available' => $stock]));
+        }
+        if ($qty <= 0) {
+            return $this->removeItem($id);
         }
 
-        if ($quantity <= 0) {
-            return $this->removeItem($cartItemId);
-        }
+        $item->update(['quantity' => $qty]);
 
-        $cartItem->update(['quantity' => $quantity]);
-
-        return $cartItem->fresh();
+        return $item->fresh();
     }
 
-    /**
-     * Remove item from cart
-     */
-    public function removeItem(int $cartItemId): ?CartItem
+    public function removeItem(int $id): ?CartItem
     {
-        $cartItem = $this->findCartItem($cartItemId);
-
-        if ($cartItem) {
-            $cartItem->delete();
+        $item = $this->findCartItem($id);
+        if ($item) {
+            $item->delete();
         }
 
-        return $cartItem;
+        return $item;
     }
 
-    /**
-     * Clear all items from cart
-     */
     public function clearCart(): void
     {
-        $userId = Auth::id();
-        $sessionId = Session::getId();
-
+        $uid = Auth::id();
+        $sid = Session::getId();
         CartItem::query()
-            ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->when($uid, fn ($q) => $q->where('user_id', $uid))
+            ->when(! $uid, fn ($q) => $q->where('session_id', $sid))
             ->delete();
     }
 
-    /**
-     * Calculate cart subtotal
-     */
     public function calculateSubtotal(?Collection $items = null): float
     {
         $items = $items ?? $this->getCartItems();
 
-        return $items->sum(function ($item) {
-            $price = $item->variant?->price ?? $item->product->getCurrentPrice();
-
-            return $price * $item->quantity;
-        });
+        return $items->sum(fn ($i) => ($i->variant?->price ?? $i->product->getCurrentPrice()) * $i->quantity);
     }
 
-    /**
-     * Merge guest cart into user cart after login
-     */
-    public function mergeGuestCart(int $userId): void
+    public function mergeGuestCart(int $uid): void
     {
-        $sessionId = Session::getId();
-
-        $guestItems = CartItem::where('session_id', $sessionId)->get();
-
-        if ($guestItems->isEmpty()) {
+        $sid = Session::getId();
+        $guest = CartItem::where('session_id', $sid)->get();
+        if ($guest->isEmpty()) {
             return;
         }
 
-        DB::transaction(function () use ($guestItems, $userId) {
-            foreach ($guestItems as $guestItem) {
-                $existingItem = CartItem::where('user_id', $userId)
-                    ->where('product_id', $guestItem->product_id)
-                    ->where('variant_id', $guestItem->variant_id)
-                    ->first();
+        DB::transaction(function () use ($guest, $uid) {
+            foreach ($guest as $g) {
+                $ex = CartItem::where('user_id', $uid)
+                    ->where('product_id', $g->product_id)
+                    ->where('variant_id', $g->variant_id)->first();
 
-                if ($existingItem) {
-                    $availableStock = $this->getAvailableStock($guestItem->product, $guestItem->variant);
-                    $newQuantity = min($existingItem->quantity + $guestItem->quantity, $availableStock);
-                    $existingItem->update(['quantity' => $newQuantity]);
-                    $guestItem->delete();
+                if ($ex) {
+                    $stock = $this->getAvailableStock($g->product, $g->variant);
+                    $ex->update(['quantity' => min($ex->quantity + $g->quantity, $stock)]);
+                    $g->delete();
                 } else {
-                    $guestItem->update([
-                        'user_id' => $userId,
-                        'session_id' => null,
-                    ]);
+                    $g->update(['user_id' => $uid, 'session_id' => null]);
                 }
             }
         });
     }
 
-    /**
-     * Validate cart items have sufficient stock
-     *
-     * @return array Array of validation errors, empty if all valid
-     */
     public function validateStock(): array
     {
-        $errors = [];
-        $items = $this->getCartItems();
-
-        foreach ($items as $item) {
-            $availableStock = $this->getAvailableStock($item->product, $item->variant);
-
-            if ($item->quantity > $availableStock) {
-                $errors[] = [
-                    'item_id' => $item->id,
-                    'product' => $item->product->name,
-                    'requested' => $item->quantity,
-                    'available' => $availableStock,
-                ];
+        $errs = [];
+        foreach ($this->getCartItems() as $i) {
+            $stock = $this->getAvailableStock($i->product, $i->variant);
+            if ($i->quantity > $stock) {
+                $errs[] = ['item_id' => $i->id, 'product' => $i->product->name,
+                    'requested' => $i->quantity, 'available' => $stock];
             }
         }
 
-        return $errors;
+        return $errs;
     }
 
-    /**
-     * Find cart item belonging to current user/session
-     */
-    private function findCartItem(int $cartItemId): ?CartItem
+    private function findCartItem(int $id): ?CartItem
     {
-        $userId = Auth::id();
-        $sessionId = Session::getId();
+        $uid = Auth::id();
+        $sid = Session::getId();
 
-        return CartItem::where('id', $cartItemId)
-            ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
-            ->first();
+        return CartItem::where('id', $id)
+            ->when($uid, fn ($q) => $q->where('user_id', $uid))
+            ->when(! $uid, fn ($q) => $q->where('session_id', $sid))->first();
     }
 
-    /**
-     * Get available stock for a product/variant
-     */
-    private function getAvailableStock(Product $product, ?ProductVariant $variant): int
+    private function getAvailableStock(Product $p, ?ProductVariant $v): int
     {
-        if ($variant) {
-            return $variant->stock_quantity ?? 0;
-        }
-
-        return $product->stock_quantity ?? 0;
+        return $v ? ($v->stock_quantity ?? 0) : ($p->stock_quantity ?? 0);
     }
 }

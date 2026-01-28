@@ -9,113 +9,65 @@ use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
-    /**
-     * Download invoice for an order (for authenticated users or guest orders).
-     */
-    public function download(Order $order)
+    public function download(Order $o)
     {
-        $user = Auth::user();
-
-        // Guest order (user_id = null) - allow if session matches
-        if ($order->user_id === null) {
-            $sessionOrderId = session('last_order_id');
-            if ($sessionOrderId != $order->id) {
+        $u = Auth::user();
+        if ($o->user_id === null) {
+            if (session('last_order_id') != $o->id) {
                 abort(403, __('invoice.errors.access_denied'));
             }
 
-            return $this->generatePdf($order);
+            return $this->genPdf($o);
         }
-
-        // For orders with user_id - require authentication
-        if (! $user) {
+        if (! $u) {
             return redirect()->route('login');
         }
-
-        // Check: only owner or admin
-        if ($user->id !== $order->user_id && ! $user->isAdmin()) {
+        if ($u->id !== $o->user_id && ! $u->isAdmin()) {
             abort(403, __('invoice.errors.access_denied'));
         }
 
-        return $this->generatePdf($order);
+        return $this->genPdf($o);
     }
 
-    /**
-     * Download invoice by order number (requires email verification).
-     *
-     * This provides a secure way to access invoices without full authentication
-     * by requiring the customer email to match the order.
-     */
-    public function downloadByNumber(Request $request, string $orderNumber)
+    public function downloadByNumber(Request $r, string $num)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        $order = Order::where('order_number', $orderNumber)->firstOrFail();
-
-        // Security check: email must match the order's customer email
-        if (strtolower($order->customer_email) !== strtolower($request->email)) {
+        $r->validate(['email' => 'required|email']);
+        $o = Order::where('order_number', $num)->firstOrFail();
+        if (strtolower($o->customer_email) !== strtolower($r->email)) {
             abort(403, __('invoice.errors.email_mismatch'));
         }
 
-        return $this->generatePdf($order);
+        return $this->genPdf($o);
     }
 
-    /**
-     * View invoice in browser.
-     */
-    public function view(Order $order)
+    public function view(Order $o)
     {
-        $user = Auth::user();
-
-        // Guest order - allow if session matches
-        if ($order->user_id === null) {
-            $sessionOrderId = session('last_order_id');
-            if ($sessionOrderId != $order->id) {
+        $u = Auth::user();
+        if ($o->user_id === null) {
+            if (session('last_order_id') != $o->id) {
                 abort(403, __('invoice.errors.access_denied'));
             }
 
-            return $this->generatePdf($order, false);
+            return $this->genPdf($o, false);
         }
-
-        if (! $user) {
+        if (! $u) {
             return redirect()->route('login');
         }
-
-        if ($user->id !== $order->user_id && ! $user->isAdmin()) {
+        if ($u->id !== $o->user_id && ! $u->isAdmin()) {
             abort(403, __('invoice.errors.access_denied'));
         }
 
-        return $this->generatePdf($order, false);
+        return $this->genPdf($o, false);
     }
 
-    /**
-     * Generate PDF invoice.
-     */
-    private function generatePdf(Order $order, bool $download = true)
+    private function genPdf(Order $o, bool $dl = true)
     {
-        $order->load(['items.product', 'user', 'status']);
+        $o->load(['items.product', 'user', 'status']);
+        $pdf = Pdf::loadView('invoices.template', ['order' => $o, 'company' => config('invoice.company'), 'generated_at' => now()]);
+        $cfg = config('invoice.pdf', []);
+        $pdf->setPaper($cfg['paper'] ?? 'a4', $cfg['orientation'] ?? 'portrait');
+        $fn = 'invoice-'.$o->order_number.'.pdf';
 
-        $data = [
-            'order' => $order,
-            'company' => config('invoice.company'),
-            'generated_at' => now(),
-        ];
-
-        $pdf = Pdf::loadView('invoices.template', $data);
-
-        $pdfConfig = config('invoice.pdf', []);
-        $pdf->setPaper(
-            $pdfConfig['paper'] ?? 'a4',
-            $pdfConfig['orientation'] ?? 'portrait'
-        );
-
-        $filename = 'invoice-'.$order->order_number.'.pdf';
-
-        if ($download) {
-            return $pdf->download($filename);
-        }
-
-        return $pdf->stream($filename);
+        return $dl ? $pdf->download($fn) : $pdf->stream($fn);
     }
 }

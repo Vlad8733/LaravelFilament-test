@@ -17,9 +17,7 @@ if (! function_exists('activity_log')) {
 }
 
 if (! function_exists('mask_email')) {
-    /**
-     * Mask email for privacy: show first 2 chars + ••• + @domain
-     */
+
     function mask_email(?string $email): string
     {
         if (empty($email)) {
@@ -40,9 +38,7 @@ if (! function_exists('mask_email')) {
 }
 
 if (! function_exists('mask_phone')) {
-    /**
-     * Mask phone for privacy: show last 4 digits
-     */
+
     function mask_phone(?string $phone): string
     {
         if (empty($phone)) {

@@ -24,24 +24,12 @@ class ImportProductsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * The number of times the job may be attempted.
-     */
     public int $tries = 3;
 
-    /**
-     * The number of seconds the job can run before timing out.
-     */
     public int $timeout = 600;
 
-    /**
-     * The maximum number of unhandled exceptions to allow before failing.
-     */
     public int $maxExceptions = 2;
 
-    /**
-     * The number of seconds to wait before retrying the job.
-     */
     public int $backoff = 60;
 
     protected string $path;
@@ -55,9 +43,6 @@ class ImportProductsJob implements ShouldQueue
         $this->queue = 'imports';
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         $fullPath = Storage::path($this->path);
@@ -70,7 +55,6 @@ class ImportProductsJob implements ShouldQueue
             return;
         }
 
-        // compute total rows (lines) to update import job
         $totalLines = 0;
         while (! feof($handle)) {
             $line = fgets($handle);
@@ -87,11 +71,9 @@ class ImportProductsJob implements ShouldQueue
             return;
         }
 
-        // attempt to load mapping from import job (mapping maps model_field => csv_header)
         $importRecord = ImportJob::find($this->importJobId);
         $mapping = $importRecord ? ($importRecord->mapping ?? null) : null;
 
-        // update import job as processing
         if (DB::table('import_jobs')->where('id', $this->importJobId)->exists()) {
             Log::info('ImportProductsJob: setting import processing', ['import_id' => $this->importJobId]);
             DB::table('import_jobs')->where('id', $this->importJobId)->update([
@@ -113,7 +95,6 @@ class ImportProductsJob implements ShouldQueue
             $rowNum++;
             $rowAssoc = array_combine($header, $row) ?: [];
 
-            // apply mapping if present: mapping is ['name' => 'CSV Name Column', ...]
             if (is_array($mapping) && count($mapping) > 0) {
                 foreach ($mapping as $modelField => $csvHeader) {
                     if (is_string($csvHeader) && array_key_exists($csvHeader, $rowAssoc)) {
@@ -136,7 +117,6 @@ class ImportProductsJob implements ShouldQueue
 
         fclose($handle);
 
-        // update final import job status
         if (DB::table('import_jobs')->where('id', $this->importJobId)->exists()) {
             Log::info('ImportProductsJob: updating import finished', ['import_id' => $this->importJobId, 'rows' => $rowNum - 1, 'failed' => count($failed)]);
             DB::table('import_jobs')->where('id', $this->importJobId)->update([
@@ -147,7 +127,6 @@ class ImportProductsJob implements ShouldQueue
                 'updated_at' => now(),
             ]);
 
-            // notify owner if present
             $import = DB::table('import_jobs')->where('id', $this->importJobId)->first();
             if ($import && $import->user_id) {
                 $user = User::find($import->user_id);
@@ -166,7 +145,7 @@ class ImportProductsJob implements ShouldQueue
         }
 
         if (! empty($failed)) {
-            // build failed CSV
+
             $allKeys = [];
             foreach ($failed as $f) {
                 foreach (array_keys($f) as $k) {
@@ -198,7 +177,7 @@ class ImportProductsJob implements ShouldQueue
 
             $failedPath = 'imports/failed_import_'.time().'.csv';
             Storage::disk('local')->put($failedPath, $contents);
-            // persist failed file path to import_jobs so admins can download it
+
             if (DB::table('import_jobs')->where('id', $this->importJobId)->exists()) {
                 DB::table('import_jobs')->where('id', $this->importJobId)->update([
                     'failed_file_path' => $failedPath,
@@ -210,10 +189,10 @@ class ImportProductsJob implements ShouldQueue
 
     protected function processBuffer(array $buffer, array &$failed): void
     {
-        // Before processing buffer, check whether import was cancelled
+
         $maybeImport = ImportJob::find($this->importJobId);
         if ($maybeImport && $maybeImport->status === 'cancelled') {
-            // stop processing silently
+
             throw new \RuntimeException('cancelled');
         }
 
@@ -289,10 +268,8 @@ class ImportProductsJob implements ShouldQueue
                     continue;
                 }
 
-                // reload product instance (ensure we have ID)
                 $product = Product::where('sku', $attributes['sku'])->orWhere('slug', $attributes['slug'])->first();
 
-                // Handle images column: semicolon-separated URLs
                 if (! empty($data['images']) && $product) {
                     $urls = preg_split('/[;|,]+/u', $data['images']);
                     $sort = $product->images()->max('sort_order') ?? 0;
@@ -317,7 +294,6 @@ class ImportProductsJob implements ShouldQueue
                     }
                 }
 
-                // Handle simple variant columns (single variant per row or multiple rows per product)
                 if (! empty($data['variant_sku']) || ! empty($data['variant_price']) || ! empty($data['variant_attributes'])) {
                     try {
                         $variantData = [];
@@ -334,7 +310,7 @@ class ImportProductsJob implements ShouldQueue
                             $variantData['stock_quantity'] = $data['variant_stock_quantity'];
                         }
                         if (! empty($data['variant_attributes'])) {
-                            // support JSON or key:value;key2:value2 format
+
                             $attrs = $data['variant_attributes'];
                             $parsed = @json_decode($attrs, true);
                             if (is_array($parsed)) {
@@ -358,7 +334,7 @@ class ImportProductsJob implements ShouldQueue
                                 $variantModel = \App\Models\ProductVariant::where('sku', $variantData['sku'])->first();
                             }
                             if (! $variantModel && $product) {
-                                // try find by product and attributes (simple fallback)
+
                                 $variantModel = $product->variants()->first();
                             }
 
@@ -376,7 +352,6 @@ class ImportProductsJob implements ShouldQueue
 
             DB::commit();
 
-            // update import job processed/failed counters for this buffer
             if ($import = ImportJob::find($this->importJobId)) {
                 $processed = count($buffer);
                 $newFails = 0;
@@ -405,9 +380,6 @@ class ImportProductsJob implements ShouldQueue
         }
     }
 
-    /**
-     * Download an image URL and store it under public disk for the product.
-     */
     protected function downloadImageForProduct(string $url, int $productId): ?string
     {
         try {
@@ -428,9 +400,6 @@ class ImportProductsJob implements ShouldQueue
         }
     }
 
-    /**
-     * Handle a job failure.
-     */
     public function failed(Throwable $exception): void
     {
         Log::error('ImportProductsJob failed', [
@@ -445,7 +414,6 @@ class ImportProductsJob implements ShouldQueue
                 'finished_at' => now(),
             ]);
 
-            // Notify user about failure
             if ($import->user_id && $user = User::find($import->user_id)) {
                 $user->notify(new ImportFinishedNotification(
                     $this->importJobId,

@@ -35,9 +35,6 @@ class OrderResource extends Resource
         return 'success';
     }
 
-    /**
-     * Продавец видит ТОЛЬКО заказы с товарами своей компании
-     */
     public static function getEloquentQuery(): Builder
     {
         $user = Auth::user();
@@ -166,12 +163,11 @@ class OrderResource extends Resource
                             ->placeholder('Add notes about this status change...'),
                     ])
                     ->action(function (array $data, Order $record): void {
-                        // Update tracking number if provided
+
                         if (! empty($data['tracking_number'])) {
                             $record->update(['tracking_number' => $data['tracking_number']]);
                         }
 
-                        // Update status
                         $record->updateStatus(
                             $data['order_status_id'],
                             $data['notes'] ?? null,
@@ -223,7 +219,7 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+
         ];
     }
 
@@ -236,9 +232,6 @@ class OrderResource extends Resource
         ];
     }
 
-    /**
-     * Sellers cannot create orders, only manage them
-     */
     public static function canCreate(): bool
     {
         return false;

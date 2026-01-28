@@ -10,11 +10,6 @@ class ViewImportJob extends ViewRecord
 {
     protected static string $resource = ImportJobResource::class;
 
-    /**
-     * Use custom blade view stored at resources/views/filament/imports/view.blade.php
-     *
-     * @var view-string
-     */
     protected static string $view = 'filament.imports.view';
 
     public array $previewRows = [];

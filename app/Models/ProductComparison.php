@@ -23,9 +23,6 @@ class ProductComparison extends Model
         return $this->belongsTo(Product::class);
     }
 
-    /**
-     * Get comparison items for current user/session
-     */
     public static function getItems()
     {
         $userId = auth()->id();
@@ -38,9 +35,6 @@ class ProductComparison extends Model
             ->get();
     }
 
-    /**
-     * Get count of items in comparison
-     */
     public static function getCount(): int
     {
         $userId = auth()->id();
@@ -51,9 +45,6 @@ class ProductComparison extends Model
             ->count();
     }
 
-    /**
-     * Check if product is in comparison
-     */
     public static function hasProduct(int $productId): bool
     {
         $userId = auth()->id();
@@ -65,20 +56,15 @@ class ProductComparison extends Model
             ->exists();
     }
 
-    /**
-     * Add product to comparison
-     */
     public static function addProduct(int $productId): array
     {
         $userId = auth()->id();
         $sessionId = session()->getId();
 
-        // Check if already exists
         if (static::hasProduct($productId)) {
             return ['success' => false, 'message' => __('compare.already_added')];
         }
 
-        // Limit to 4 products
         $count = static::getCount();
         if ($count >= 4) {
             return ['success' => false, 'message' => __('compare.limit_reached')];
@@ -93,9 +79,6 @@ class ProductComparison extends Model
         return ['success' => true, 'message' => __('compare.added'), 'count' => $count + 1];
     }
 
-    /**
-     * Remove product from comparison
-     */
     public static function removeProduct(int $productId): array
     {
         $userId = auth()->id();
@@ -113,9 +96,6 @@ class ProductComparison extends Model
         ];
     }
 
-    /**
-     * Clear all comparison items
-     */
     public static function clearAll(): array
     {
         $userId = auth()->id();

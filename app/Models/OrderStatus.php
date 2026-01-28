@@ -33,7 +33,6 @@ class OrderStatus extends Model
         return $this->hasMany(OrderStatusHistory::class);
     }
 
-    // Статические методы для быстрого доступа
     public static function pending()
     {
         return self::where('slug', 'pending')->first();
@@ -54,27 +53,19 @@ class OrderStatus extends Model
         return self::where('slug', 'delivered')->first();
     }
 
-    /**
-     * Get translated status name
-     */
     public function getTranslatedNameAttribute(): string
     {
         $key = 'order.status_'.str_replace('-', '_', $this->slug);
         $translated = __($key);
 
-        // Если перевод не найден, вернуть оригинал
         return $translated === $key ? $this->name : $translated;
     }
 
-    /**
-     * Get translated status description
-     */
     public function getTranslatedDescriptionAttribute(): string
     {
         $key = 'order.status_'.str_replace('-', '_', $this->slug).'_desc';
         $translated = __($key);
 
-        // Если перевод не найден, вернуть оригинал
         return $translated === $key ? $this->description : $translated;
     }
 }

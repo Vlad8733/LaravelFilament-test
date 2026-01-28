@@ -17,53 +17,37 @@ class AuthenticatedSessionController extends Controller
         return view('auth.login');
     }
 
-    public function store(Request $request)
+    public function store(Request $r)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+        $creds = $r->validate(['email' => 'required|email', 'password' => 'required|string']);
+        $u = User::where('email', $creds['email'])->first();
 
-        // Find user first to check for 2FA
-        $user = User::where('email', $credentials['email'])->first();
-
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-            // Log failed login attempt if user exists
-            if ($user) {
-                LoginHistory::recordLogin($user, $request->ip(), $request->userAgent(), false);
+        if (! $u || ! Hash::check($creds['password'], $u->password)) {
+            if ($u) {
+                LoginHistory::recordLogin($u, $r->ip(), $r->userAgent(), false);
             }
-
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
+            throw ValidationException::withMessages(['email' => __('auth.failed')]);
         }
 
-        // Check if 2FA is enabled
-        if ($user->hasTwoFactorEnabled()) {
-            // Store user ID in session and redirect to 2FA challenge
-            $request->session()->put('2fa:user:id', $user->id);
-            $request->session()->put('2fa:user:remember', $request->boolean('remember'));
+        if ($u->hasTwoFactorEnabled()) {
+            $r->session()->put('2fa:user:id', $u->id);
+            $r->session()->put('2fa:user:remember', $r->boolean('remember'));
 
             return redirect()->route('two-factor.challenge');
         }
 
-        // No 2FA - log in directly
-        Auth::login($user, $request->boolean('remember'));
-
-        // Record successful login
-        LoginHistory::recordLogin($user, $request->ip(), $request->userAgent(), true);
-
-        $request->session()->regenerate();
+        Auth::login($u, $r->boolean('remember'));
+        LoginHistory::recordLogin($u, $r->ip(), $r->userAgent(), true);
+        $r->session()->regenerate();
 
         return redirect()->intended(route('home'));
     }
 
-    public function destroy(Request $request)
+    public function destroy(Request $r)
     {
         Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $r->session()->invalidate();
+        $r->session()->regenerateToken();
 
         return redirect('/');
     }

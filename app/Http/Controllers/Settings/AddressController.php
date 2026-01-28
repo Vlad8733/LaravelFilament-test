@@ -15,9 +15,6 @@ class AddressController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Store a new address.
-     */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -36,7 +33,6 @@ class AddressController extends Controller
         $user = Auth::user();
         $isDefault = $request->boolean('is_default');
 
-        // First address is always default
         if ($user->addresses()->count() === 0) {
             $isDefault = true;
         }
@@ -67,9 +63,6 @@ class AddressController extends Controller
         ]);
     }
 
-    /**
-     * Update an existing address.
-     */
     public function update(Request $request, UserAddress $address): JsonResponse
     {
         $this->authorize('update', $address);
@@ -105,9 +98,6 @@ class AddressController extends Controller
         ]);
     }
 
-    /**
-     * Delete an address.
-     */
     public function destroy(UserAddress $address): JsonResponse
     {
         $this->authorize('delete', $address);
@@ -115,7 +105,6 @@ class AddressController extends Controller
         $wasDefault = $address->is_default;
         $address->delete();
 
-        // Set new default if deleted was default
         if ($wasDefault) {
             $newDefault = Auth::user()->addresses()->first();
             $newDefault?->update(['is_default' => true]);
@@ -129,9 +118,6 @@ class AddressController extends Controller
         ]);
     }
 
-    /**
-     * Set address as default.
-     */
     public function setDefault(UserAddress $address): JsonResponse
     {
         $this->authorize('update', $address);

@@ -7,26 +7,17 @@ use App\Services\CacheService;
 
 class CategoryObserver
 {
-    /**
-     * Handle the Category "created" event.
-     */
-    public function created(Category $category): void
+    public function created(Category $c): void
     {
         CacheService::clearCategoryCache();
     }
 
-    /**
-     * Handle the Category "updated" event.
-     */
-    public function updated(Category $category): void
+    public function updated(Category $c): void
     {
         CacheService::clearCategoryCache();
     }
 
-    /**
-     * Handle the Category "deleted" event.
-     */
-    public function deleted(Category $category): void
+    public function deleted(Category $c): void
     {
         CacheService::clearCategoryCache();
     }

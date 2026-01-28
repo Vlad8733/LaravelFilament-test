@@ -95,7 +95,7 @@ class OrderStatusResource extends Resource
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                //
+
             ]);
     }
 

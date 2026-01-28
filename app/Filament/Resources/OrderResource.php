@@ -32,9 +32,6 @@ class OrderResource extends Resource
         return 'success';
     }
 
-    /**
-     * Optimize queries with eager loading
-     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -54,7 +51,6 @@ class OrderResource extends Resource
                             ->dehydrated()
                             ->maxLength(255),
 
-                        // СТАТУС - только для просмотра в админке
                         Forms\Components\Select::make('order_status_id')
                             ->relationship('status', 'name')
                             ->required()
@@ -64,7 +60,6 @@ class OrderResource extends Resource
                             ->disabled()
                             ->dehydrated(),
 
-                        // ДОБАВЛЯЕМ TRACKING NUMBER
                         Forms\Components\TextInput::make('tracking_number')
                             ->maxLength(255)
                             ->placeholder('Enter tracking number'),
@@ -142,14 +137,12 @@ class OrderResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                // ОБНОВЛЯЕМ СТАТУС
                 Tables\Columns\TextColumn::make('status.name')
                     ->badge()
                     ->color(fn ($record) => $record->status?->color ?? 'gray')
                     ->sortable()
                     ->searchable(),
 
-                // ДОБАВЛЯЕМ TRACKING NUMBER
                 Tables\Columns\TextColumn::make('tracking_number')
                     ->searchable()
                     ->copyable()

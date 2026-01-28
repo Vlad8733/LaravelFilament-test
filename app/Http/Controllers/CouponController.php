@@ -1,7 +1,5 @@
 <?php
 
-// filepath: app/Http/Controllers/CouponController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\Coupon;
@@ -9,30 +7,16 @@ use Illuminate\Http\Request;
 
 class CouponController extends Controller
 {
-    public function validateCoupon(Request $request) // <-- ПЕРЕИМЕНОВАЛИ
+    public function validateCoupon(Request $r)
     {
-        $request->validate([
-            'code' => 'required|string',
-            'amount' => 'required|numeric|min:0',
-        ]);
-
-        $coupon = Coupon::where('code', strtoupper($request->code))->first();
-
-        if (! $coupon || ! $coupon->isValid()) {
-            return response()->json([
-                'valid' => false,
-                'message' => 'Invalid or expired coupon code',
-            ]);
+        $r->validate(['code' => 'required|string', 'amount' => 'required|numeric|min:0']);
+        $c = Coupon::where('code', strtoupper($r->code))->first();
+        if (! $c || ! $c->isValid()) {
+            return response()->json(['valid' => false, 'message' => 'Invalid or expired coupon code']);
         }
 
-        $discount = $coupon->calculateDiscount($request->amount);
+        $disc = $c->calculateDiscount($r->amount);
 
-        return response()->json([
-            'valid' => true,
-            'discount' => $discount,
-            'type' => $coupon->type,
-            'value' => $coupon->value,
-            'message' => 'Coupon applied! You save $'.number_format($discount, 2),
-        ]);
+        return response()->json(['valid' => true, 'discount' => $disc, 'type' => $c->type, 'value' => $c->value, 'message' => 'Coupon applied! You save $'.number_format($disc, 2)]);
     }
 }

@@ -13,9 +13,6 @@ class TwoFactorController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Show 2FA settings page
-     */
     public function index()
     {
         $user = auth()->user();
@@ -26,9 +23,6 @@ class TwoFactorController extends Controller
         ]);
     }
 
-    /**
-     * Show 2FA setup page
-     */
     public function setup(Request $request)
     {
         $user = auth()->user();
@@ -38,13 +32,10 @@ class TwoFactorController extends Controller
                 ->with('info', __('Two-factor authentication is already enabled.'));
         }
 
-        // Generate new secret
         $secret = $user->generateTwoFactorSecret();
 
-        // Store temporarily in session
         $request->session()->put('2fa_secret', $secret);
 
-        // Generate QR code
         $google2fa = app(Google2FA::class);
         $qrCodeUrl = $google2fa->getQRCodeUrl(
             config('app.name'),
@@ -52,7 +43,6 @@ class TwoFactorController extends Controller
             $secret
         );
 
-        // Generate SVG QR code
         $qrCode = $this->generateQrCodeSvg($qrCodeUrl);
 
         return view('auth.two-factor.setup', [
@@ -61,9 +51,6 @@ class TwoFactorController extends Controller
         ]);
     }
 
-    /**
-     * Enable 2FA
-     */
     public function enable(Request $request)
     {
         $request->validate([
@@ -73,7 +60,6 @@ class TwoFactorController extends Controller
 
         $user = auth()->user();
 
-        // Verify password
         if (! Hash::check($request->password, $user->password)) {
             return back()->withErrors(['password' => __('The password is incorrect.')]);
         }
@@ -85,26 +71,20 @@ class TwoFactorController extends Controller
                 ->withErrors(['code' => __('Session expired. Please try again.')]);
         }
 
-        // Verify the code
         $google2fa = app(Google2FA::class);
 
         if (! $google2fa->verifyKey($secret, $request->code)) {
             return back()->withErrors(['code' => __('The code is invalid.')]);
         }
 
-        // Enable 2FA
         $user->enableTwoFactor($secret);
 
-        // Clear session
         $request->session()->forget('2fa_secret');
 
         return redirect()->route('two-factor.index')
             ->with('success', __('Two-factor authentication has been enabled.'));
     }
 
-    /**
-     * Disable 2FA
-     */
     public function disable(Request $request)
     {
         $request->validate([
@@ -123,9 +103,6 @@ class TwoFactorController extends Controller
             ->with('success', __('Two-factor authentication has been disabled.'));
     }
 
-    /**
-     * Regenerate recovery codes
-     */
     public function regenerateCodes(Request $request)
     {
         $request->validate([
@@ -144,9 +121,6 @@ class TwoFactorController extends Controller
             ->with('success', __('Recovery codes have been regenerated.'));
     }
 
-    /**
-     * Generate QR Code SVG
-     */
     protected function generateQrCodeSvg(string $url): string
     {
         $renderer = new \BaconQrCode\Renderer\Image\SvgImageBackEnd;

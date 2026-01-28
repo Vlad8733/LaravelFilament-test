@@ -14,128 +14,86 @@ use Illuminate\Support\Facades\Notification;
 
 class OrderObserver
 {
-    /**
-     * Handle the Order "created" event.
-     */
-    public function created(Order $order): void
+    public function created(Order $o): void
     {
-        Log::info('OrderObserver: Order created', ['order_id' => $order->id, 'order_number' => $order->order_number]);
-        $this->dispatchWebhook(Webhook::EVENT_ORDER_CREATED, $order);
-        $this->sendOrderCreatedNotification($order);
+        Log::info('OrderObserver: Order created', ['order_id' => $o->id, 'order_number' => $o->order_number]);
+        $this->dispatchWebhook(Webhook::EVENT_ORDER_CREATED, $o);
+        $this->sendOrderCreatedNotification($o);
     }
 
-    /**
-     * Handle the Order "updated" event.
-     */
-    public function updated(Order $order): void
+    public function updated(Order $o): void
     {
-        // Check if status changed
-        if ($order->wasChanged('order_status')) {
-            $webhooks = Webhook::forEvent(Webhook::EVENT_ORDER_STATUS_CHANGED);
-
-            $payload = [
-                'order_id' => $order->id,
-                'order_number' => $order->order_number,
-                'old_status' => $order->getOriginal('order_status'),
-                'new_status' => $order->order_status,
-                'customer_email' => $order->customer_email,
-                'total' => $order->total,
-            ];
-
-            foreach ($webhooks as $webhook) {
-                DispatchWebhookJob::dispatch($webhook, Webhook::EVENT_ORDER_STATUS_CHANGED, $payload);
-            }
-
-            // Send status-specific email notifications
-            $this->sendStatusChangeNotification($order);
+        if (! $o->wasChanged('order_status')) {
+            return;
         }
+
+        $hooks = Webhook::forEvent(Webhook::EVENT_ORDER_STATUS_CHANGED);
+        $payload = [
+            'order_id' => $o->id, 'order_number' => $o->order_number,
+            'old_status' => $o->getOriginal('order_status'), 'new_status' => $o->order_status,
+            'customer_email' => $o->customer_email, 'total' => $o->total,
+        ];
+        foreach ($hooks as $h) {
+            DispatchWebhookJob::dispatch($h, Webhook::EVENT_ORDER_STATUS_CHANGED, $payload);
+        }
+        $this->sendStatusChangeNotification($o);
     }
 
-    /**
-     * Send notification when order is created.
-     */
-    protected function sendOrderCreatedNotification(Order $order): void
+    protected function sendOrderCreatedNotification(Order $o): void
     {
         try {
-            // Notify registered user
-            /** @var \App\Models\User|null $user */
-            $user = $order->user;
-            if ($order->user_id && $user) {
-                $user->notify(new OrderCreatedNotification($order));
+            /** @var \App\Models\User|null $u */
+            $u = $o->user;
+            if ($o->user_id && $u) {
+                $u->notify(new OrderCreatedNotification($o));
             }
-
-            // Also send email to customer_email (for guest orders or different email)
-            if ($order->customer_email && (! $user || $user->email !== $order->customer_email)) {
-                Notification::route('mail', $order->customer_email)
-                    ->notify(new OrderCreatedNotification($order));
+            if ($o->customer_email && (! $u || $u->email !== $o->customer_email)) {
+                Notification::route('mail', $o->customer_email)->notify(new OrderCreatedNotification($o));
             }
         } catch (\Exception $e) {
-            Log::warning('Failed to send order created notification: '.$e->getMessage(), [
-                'order_id' => $order->id,
-            ]);
+            Log::warning('Failed to send order created notification: '.$e->getMessage(), ['order_id' => $o->id]);
         }
     }
 
-    /**
-     * Send notification based on new order status.
-     */
-    protected function sendStatusChangeNotification(Order $order): void
+    protected function sendStatusChangeNotification(Order $o): void
     {
-        $newStatus = $order->order_status;
-
+        $status = $o->order_status;
         try {
-            $notification = match ($newStatus) {
-                'shipped' => new OrderShippedNotification($order, $order->tracking_number),
-                'delivered' => new OrderDeliveredNotification($order),
-                'cancelled' => new OrderCancelledNotification($order),
+            $notif = match ($status) {
+                'shipped' => new OrderShippedNotification($o, $o->tracking_number),
+                'delivered' => new OrderDeliveredNotification($o),
+                'cancelled' => new OrderCancelledNotification($o),
                 default => null,
             };
+            if (! $notif) {
+                return;
+            }
 
-            if ($notification) {
-                // Notify registered user
-                /** @var \App\Models\User|null $user */
-                $user = $order->user;
-                if ($order->user_id && $user) {
-                    $user->notify($notification);
-                }
-
-                // Also send email to customer_email (for guest orders or different email)
-                if ($order->customer_email && (! $user || $user->email !== $order->customer_email)) {
-                    Notification::route('mail', $order->customer_email)
-                        ->notify($notification);
-                }
+            /** @var \App\Models\User|null $u */
+            $u = $o->user;
+            if ($o->user_id && $u) {
+                $u->notify($notif);
+            }
+            if ($o->customer_email && (! $u || $u->email !== $o->customer_email)) {
+                Notification::route('mail', $o->customer_email)->notify($notif);
             }
         } catch (\Exception $e) {
-            Log::warning('Failed to send order status notification: '.$e->getMessage(), [
-                'order_id' => $order->id,
-                'new_status' => $newStatus,
-            ]);
+            Log::warning('Failed to send order status notification: '.$e->getMessage(), ['order_id' => $o->id, 'new_status' => $status]);
         }
     }
 
-    /**
-     * Dispatch webhook for order.
-     */
-    protected function dispatchWebhook(string $event, Order $order): void
+    protected function dispatchWebhook(string $event, Order $o): void
     {
-        $webhooks = Webhook::forEvent($event);
-
+        $hooks = Webhook::forEvent($event);
         $payload = [
-            'order_id' => $order->id,
-            'order_number' => $order->order_number,
-            'status' => $order->order_status,
-            'customer_name' => $order->customer_name,
-            'customer_email' => $order->customer_email,
-            'shipping_address' => $order->shipping_address,
-            'subtotal' => $order->subtotal,
-            'discount' => $order->discount_amount,
-            'total' => $order->total,
-            'items_count' => $order->items()->count(),
-            'created_at' => $order->created_at?->toIso8601String(),
+            'order_id' => $o->id, 'order_number' => $o->order_number, 'status' => $o->order_status,
+            'customer_name' => $o->customer_name, 'customer_email' => $o->customer_email,
+            'shipping_address' => $o->shipping_address, 'subtotal' => $o->subtotal,
+            'discount' => $o->discount_amount, 'total' => $o->total,
+            'items_count' => $o->items()->count(), 'created_at' => $o->created_at?->toIso8601String(),
         ];
-
-        foreach ($webhooks as $webhook) {
-            DispatchWebhookJob::dispatch($webhook, $event, $payload);
+        foreach ($hooks as $h) {
+            DispatchWebhookJob::dispatch($h, $event, $payload);
         }
     }
 }

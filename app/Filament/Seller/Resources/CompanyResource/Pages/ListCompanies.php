@@ -14,7 +14,6 @@ class ListCompanies extends ListRecords
     {
         $user = Auth::user();
 
-        // Если у пользователя нет компании - показать кнопку создания
         if ($user && ! $user->company) {
             return [
                 \Filament\Actions\CreateAction::make()

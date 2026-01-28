@@ -12,7 +12,7 @@ class CreateProduct extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Гарантируем что user_id = текущий продавец
+
         $data['user_id'] = Auth::id();
 
         return $data;

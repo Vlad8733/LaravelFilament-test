@@ -7,23 +7,10 @@ use Illuminate\Console\Command;
 
 class WarmCache extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:warm-cache';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Warm up application caches for better performance';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): int
     {
         $this->info('Warming up caches...');
@@ -42,9 +29,6 @@ class WarmCache extends Command
         return self::SUCCESS;
     }
 
-    /**
-     * Run a task and display result
-     */
     private function task(string $name, callable $callback): void
     {
         $this->output->write("  {$name}... ");

@@ -7,129 +7,54 @@ use App\Traits\HasDefaultItem;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * PaymentMethod - stores ONLY tokens and masked data
- *
- * IMPORTANT: This model does NOT store:
- * - Full card numbers
- * - CVV/CVC codes
- * - Full expiry dates in raw form
- *
- * It stores only:
- * - Payment gateway tokens (for recurring payments)
- * - Last 4 digits (for display purposes)
- * - Card brand (visa, mastercard, etc.)
- * - Expiry month/year (for validation)
- */
 class PaymentMethod extends Model
 {
-    use BelongsToUser;
-    use HasDefaultItem;
-    use HasFactory;
+    use BelongsToUser, HasDefaultItem, HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'type',
-        'provider',
-        'token',
-        'last_four',
-        'brand',
-        'holder_name',
-        'expiry_month',
-        'expiry_year',
-        'is_default',
-        'is_expired',
-    ];
+    protected $fillable = ['user_id', 'type', 'provider', 'token', 'last_four', 'brand', 'holder_name', 'expiry_month', 'expiry_year', 'is_default', 'is_expired'];
 
-    protected $casts = [
-        'is_default' => 'boolean',
-        'is_expired' => 'boolean',
-    ];
+    protected $casts = ['is_default' => 'boolean', 'is_expired' => 'boolean'];
 
-    protected $hidden = [
-        'token', // Never expose tokens
-    ];
+    protected $hidden = ['token'];
 
-    /**
-     * Check if card is expired
-     */
     public function checkExpired(): bool
     {
         if (! $this->expiry_month || ! $this->expiry_year) {
             return false;
         }
-
-        $expiryDate = \Carbon\Carbon::createFromDate(
-            $this->expiry_year,
-            $this->expiry_month,
-            1
-        )->endOfMonth();
-
-        $isExpired = $expiryDate->isPast();
-
-        if ($isExpired !== $this->is_expired) {
-            $this->update(['is_expired' => $isExpired]);
+        $exp = \Carbon\Carbon::createFromDate($this->expiry_year, $this->expiry_month, 1)->endOfMonth();
+        $isExp = $exp->isPast();
+        if ($isExp !== $this->is_expired) {
+            $this->update(['is_expired' => $isExp]);
         }
 
-        return $isExpired;
+        return $isExp;
     }
 
-    /**
-     * Get masked card number for display
-     */
     public function getMaskedNumberAttribute(): string
     {
-        if (! $this->last_four) {
-            return '•••• •••• •••• ••••';
-        }
-
-        return "•••• •••• •••• {$this->last_four}";
+        return $this->last_four ? "•••• •••• •••• {$this->last_four}" : '•••• •••• •••• ••••';
     }
 
-    /**
-     * Get expiry string
-     */
     public function getExpiryStringAttribute(): string
     {
-        if (! $this->expiry_month || ! $this->expiry_year) {
-            return '';
-        }
-
-        return sprintf('%02d/%s', $this->expiry_month, substr($this->expiry_year, -2));
+        return ($this->expiry_month && $this->expiry_year) ? sprintf('%02d/%s', $this->expiry_month, substr($this->expiry_year, -2)) : '';
     }
 
-    /**
-     * Get brand icon
-     */
     public function getBrandIconAttribute(): string
     {
         return match (strtolower($this->brand ?? '')) {
-            'visa' => '💳',
-            'mastercard' => '💳',
-            'amex', 'american express' => '💳',
-            'paypal' => '🅿️',
-            default => '💳',
+            'visa', 'mastercard', 'amex', 'american express' => '💳', 'paypal' => '🅿️', default => '💳'
         };
     }
 
-    /**
-     * Get brand display name
-     */
     public function getBrandDisplayAttribute(): string
     {
         return match (strtolower($this->brand ?? '')) {
-            'visa' => 'Visa',
-            'mastercard' => 'Mastercard',
-            'amex', 'american express' => 'American Express',
-            'discover' => 'Discover',
-            'paypal' => 'PayPal',
-            default => ucfirst($this->brand ?? 'Card'),
+            'visa' => 'Visa', 'mastercard' => 'Mastercard', 'amex', 'american express' => 'American Express', 'discover' => 'Discover', 'paypal' => 'PayPal', default => ucfirst($this->brand ?? 'Card')
         };
     }
 
-    /**
-     * Available payment types
-     */
     public static function typeOptions(): array
     {
         return [
@@ -138,9 +63,6 @@ class PaymentMethod extends Model
         ];
     }
 
-    /**
-     * Detect card brand from number (first 4 digits only for privacy)
-     */
     public static function detectBrand(string $firstFour): string
     {
         $firstDigit = substr($firstFour, 0, 1);

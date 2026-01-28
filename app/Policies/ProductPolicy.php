@@ -9,14 +9,14 @@ class ProductPolicy
 {
     public function viewAny(?User $user): bool
     {
-        // Anyone authenticated can view listing; guests handled elsewhere
+
         return $user !== null;
     }
 
     public function view(?User $user, Product $product): bool
     {
         if (! $user) {
-            return $product->is_active; // guests can view active products
+            return $product->is_active;
         }
 
         if ($user->isAdmin()) {

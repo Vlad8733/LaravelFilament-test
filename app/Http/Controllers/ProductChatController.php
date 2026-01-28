@@ -12,21 +12,14 @@ use Illuminate\Support\Facades\DB;
 
 class ProductChatController extends Controller
 {
-    /**
-     * Show or create chat for a product
-     */
     public function show(Request $request, Product $product)
     {
         if (! Auth::check()) {
             return redirect()->route('login')->with('error', __('Please login to chat with seller'));
         }
 
-        // Get product with all needed relationships
         $product->load(['company.owner', 'seller']);
 
-        // Приоритет определения продавца:
-        // 1. user_id (прямой продавец продукта)
-        // 2. company->user_id (владелец компании)
         $sellerId = $product->user_id ?? $product->company?->user_id;
 
         if (! $sellerId) {
@@ -35,7 +28,6 @@ class ProductChatController extends Controller
 
         $seller = User::find($sellerId);
 
-        // Проверка что продавец существует и не является админом
         if (! $seller) {
             return back()->with('error', __('Seller not found'));
         }
@@ -44,12 +36,10 @@ class ProductChatController extends Controller
             return back()->with('error', __('Cannot create chat with administrator. Please contact the seller of this product.'));
         }
 
-        // Дополнительная проверка: продавец должен иметь роль seller
         if (! $seller->hasRole('seller') && ! $seller->is_seller) {
             return back()->with('error', __('This user is not registered as a seller.'));
         }
 
-        // Find or create chat
         $chat = ProductChat::firstOrCreate(
             [
                 'product_id' => $product->id,
@@ -61,22 +51,17 @@ class ProductChatController extends Controller
             ]
         );
 
-        // Load messages with users
         $chat->load(['messages.user', 'product', 'seller', 'customer']);
 
-        // Mark messages as read
         $isSeller = Auth::id() === $sellerId;
         $chat->markMessagesAsRead($isSeller);
 
         return view('product-chat.show', compact('chat', 'product'));
     }
 
-    /**
-     * Send message
-     */
     public function sendMessage(Request $request, ProductChat $chat)
     {
-        // Check authorization
+
         if ($chat->customer_id !== Auth::id() && $chat->seller_id !== Auth::id()) {
             abort(403);
         }
@@ -97,7 +82,6 @@ class ProductChatController extends Controller
                 'is_seller' => $isSeller,
             ];
 
-            // Handle file attachment
             if ($request->hasFile('attachment')) {
                 $file = $request->file('attachment');
                 $path = $file->store('product-chat-attachments', 'public');
@@ -108,10 +92,8 @@ class ProductChatController extends Controller
 
             $message = ProductChatMessage::create($messageData);
 
-            // Load user relationship
             $message->load('user');
 
-            // Update chat
             $chat->update([
                 'last_message_at' => now(),
                 'last_message_by' => Auth::id(),
@@ -158,12 +140,9 @@ class ProductChatController extends Controller
         }
     }
 
-    /**
-     * Check for new messages (polling)
-     */
     public function checkNewMessages(Request $request, ProductChat $chat)
     {
-        // Check authorization
+
         if ($chat->customer_id !== Auth::id() && $chat->seller_id !== Auth::id()) {
             abort(403);
         }
@@ -192,7 +171,6 @@ class ProductChatController extends Controller
                 ];
             });
 
-        // Mark new messages as read
         $chat->messages()
             ->where('id', '>', $afterId)
             ->where('is_seller', $isSeller ? false : true)
@@ -202,9 +180,6 @@ class ProductChatController extends Controller
         return response()->json(['messages' => $messages]);
     }
 
-    /**
-     * My chats list
-     */
     public function index()
     {
         $chats = ProductChat::where('customer_id', Auth::id())

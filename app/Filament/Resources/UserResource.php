@@ -80,11 +80,11 @@ class UserResource extends Resource
                 ->searchable()
                 ->sortable()
                 ->formatStateUsing(function (string $state, User $record): string {
-                    // Show full email only for yourself
+
                     if ($record->id === Auth::id()) {
                         return $state;
                     }
-                    // Mask email for privacy: show first 2 chars + *** + @domain
+
                     $parts = explode('@', $state);
                     if (count($parts) === 2) {
                         $local = $parts[0];
@@ -120,7 +120,7 @@ class UserResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])
             ->actions([
-                // Main Ban button - visible immediately
+
                 Action::make('banAccount')
                     ->label('Ban')
                     ->icon('heroicon-o-no-symbol')
@@ -176,7 +176,6 @@ class UserResource extends Resource
                         Ban::checkAccountBan($record->id) === null
                     ),
 
-                // Unban button
                 Action::make('unban')
                     ->label('Unban')
                     ->icon('heroicon-o-lock-open')
@@ -201,7 +200,6 @@ class UserResource extends Resource
                     })
                     ->visible(fn (User $record) => Ban::checkAccountBan($record->id) !== null),
 
-                // Additional ban actions in dropdown
                 Tables\Actions\ActionGroup::make([
                     Action::make('banIp')
                         ->label('Ban IP')

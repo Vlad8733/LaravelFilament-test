@@ -7,9 +7,6 @@ use Illuminate\View\View;
 
 class HomepageComposer
 {
-    /**
-     * Bind data to the view.
-     */
     public function compose(View $view): void
     {
         $view->with([

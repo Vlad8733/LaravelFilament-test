@@ -11,12 +11,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-/**
- * Controller for user settings (index, password, locale, social, newsletter).
- *
- * @see \App\Http\Controllers\Settings\AddressController for address management
- * @see \App\Http\Controllers\Settings\PaymentMethodController for payment methods
- */
 class SettingsController extends Controller
 {
     public function __construct()
@@ -24,9 +18,6 @@ class SettingsController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Display the settings index page.
-     */
     public function index()
     {
         $user = Auth::user();
@@ -42,9 +33,6 @@ class SettingsController extends Controller
         ]);
     }
 
-    /**
-     * Update user locale.
-     */
     public function updateLocale(Request $request)
     {
         $request->validate([
@@ -61,9 +49,6 @@ class SettingsController extends Controller
         return back()->with('success', __('settings.language_updated'));
     }
 
-    /**
-     * Update user account (username).
-     */
     public function updateAccount(Request $request)
     {
         $user = Auth::user();
@@ -91,9 +76,6 @@ class SettingsController extends Controller
         return back()->with('success', __('settings.account_updated'));
     }
 
-    /**
-     * Update user password.
-     */
     public function updatePassword(Request $request): JsonResponse
     {
         $request->validate([
@@ -122,9 +104,6 @@ class SettingsController extends Controller
         ]);
     }
 
-    /**
-     * Unlink a social account.
-     */
     public function unlinkSocialAccount(SocialAccount $socialAccount): JsonResponse
     {
         if ($socialAccount->user_id !== Auth::id()) {
@@ -142,9 +121,6 @@ class SettingsController extends Controller
         ]);
     }
 
-    /**
-     * Update newsletter subscription.
-     */
     public function updateNewsletter(Request $request): JsonResponse
     {
         $user = Auth::user();
@@ -163,9 +139,6 @@ class SettingsController extends Controller
         ]);
     }
 
-    /**
-     * Unfollow a company.
-     */
     public function unfollowCompany(Company $company): JsonResponse
     {
         Auth::user()->followedCompanies()->detach($company->id);
@@ -176,9 +149,6 @@ class SettingsController extends Controller
         ]);
     }
 
-    /**
-     * Get login history for the current user.
-     */
     public function getLoginHistory(): JsonResponse
     {
         $histories = Auth::user()

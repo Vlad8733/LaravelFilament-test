@@ -25,9 +25,6 @@ class TicketResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    /**
-     * Optimize queries with eager loading
-     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

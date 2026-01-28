@@ -18,30 +18,24 @@ class SellerStatsWidget extends BaseWidget
         $user = Auth::user();
         $companyId = $user?->company?->id;
 
-        // Количество товаров продавца
         $productsCount = Product::where('company_id', $companyId)->count();
 
-        // Количество активных товаров
         $activeProducts = Product::where('company_id', $companyId)
             ->where('is_active', true)
             ->count();
 
-        // Товары не в наличии
         $outOfStock = Product::where('company_id', $companyId)
             ->where('stock_quantity', '<=', 0)
             ->count();
 
-        // Заказы продавца
         $ordersCount = Order::whereHas('items.product', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
         })->count();
 
-        // Общая выручка
         $totalRevenue = Order::whereHas('items.product', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
         })->sum('total');
 
-        // Непрочитанные сообщения в чатах
         $unreadChats = ProductChat::where('seller_id', $user->id)
             ->whereHas('messages', function ($query) {
                 $query->where('is_seller', false)->where('is_read', false);

@@ -8,22 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RefundRequest extends Model
 {
-    protected $fillable = [
-        'order_id',
-        'user_id',
-        'status',
-        'type',
-        'amount',
-        'reason',
-        'admin_notes',
-        'processed_by',
-        'processed_at',
-    ];
+    protected $fillable = ['order_id', 'user_id', 'status', 'type', 'amount', 'reason', 'admin_notes', 'processed_by', 'processed_at'];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
-        'processed_at' => 'datetime',
-    ];
+    protected $casts = ['amount' => 'decimal:2', 'processed_at' => 'datetime'];
 
     public function order(): BelongsTo
     {
@@ -68,33 +55,21 @@ class RefundRequest extends Model
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'pending' => 'warning',
-            'approved' => 'info',
-            'rejected' => 'danger',
-            'completed' => 'success',
-            default => 'gray',
+            'pending' => 'warning', 'approved' => 'info', 'rejected' => 'danger', 'completed' => 'success', default => 'gray',
         };
     }
 
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'pending' => __('refunds.status_pending_review'),
-            'approved' => __('refunds.status_approved'),
-            'rejected' => __('refunds.status_rejected'),
-            'completed' => __('refunds.status_refunded'),
-            'cancelled' => __('refunds.status_cancelled'),
-            default => ucfirst($this->status),
+            'pending' => __('refunds.status_pending_review'), 'approved' => __('refunds.status_approved'),
+            'rejected' => __('refunds.status_rejected'), 'completed' => __('refunds.status_refunded'),
+            'cancelled' => __('refunds.status_cancelled'), default => ucfirst($this->status),
         };
     }
 
-    public function addStatusHistory(string $status, ?string $notes = null, ?int $changedBy = null): void
+    public function addStatusHistory(string $s, ?string $notes = null, ?int $by = null): void
     {
-        $this->statusHistory()->create([
-            'status' => $status,
-            'notes' => $notes,
-            'changed_by' => $changedBy,
-            'changed_at' => now(),
-        ]);
+        $this->statusHistory()->create(['status' => $s, 'notes' => $notes, 'changed_by' => $by, 'changed_at' => now()]);
     }
 }

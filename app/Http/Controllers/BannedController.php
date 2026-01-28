@@ -12,7 +12,7 @@ class BannedController extends Controller
         $ban = $request->session()->get('ban');
 
         if (! $ban) {
-            // Попробуем найти бан снова
+
             $userId = $request->user()?->id;
             $ip = $request->ip();
             $fingerprint = $request->cookie('device_fingerprint') ?? $request->header('X-Device-Fingerprint');

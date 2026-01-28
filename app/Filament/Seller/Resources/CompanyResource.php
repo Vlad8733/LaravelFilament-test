@@ -34,23 +34,16 @@ class CompanyResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Company';
 
-    /**
-     * Продавец видит только свою компанию
-     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
             ->where('user_id', Auth::id());
     }
 
-    /**
-     * Проверка: может ли пользователь создать компанию
-     */
     public static function canCreate(): bool
     {
         $user = Auth::user();
 
-        // Если у пользователя уже есть компания - нельзя создать ещё
         if ($user && $user->company) {
             return false;
         }

@@ -49,7 +49,7 @@ class ProductChatResource extends Resource
     {
         return $form
             ->schema([
-                // Form not needed for chat
+
             ]);
     }
 
@@ -118,14 +118,14 @@ class ProductChatResource extends Resource
                     ->label('Open Chat'),
             ])
             ->bulkActions([
-                //
+
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+
         ];
     }
 

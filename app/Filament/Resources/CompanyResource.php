@@ -38,9 +38,6 @@ class CompanyResource extends Resource
         return 'warning';
     }
 
-    /**
-     * Optimize queries with eager loading
-     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -48,9 +45,6 @@ class CompanyResource extends Resource
             ->withCount(['products', 'followers']);
     }
 
-    /**
-     * Админы не могут создавать компании - только модерировать
-     */
     public static function canCreate(): bool
     {
         return false;

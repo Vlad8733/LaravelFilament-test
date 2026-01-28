@@ -6,13 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * Public product review (can be submitted without purchase).
- *
- * This is different from CustomerReview which is tied to an order.
- *
- * @see \App\Models\CustomerReview for order-based reviews
- */
 class Review extends Model
 {
     use HasFactory;

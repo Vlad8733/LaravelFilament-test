@@ -7,25 +7,12 @@ use Illuminate\Console\Command;
 
 class ClearAppCache extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:clear-cache 
                             {--products : Clear only product caches}
                             {--categories : Clear only category caches}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Clear application caches (products, categories)';
 
-    /**
-     * Execute the console command.
-     */
     public function handle(): int
     {
         if ($this->option('products')) {
@@ -42,7 +29,6 @@ class ClearAppCache extends Command
             return self::SUCCESS;
         }
 
-        // Clear all
         CacheService::clearAll();
         $this->info('✓ All application caches cleared.');
 

@@ -26,9 +26,6 @@ class CustomerReviewResource extends Resource
 
     protected static ?string $navigationLabel = 'Reviews';
 
-    /**
-     * Optimize queries with eager loading
-     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

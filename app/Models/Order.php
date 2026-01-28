@@ -12,36 +12,19 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_number',
-        'user_id',
-        'customer_name',
-        'customer_email',
-        'shipping_address',
-        'subtotal',
-        'discount_amount',
-        'total',
-        'payment_method',
-        'payment_status',
-        'order_status',
-        'coupon_code',
-        'notes',
-        'order_status_id',
-        'tracking_number',
+        'order_number', 'user_id', 'customer_name', 'customer_email', 'shipping_address',
+        'subtotal', 'discount_amount', 'total', 'payment_method', 'payment_status',
+        'order_status', 'coupon_code', 'notes', 'order_status_id', 'tracking_number',
     ];
 
-    protected $casts = [
-        'subtotal' => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'total' => 'decimal:2',
-    ];
+    protected $casts = ['subtotal' => 'decimal:2', 'discount_amount' => 'decimal:2', 'total' => 'decimal:2'];
 
     protected static function boot()
     {
         parent::boot();
-
-        static::creating(function ($order) {
-            if (empty($order->order_number)) {
-                $order->order_number = 'ORD-'.date('Ymd').'-'.strtoupper(\Illuminate\Support\Str::random(6));
+        static::creating(function ($o) {
+            if (empty($o->order_number)) {
+                $o->order_number = 'ORD-'.date('Ymd').'-'.strtoupper(\Illuminate\Support\Str::random(6));
             }
         });
     }
@@ -71,36 +54,26 @@ class Order extends Model
         return $this->hasMany(OrderStatusHistory::class)->orderBy('changed_at', 'desc');
     }
 
-    public function updateStatus($statusId, $notes = null, $changedBy = null)
+    public function updateStatus($sid, $notes = null, $by = null)
     {
-        $oldStatusId = $this->order_status_id;
-
-        $this->update(['order_status_id' => $statusId]);
+        $old = $this->order_status_id;
+        $this->update(['order_status_id' => $sid]);
 
         OrderStatusHistory::create([
-            'order_id' => $this->id,
-            'order_status_id' => $statusId,
-            'changed_by' => $changedBy ?? auth()->id(),
-            'notes' => $notes,
-            'changed_at' => now(),
+            'order_id' => $this->id, 'order_status_id' => $sid,
+            'changed_by' => $by ?? auth()->id(), 'notes' => $notes, 'changed_at' => now(),
         ]);
 
-        // Отправка уведомлений при смене статуса
-        if ($oldStatusId !== $statusId) {
-            // Отправка in-app уведомления пользователю (если есть user_id)
-            if ($this->user_id) {
-                /** @var User|null $user */
-                $user = $this->user;
-                if ($user) {
-                    try {
-                        $user->notify(new \App\Notifications\OrderStatusChanged($this));
-                    } catch (\Exception $e) {
-                        \Log::warning('Failed to send in-app order notification: '.$e->getMessage());
-                    }
+        if ($old !== $sid) {
+            /** @var \App\Models\User|null $u */
+            $u = $this->user;
+            if ($this->user_id && $u) {
+                try {
+                    $u->notify(new \App\Notifications\OrderStatusChanged($this));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to send in-app order notification: '.$e->getMessage());
                 }
             }
-
-            // Отправка email уведомления
             try {
                 \Illuminate\Support\Facades\Notification::route('mail', $this->customer_email)
                     ->notify(new \App\Notifications\OrderStatusChanged($this));
@@ -115,12 +88,8 @@ class Order extends Model
     public function getStatusColorAttribute()
     {
         return match ($this->order_status) {
-            'pending' => 'yellow',
-            'processing' => 'blue',
-            'shipped' => 'indigo',
-            'delivered' => 'green',
-            'cancelled' => 'red',
-            default => 'gray',
+            'pending' => 'yellow', 'processing' => 'blue', 'shipped' => 'indigo',
+            'delivered' => 'green', 'cancelled' => 'red', default => 'gray',
         };
     }
 

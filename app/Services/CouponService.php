@@ -6,16 +6,8 @@ use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Support\Collection;
 
-/**
- * Service for coupon validation and discount calculations.
- */
 class CouponService
 {
-    /**
-     * Validate a coupon code
-     *
-     * @return array{valid: bool, coupon: ?Coupon, error: ?string}
-     */
     public function validate(string $code, float $subtotal = 0): array
     {
         $coupon = Coupon::where('code', $code)->first();
@@ -66,7 +58,7 @@ class CouponService
             return [
                 'valid' => false,
                 'coupon' => $coupon,
-                'error' => __('coupons.minimum_amount', ['amount' => number_format($coupon->minimum_amount, 2)]),
+                'error' => __('coupons.minimum_amount', ['amount' => number_format((float) $coupon->minimum_amount, 2)]),
             ];
         }
 
@@ -77,9 +69,6 @@ class CouponService
         ];
     }
 
-    /**
-     * Calculate discount amount for cart items
-     */
     public function calculateDiscount(Coupon $coupon, Collection $cartItems): float
     {
         $applicableTotal = $this->getApplicableTotal($coupon, $cartItems);
@@ -91,9 +80,6 @@ class CouponService
         return $coupon->calculateDiscount($applicableTotal);
     }
 
-    /**
-     * Get the total amount of items that the coupon applies to
-     */
     public function getApplicableTotal(Coupon $coupon, Collection $cartItems): float
     {
         return $cartItems->sum(function ($item) use ($coupon) {
@@ -107,20 +93,14 @@ class CouponService
         });
     }
 
-    /**
-     * Get list of products that a coupon applies to from cart items
-     */
     public function getApplicableProducts(Coupon $coupon, Collection $cartItems): Collection
     {
         return $cartItems->filter(fn ($item) => $coupon->appliesTo($item->product));
     }
 
-    /**
-     * Increment coupon usage count with race condition protection
-     */
     public function incrementUsage(Coupon $coupon): bool
     {
-        // Use atomic update to prevent race conditions
+
         $affected = Coupon::where('id', $coupon->id)
             ->where(function ($query) {
                 $query->whereNull('usage_limit')
@@ -131,9 +111,6 @@ class CouponService
         return $affected > 0;
     }
 
-    /**
-     * Check if coupon applies to a specific product
-     */
     public function appliesToProduct(Coupon $coupon, Product $product): bool
     {
         return $coupon->appliesTo($product);

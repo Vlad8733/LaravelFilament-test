@@ -537,3 +537,78 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// Image Zoom Alpine Component
+(function() {
+    function registerImageZoom() {
+        if (typeof Alpine === 'undefined') return false;
+        
+        Alpine.data('imageZoom', () => ({
+            zooming: false,
+            zoomLevel: 2.5,
+
+            startZoom(e) {
+                if (window.innerWidth <= 1024) return;
+                
+                this.zooming = true;
+                const img = this.$refs.mainImage;
+                const result = this.$refs.result;
+                
+                if (img && result) {
+                    result.style.backgroundImage = `url('${img.src}')`;
+                    result.style.backgroundSize = `${img.offsetWidth * this.zoomLevel}px ${img.offsetHeight * this.zoomLevel}px`;
+                }
+            },
+
+            moveZoom(e) {
+                if (!this.zooming) return;
+                
+                const container = e.currentTarget;
+                const img = this.$refs.mainImage;
+                const lens = this.$refs.lens;
+                const result = this.$refs.result;
+                
+                if (!img || !lens || !result) return;
+
+                const rect = container.getBoundingClientRect();
+                
+                let x = e.clientX - rect.left;
+                let y = e.clientY - rect.top;
+                
+                const lensW = lens.offsetWidth;
+                const lensH = lens.offsetHeight;
+                
+                let lensX = x - lensW / 2;
+                let lensY = y - lensH / 2;
+                
+                if (lensX < 0) lensX = 0;
+                if (lensY < 0) lensY = 0;
+                if (lensX > rect.width - lensW) lensX = rect.width - lensW;
+                if (lensY > rect.height - lensH) lensY = rect.height - lensH;
+                
+                lens.style.left = `${lensX}px`;
+                lens.style.top = `${lensY}px`;
+                
+                const cx = result.offsetWidth / lensW;
+                const cy = result.offsetHeight / lensH;
+                
+                result.style.backgroundPosition = `-${lensX * cx}px -${lensY * cy}px`;
+            },
+
+            endZoom() {
+                this.zooming = false;
+            }
+        }));
+        return true;
+    }
+
+    // Try immediately
+    if (!registerImageZoom()) {
+        // Wait for Alpine
+        document.addEventListener('alpine:init', registerImageZoom);
+        // Also try on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(registerImageZoom, 100);
+        });
+    }
+})();

@@ -21,7 +21,6 @@ class CreateBan extends CreateRecord
     {
         $data['banned_by'] = Auth::id();
 
-        // Обработка срока действия
         if (isset($data['duration']) && $data['duration'] !== 'custom' && $data['duration'] !== 'permanent') {
             $data['expires_at'] = $this->calculateExpirationDate($data['duration']);
         }
@@ -30,7 +29,6 @@ class CreateBan extends CreateRecord
             $data['expires_at'] = null;
         }
 
-        // Для бана аккаунта устанавливаем value = user_id
         if ($data['type'] === 'account' && isset($data['user_id'])) {
             $data['value'] = (string) $data['user_id'];
         }

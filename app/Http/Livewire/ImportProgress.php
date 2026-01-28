@@ -17,28 +17,26 @@ class ImportProgress extends Component
 
     public string $status = 'pending';
 
-    public function mount(int $importId)
+    public function mount(int $id)
     {
-        $this->importId = $importId;
+        $this->importId = $id;
         $this->refreshState();
     }
 
     public function refreshState(): void
     {
-        $import = ImportJob::find($this->importId);
-        if (! $import) {
+        $i = ImportJob::find($this->importId);
+        if (! $i) {
             return;
         }
-
-        $this->total = (int) ($import->total_rows ?? 0);
-        $this->processed = (int) ($import->processed_rows ?? 0);
-        $this->failed = (int) ($import->failed_count ?? 0);
-        $this->status = $import->status ?? 'pending';
+        $this->total = (int) ($i->total_rows ?? 0);
+        $this->processed = (int) ($i->processed_rows ?? 0);
+        $this->failed = (int) ($i->failed_count ?? 0);
+        $this->status = $i->status ?? 'pending';
     }
 
     public function render()
     {
-        // polled from the blade via wire:poll
         $this->refreshState();
 
         return view('livewire.import-progress');

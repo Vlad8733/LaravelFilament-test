@@ -14,17 +14,11 @@ use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse
 
 class DiscordAuthController extends Controller
 {
-    /**
-     * Redirect to Discord for authentication
-     */
     public function redirect(): SymfonyRedirectResponse
     {
         return Socialite::driver('discord')->redirect();
     }
 
-    /**
-     * Handle Discord callback
-     */
     public function callback(): RedirectResponse
     {
         try {
@@ -34,7 +28,6 @@ class DiscordAuthController extends Controller
                 ->with('error', __('auth.social_auth_failed'));
         }
 
-        // Check if user exists by Discord ID
         $user = User::where('discord_id', $discordUser->getId())->first();
 
         if ($user) {
@@ -44,11 +37,10 @@ class DiscordAuthController extends Controller
             return redirect()->intended('/');
         }
 
-        // Check if user exists by email
         $user = User::where('email', $discordUser->getEmail())->first();
 
         if ($user) {
-            // Link Discord to existing account
+
             $user->update([
                 'discord_id' => $discordUser->getId(),
                 'discord_avatar' => $discordUser->getAvatar(),
@@ -59,7 +51,6 @@ class DiscordAuthController extends Controller
             return redirect()->intended('/');
         }
 
-        // Create new user
         $user = User::create([
             'name' => $discordUser->getName() ?? $discordUser->getNickname(),
             'email' => $discordUser->getEmail(),
@@ -75,11 +66,6 @@ class DiscordAuthController extends Controller
         return redirect()->intended('/');
     }
 
-    /**
-     * Update or create social account record
-     *
-     * @param  \Laravel\Socialite\Two\User  $discordUser
-     */
     private function updateSocialAccount(User $user, $discordUser): void
     {
         SocialAccount::updateOrCreate(
@@ -97,9 +83,6 @@ class DiscordAuthController extends Controller
         );
     }
 
-    /**
-     * Login user and regenerate session
-     */
     private function loginUser(User $user): void
     {
         Auth::login($user, remember: true);

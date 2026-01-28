@@ -10,64 +10,27 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Ban extends Model
 {
     protected $fillable = [
-        'type',
-        'value',
-        'user_id',
-        'reason',
-        'admin_comment',
-        'public_message',
-        'expires_at',
-        'banned_by',
-        'is_active',
-        'unbanned_by',
-        'unbanned_at',
-        'unban_reason',
+        'type', 'value', 'user_id', 'reason', 'admin_comment', 'public_message',
+        'expires_at', 'banned_by', 'is_active', 'unbanned_by', 'unbanned_at', 'unban_reason',
     ];
 
-    protected $casts = [
-        'expires_at' => 'datetime',
-        'unbanned_at' => 'datetime',
-        'is_active' => 'boolean',
-    ];
+    protected $casts = ['expires_at' => 'datetime', 'unbanned_at' => 'datetime', 'is_active' => 'boolean'];
 
-    // Ban reasons
     public const REASONS = [
-        'spam' => 'Spam / Advertising',
-        'fraud' => 'Fraud',
-        'abuse' => 'Abusive Behavior',
-        'fake_account' => 'Fake Account',
-        'multiple_accounts' => 'Multiple Accounts',
-        'payment_fraud' => 'Payment Fraud',
-        'terms_violation' => 'Terms of Service Violation',
-        'security_threat' => 'Security Threat',
-        'bot_activity' => 'Bot Activity',
-        'other' => 'Other',
+        'spam' => 'Spam / Advertising', 'fraud' => 'Fraud', 'abuse' => 'Abusive Behavior',
+        'fake_account' => 'Fake Account', 'multiple_accounts' => 'Multiple Accounts',
+        'payment_fraud' => 'Payment Fraud', 'terms_violation' => 'Terms of Service Violation',
+        'security_threat' => 'Security Threat', 'bot_activity' => 'Bot Activity', 'other' => 'Other',
     ];
 
-    // Ban types
-    public const TYPES = [
-        'account' => 'Account Ban',
-        'ip' => 'IP Ban',
-        'fingerprint' => 'Device Ban',
-    ];
+    public const TYPES = ['account' => 'Account Ban', 'ip' => 'IP Ban', 'fingerprint' => 'Device Ban'];
 
-    // Ban durations
     public const DURATIONS = [
-        'permanent' => 'Permanent',
-        '1_hour' => '1 Hour',
-        '6_hours' => '6 Hours',
-        '24_hours' => '24 Hours',
-        '3_days' => '3 Days',
-        '7_days' => '7 Days',
-        '14_days' => '14 Days',
-        '30_days' => '30 Days',
-        '90_days' => '90 Days',
-        '180_days' => '180 Days',
-        '365_days' => '1 Year',
-        'custom' => 'Custom',
+        'permanent' => 'Permanent', '1_hour' => '1 Hour', '6_hours' => '6 Hours', '24_hours' => '24 Hours',
+        '3_days' => '3 Days', '7_days' => '7 Days', '14_days' => '14 Days', '30_days' => '30 Days',
+        '90_days' => '90 Days', '180_days' => '180 Days', '365_days' => '1 Year', 'custom' => 'Custom',
     ];
 
-    // Отношения
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -88,58 +51,43 @@ class Ban extends Model
         return $this->hasMany(BanAccessAttempt::class);
     }
 
-    // Скоупы
-    public function scopeActive(Builder $query): Builder
+    public function scopeActive(Builder $q): Builder
     {
-        return $query->where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            });
+        return $q->where('is_active', true)->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()));
     }
 
-    public function scopeExpired(Builder $query): Builder
+    public function scopeExpired(Builder $q): Builder
     {
-        return $query->where('is_active', true)
-            ->whereNotNull('expires_at')
-            ->where('expires_at', '<=', now());
+        return $q->where('is_active', true)->whereNotNull('expires_at')->where('expires_at', '<=', now());
     }
 
-    public function scopeByType(Builder $query, string $type): Builder
+    public function scopeByType(Builder $q, string $t): Builder
     {
-        return $query->where('type', $type);
+        return $q->where('type', $t);
     }
 
-    public function scopeForAccount(Builder $query, int $userId): Builder
+    public function scopeForAccount(Builder $q, int $uid): Builder
     {
-        return $query->where('type', 'account')
-            ->where('user_id', $userId);
+        return $q->where('type', 'account')->where('user_id', $uid);
     }
 
-    public function scopeForIp(Builder $query, string $ip): Builder
+    public function scopeForIp(Builder $q, string $ip): Builder
     {
-        return $query->where('type', 'ip')
-            ->where('value', $ip);
+        return $q->where('type', 'ip')->where('value', $ip);
     }
 
-    public function scopeForFingerprint(Builder $query, string $fingerprint): Builder
+    public function scopeForFingerprint(Builder $q, string $fp): Builder
     {
-        return $query->where('type', 'fingerprint')
-            ->where('value', $fingerprint);
+        return $q->where('type', 'fingerprint')->where('value', $fp);
     }
 
-    // Методы
     public function isExpired(): bool
     {
         if (! $this->is_active) {
             return true;
         }
 
-        if ($this->expires_at === null) {
-            return false;
-        }
-
-        return $this->expires_at->isPast();
+        return $this->expires_at !== null && $this->expires_at->isPast();
     }
 
     public function isPermanent(): bool
@@ -152,7 +100,6 @@ class Ban extends Model
         if ($this->isPermanent()) {
             return 'Permanent';
         }
-
         if ($this->isExpired()) {
             return 'Expired';
         }
@@ -160,146 +107,75 @@ class Ban extends Model
         return $this->expires_at->diffForHumans(['parts' => 2]);
     }
 
-    public function unban(int $unbannedBy, ?string $reason = null): void
+    public function unban(int $by, ?string $reason = null): void
     {
-        $this->update([
-            'is_active' => false,
-            'unbanned_by' => $unbannedBy,
-            'unbanned_at' => now(),
-            'unban_reason' => $reason,
-        ]);
+        $this->update(['is_active' => false, 'unbanned_by' => $by, 'unbanned_at' => now(), 'unban_reason' => $reason]);
     }
 
-    public function logAccessAttempt(?int $userId, string $ip, ?string $fingerprint, ?string $userAgent, ?string $url): void
+    public function logAccessAttempt(?int $uid, string $ip, ?string $fp, ?string $ua, ?string $url): void
     {
         $this->accessAttempts()->create([
-            'user_id' => $userId,
-            'ip_address' => $ip,
-            'fingerprint' => $fingerprint,
-            'user_agent' => $userAgent,
-            'url' => $url,
-            'attempted_at' => now(),
+            'user_id' => $uid, 'ip_address' => $ip, 'fingerprint' => $fp,
+            'user_agent' => $ua, 'url' => $url, 'attempted_at' => now(),
         ]);
     }
 
-    // Статические методы для проверки банов
-    public static function checkAccountBan(int $userId): ?self
+    public static function checkAccountBan(int $uid): ?self
     {
-        return static::active()
-            ->forAccount($userId)
-            ->first();
+        return static::active()->forAccount($uid)->first();
     }
 
     public static function checkIpBan(string $ip): ?self
     {
-        return static::active()
-            ->forIp($ip)
-            ->first();
+        return static::active()->forIp($ip)->first();
     }
 
-    public static function checkFingerprintBan(string $fingerprint): ?self
+    public static function checkFingerprintBan(string $fp): ?self
     {
-        return static::active()
-            ->forFingerprint($fingerprint)
-            ->first();
+        return static::active()->forFingerprint($fp)->first();
     }
 
-    public static function checkAllBans(?int $userId, string $ip, ?string $fingerprint): ?self
+    public static function checkAllBans(?int $uid, string $ip, ?string $fp): ?self
     {
-        // Проверяем бан по аккаунту
-        if ($userId) {
-            $accountBan = static::checkAccountBan($userId);
-            if ($accountBan) {
-                return $accountBan;
-            }
+        if ($uid && ($b = static::checkAccountBan($uid))) {
+            return $b;
         }
-
-        // Проверяем бан по IP
-        $ipBan = static::checkIpBan($ip);
-        if ($ipBan) {
-            return $ipBan;
+        if ($b = static::checkIpBan($ip)) {
+            return $b;
         }
-
-        // Проверяем бан по fingerprint
-        if ($fingerprint) {
-            $fingerprintBan = static::checkFingerprintBan($fingerprint);
-            if ($fingerprintBan) {
-                return $fingerprintBan;
-            }
+        if ($fp && ($b = static::checkFingerprintBan($fp))) {
+            return $b;
         }
 
         return null;
     }
 
-    public static function banAccount(
-        int $userId,
-        string $reason,
-        ?string $adminComment = null,
-        ?string $publicMessage = null,
-        ?\DateTime $expiresAt = null,
-        ?int $bannedBy = null
-    ): self {
+    public static function banAccount(int $uid, string $reason, ?string $comment = null, ?string $msg = null, ?\DateTime $exp = null, ?int $by = null): self
+    {
         return static::create([
-            'type' => 'account',
-            'value' => (string) $userId,
-            'user_id' => $userId,
-            'reason' => $reason,
-            'admin_comment' => $adminComment,
-            'public_message' => $publicMessage,
-            'expires_at' => $expiresAt,
-            'banned_by' => $bannedBy,
-            'is_active' => true,
+            'type' => 'account', 'value' => (string) $uid, 'user_id' => $uid, 'reason' => $reason,
+            'admin_comment' => $comment, 'public_message' => $msg, 'expires_at' => $exp, 'banned_by' => $by, 'is_active' => true,
         ]);
     }
 
-    public static function banIp(
-        string $ip,
-        string $reason,
-        ?int $userId = null,
-        ?string $adminComment = null,
-        ?string $publicMessage = null,
-        ?\DateTime $expiresAt = null,
-        ?int $bannedBy = null
-    ): self {
+    public static function banIp(string $ip, string $reason, ?int $uid = null, ?string $comment = null, ?string $msg = null, ?\DateTime $exp = null, ?int $by = null): self
+    {
         return static::create([
-            'type' => 'ip',
-            'value' => $ip,
-            'user_id' => $userId,
-            'reason' => $reason,
-            'admin_comment' => $adminComment,
-            'public_message' => $publicMessage,
-            'expires_at' => $expiresAt,
-            'banned_by' => $bannedBy,
-            'is_active' => true,
+            'type' => 'ip', 'value' => $ip, 'user_id' => $uid, 'reason' => $reason,
+            'admin_comment' => $comment, 'public_message' => $msg, 'expires_at' => $exp, 'banned_by' => $by, 'is_active' => true,
         ]);
     }
 
-    public static function banFingerprint(
-        string $fingerprint,
-        string $reason,
-        ?int $userId = null,
-        ?string $adminComment = null,
-        ?string $publicMessage = null,
-        ?\DateTime $expiresAt = null,
-        ?int $bannedBy = null
-    ): self {
+    public static function banFingerprint(string $fp, string $reason, ?int $uid = null, ?string $comment = null, ?string $msg = null, ?\DateTime $exp = null, ?int $by = null): self
+    {
         return static::create([
-            'type' => 'fingerprint',
-            'value' => $fingerprint,
-            'user_id' => $userId,
-            'reason' => $reason,
-            'admin_comment' => $adminComment,
-            'public_message' => $publicMessage,
-            'expires_at' => $expiresAt,
-            'banned_by' => $bannedBy,
-            'is_active' => true,
+            'type' => 'fingerprint', 'value' => $fp, 'user_id' => $uid, 'reason' => $reason,
+            'admin_comment' => $comment, 'public_message' => $msg, 'expires_at' => $exp, 'banned_by' => $by, 'is_active' => true,
         ]);
     }
 
-    // Автоматическая деактивация истёкших банов
     public static function deactivateExpiredBans(): int
     {
-        return static::expired()
-            ->update(['is_active' => false]);
+        return static::expired()->update(['is_active' => false]);
     }
 }

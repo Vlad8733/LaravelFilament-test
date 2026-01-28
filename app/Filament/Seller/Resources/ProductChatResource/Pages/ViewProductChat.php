@@ -33,7 +33,6 @@ class ViewProductChat extends ViewRecord
     {
         parent::mount($record);
 
-        // Mark messages as read
         $this->record->messages()
             ->where('is_seller', false)
             ->where('is_read', false)
@@ -47,7 +46,6 @@ class ViewProductChat extends ViewRecord
             'attachments.*' => 'nullable|file|max:10240',
         ]);
 
-        // Handle first attachment with the message
         $attachmentData = [];
         $remainingAttachments = [];
 
@@ -62,14 +60,12 @@ class ViewProductChat extends ViewRecord
             $remainingAttachments = $this->attachments;
         }
 
-        // Create main message with first attachment
         $message = $this->record->messages()->create(array_merge([
             'user_id' => Auth::id(),
             'message' => $this->newMessage,
             'is_seller' => true,
         ], $attachmentData));
 
-        // Handle remaining attachments as separate messages
         foreach ($remainingAttachments as $file) {
             $path = $file->store('product-chat-attachments', 'public');
 
@@ -83,7 +79,6 @@ class ViewProductChat extends ViewRecord
             ]);
         }
 
-        // Update chat
         $this->record->update([
             'last_message_at' => now(),
             'last_message_by' => Auth::id(),

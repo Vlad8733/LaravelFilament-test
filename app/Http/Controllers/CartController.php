@@ -11,51 +11,38 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-/**
- * Controller for cart operations (add, update, remove items).
- *
- * @see CheckoutController for checkout/order logic
- * @see CartCouponController for coupon logic
- */
 class CartController extends Controller
 {
-    /**
-     * Show the cart page.
-     */
     public function index(): View|RedirectResponse
     {
-        $userId = auth()->id();
-
-        if (! $userId) {
+        $uid = auth()->id();
+        if (! $uid) {
             return redirect()->route('login')->with('error', 'Please login to view your cart.');
         }
 
-        $cartItems = CartItem::with(['product', 'variant'])->where('user_id', $userId)->get();
-
-        $subtotal = $this->calculateSubtotal($cartItems);
+        $items = CartItem::with(['product', 'variant'])->where('user_id', $uid)->get();
+        $subtotal = $this->calculateSubtotal($items);
         $coupon = session('coupon');
         $discount = $coupon['discount'] ?? 0;
-        $total = $subtotal - $discount;
 
-        return view('cart.index', compact('cartItems', 'subtotal', 'total', 'discount', 'coupon'));
+        return view('cart.index', [
+            'cartItems' => $items,
+            'subtotal' => $subtotal,
+            'total' => $subtotal - $discount,
+            'discount' => $discount,
+            'coupon' => $coupon,
+        ]);
     }
 
-    /**
-     * Redirect to index (alias).
-     */
     public function show()
     {
         return redirect()->route('cart.index');
     }
 
-    /**
-     * Add a product to cart.
-     */
     public function add(Request $request, int $productId): JsonResponse
     {
-        $userId = auth()->id();
-
-        if (! $userId) {
+        $uid = auth()->id();
+        if (! $uid) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
@@ -63,60 +50,49 @@ class CartController extends Controller
         $variantId = $request->input('variant_id');
         $product = Product::findOrFail($productId);
 
-        // Validate stock availability
         $available = $this->getAvailableStock($productId, $variantId);
         if ($available === null) {
             return response()->json(['success' => false, 'message' => 'Invalid variant'], 400);
         }
 
-        $existingItem = $this->findCartItem($userId, $productId, $variantId);
-        $existingQty = $existingItem?->quantity ?? 0;
-
-        if (($existingQty + $qty) > $available) {
+        $existing = $this->findCartItem($uid, $productId, $variantId);
+        if ((($existing?->quantity ?? 0) + $qty) > $available) {
             return response()->json(['success' => false, 'message' => 'Requested quantity not available'], 400);
         }
 
-        $this->addOrMergeCartItem($userId, $productId, $variantId, $qty);
-
+        $this->addOrMergeCartItem($uid, $productId, $variantId, $qty);
         activity_log('added_to_cart:'.__('activity_log.log.added_to_cart', ['product' => $product->name, 'qty' => $qty]));
-
-        $count = CartItem::where('user_id', $userId)->sum('quantity');
 
         return response()->json([
             'success' => true,
             'message' => 'Product added to cart',
-            'cartCount' => $count,
+            'cartCount' => CartItem::where('user_id', $uid)->sum('quantity'),
         ]);
     }
 
-    /**
-     * Update cart item quantity.
-     */
     public function update(Request $request, int $itemId): JsonResponse
     {
-        $userId = auth()->id();
-
-        if (! $userId) {
+        $uid = auth()->id();
+        if (! $uid) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
         $qty = max(1, (int) $request->input('quantity', 1));
-        $cartItem = CartItem::where('id', $itemId)->where('user_id', $userId)->first();
-
-        if (! $cartItem) {
+        $item = CartItem::where('id', $itemId)->where('user_id', $uid)->first();
+        if (! $item) {
             return response()->json(['success' => false, 'message' => 'Item not found'], 404);
         }
 
-        $cartItem->quantity = $qty;
-        $cartItem->save();
+        $item->quantity = $qty;
+        $item->save();
 
-        activity_log('updated_cart:'.__('activity_log.log.updated_cart', ['product' => $cartItem->product->name, 'qty' => $qty]));
+        activity_log('updated_cart:'.__('activity_log.log.updated_cart', ['product' => $item->product->name, 'qty' => $qty]));
 
-        $cartItems = CartItem::where('user_id', $userId)->with(['product', 'variant'])->get();
+        $cartItems = CartItem::where('user_id', $uid)->with(['product', 'variant'])->get();
         $subtotal = $this->calculateSubtotal($cartItems);
 
-        $priceSource = $cartItem->variant ?? $cartItem->product;
-        $itemSubtotal = ($priceSource->sale_price ?? $priceSource->price) * $qty;
+        $src = $item->variant ?? $item->product;
+        $itemSubtotal = ($src->sale_price ?? $src->price) * $qty;
 
         return response()->json([
             'success' => true,
@@ -126,55 +102,39 @@ class CartController extends Controller
         ]);
     }
 
-    /**
-     * Remove an item from cart.
-     */
     public function remove(Request $request, int $itemId): JsonResponse
     {
-        $userId = auth()->id();
-
-        if (! $userId) {
+        $uid = auth()->id();
+        if (! $uid) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
-        $cartItem = CartItem::where('id', $itemId)->where('user_id', $userId)->first();
-
-        if (! $cartItem) {
+        $item = CartItem::where('id', $itemId)->where('user_id', $uid)->first();
+        if (! $item) {
             return response()->json(['success' => false, 'message' => 'Item not found'], 404);
         }
 
-        $productName = $cartItem->product->name;
-        $cartItem->delete();
+        $name = $item->product->name;
+        $item->delete();
 
-        activity_log('removed_from_cart:'.__('activity_log.log.removed_from_cart', ['product' => $productName]));
-
-        $cartCount = CartItem::where('user_id', $userId)->sum('quantity');
+        activity_log('removed_from_cart:'.__('activity_log.log.removed_from_cart', ['product' => $name]));
 
         return response()->json([
             'success' => true,
-            'cartCount' => $cartCount,
+            'cartCount' => CartItem::where('user_id', $uid)->sum('quantity'),
         ]);
     }
 
-    /**
-     * Get cart item count (AJAX).
-     */
     public function getCartCount(): JsonResponse
     {
-        $userId = auth()->id();
-
-        if (! $userId) {
+        $uid = auth()->id();
+        if (! $uid) {
             return response()->json(['count' => 0]);
         }
 
-        $count = CartItem::where('user_id', $userId)->sum('quantity');
-
-        return response()->json(['count' => $count]);
+        return response()->json(['count' => CartItem::where('user_id', $uid)->sum('quantity')]);
     }
 
-    /**
-     * Calculate subtotal for cart items.
-     */
     protected function calculateSubtotal($cartItems): float
     {
         return $cartItems->sum(function ($item) {
@@ -185,9 +145,6 @@ class CartController extends Controller
         });
     }
 
-    /**
-     * Get available stock for product/variant.
-     */
     protected function getAvailableStock(int $productId, ?int $variantId): ?int
     {
         if ($variantId) {
@@ -202,9 +159,6 @@ class CartController extends Controller
         return Product::find($productId)?->stock_quantity;
     }
 
-    /**
-     * Find existing cart item.
-     */
     protected function findCartItem(int $userId, int $productId, ?int $variantId): ?CartItem
     {
         $query = CartItem::where('user_id', $userId)->where('product_id', $productId);
@@ -218,9 +172,6 @@ class CartController extends Controller
         return $query->first();
     }
 
-    /**
-     * Add or merge cart item (handles unique constraint).
-     */
     protected function addOrMergeCartItem(int $userId, int $productId, ?int $variantId, int $qty): void
     {
         $existingItem = $this->findCartItem($userId, $productId, $variantId);
@@ -232,7 +183,6 @@ class CartController extends Controller
             return;
         }
 
-        // Check for any existing item with same product (different variant)
         $existingAny = CartItem::where('user_id', $userId)->where('product_id', $productId)->first();
 
         if ($existingAny) {

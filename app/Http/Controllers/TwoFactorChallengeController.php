@@ -9,9 +9,6 @@ use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorChallengeController extends Controller
 {
-    /**
-     * Show the 2FA challenge page
-     */
     public function show(Request $request)
     {
         if (! $request->session()->has('2fa:user:id')) {
@@ -21,9 +18,6 @@ class TwoFactorChallengeController extends Controller
         return view('auth.two-factor.challenge');
     }
 
-    /**
-     * Verify the 2FA code
-     */
     public function verify(Request $request)
     {
         $request->validate([
@@ -47,7 +41,6 @@ class TwoFactorChallengeController extends Controller
 
         $code = str_replace([' ', '-'], '', $request->code);
 
-        // Try TOTP code first
         if (strlen($code) === 6) {
             $google2fa = app(Google2FA::class);
 
@@ -56,7 +49,6 @@ class TwoFactorChallengeController extends Controller
             }
         }
 
-        // Try recovery code
         if ($user->useRecoveryCode($request->code)) {
             return $this->loginUser($request, $user, $remember);
         }
@@ -64,16 +56,12 @@ class TwoFactorChallengeController extends Controller
         return back()->withErrors(['code' => __('The code is invalid.')]);
     }
 
-    /**
-     * Login the user after successful 2FA verification
-     */
     protected function loginUser(Request $request, $user, bool $remember)
     {
         $request->session()->forget(['2fa:user:id', '2fa:user:remember']);
 
         Auth::login($user, $remember);
 
-        // Record successful login with 2FA
         LoginHistory::recordLogin($user, $request->ip(), $request->userAgent(), true);
 
         $request->session()->regenerate();

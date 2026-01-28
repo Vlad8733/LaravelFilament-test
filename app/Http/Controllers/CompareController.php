@@ -7,116 +7,65 @@ use Illuminate\Http\JsonResponse;
 
 class CompareController extends Controller
 {
-    /**
-     * Display comparison page
-     */
     public function index()
     {
         $items = ProductComparison::getItems();
-
-        // Products already eager loaded with relationships in getItems()
-        $products = $items->map(fn ($item) => $item->product)->filter();
-
-        // Collect all unique attributes for comparison
-        $attributes = [];
-        foreach ($products as $product) {
-            if ($product->specifications) {
-                $specs = is_array($product->specifications) ? $product->specifications : json_decode($product->specifications, true);
-                if ($specs) {
-                    foreach ($specs as $key => $value) {
-                        if (! in_array($key, $attributes)) {
-                            $attributes[] = $key;
-                        }
+        $prods = $items->map(fn ($i) => $i->product)->filter();
+        $attrs = [];
+        foreach ($prods as $p) {
+            if (! $p->specifications) {
+                continue;
+            }
+            $specs = is_array($p->specifications) ? $p->specifications : json_decode($p->specifications, true);
+            if ($specs) {
+                foreach ($specs as $k => $v) {
+                    if (! in_array($k, $attrs)) {
+                        $attrs[] = $k;
                     }
                 }
             }
         }
 
-        return view('compare.index', compact('products', 'attributes'));
+        return view('compare.index', ['products' => $prods, 'attributes' => $attrs]);
     }
 
-    /**
-     * Get comparison count
-     */
     public function count(): JsonResponse
     {
-        return response()->json([
-            'count' => ProductComparison::getCount(),
-        ]);
+        return response()->json(['count' => ProductComparison::getCount()]);
     }
 
-    /**
-     * Get comparison items (for dropdown)
-     */
     public function items(): JsonResponse
     {
         $items = ProductComparison::getItems();
-
-        $products = $items->map(function ($item) {
-            $product = $item->product;
-
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->getCurrentPrice(),
-                'image' => $product->getPrimaryImage()
-                    ? asset('storage/'.$product->getPrimaryImage()->image_path)
-                    : null,
-                'url' => route('products.show', $product->slug),
-            ];
-        });
-
-        return response()->json([
-            'products' => $products,
-            'count' => $items->count(),
+        $prods = $items->map(fn ($i) => [
+            'id' => $i->product->id, 'name' => $i->product->name, 'price' => $i->product->getCurrentPrice(),
+            'image' => $i->product->getPrimaryImage() ? asset('storage/'.$i->product->getPrimaryImage()->image_path) : null,
+            'url' => route('products.show', $i->product->slug),
         ]);
+
+        return response()->json(['products' => $prods, 'count' => $items->count()]);
     }
 
-    /**
-     * Add product to comparison
-     */
-    public function add(int $productId): JsonResponse
+    public function add(int $pid): JsonResponse
     {
-        $result = ProductComparison::addProduct($productId);
-
-        return response()->json($result);
+        return response()->json(ProductComparison::addProduct($pid));
     }
 
-    /**
-     * Remove product from comparison
-     */
-    public function remove(int $productId): JsonResponse
+    public function remove(int $pid): JsonResponse
     {
-        $result = ProductComparison::removeProduct($productId);
-
-        return response()->json($result);
+        return response()->json(ProductComparison::removeProduct($pid));
     }
 
-    /**
-     * Clear all comparison items
-     */
     public function clear(): JsonResponse
     {
-        $result = ProductComparison::clearAll();
-
-        return response()->json($result);
+        return response()->json(ProductComparison::clearAll());
     }
 
-    /**
-     * Toggle product in comparison
-     */
-    public function toggle(int $productId): JsonResponse
+    public function toggle(int $pid): JsonResponse
     {
-        if (ProductComparison::hasProduct($productId)) {
-            $result = ProductComparison::removeProduct($productId);
-            $result['action'] = 'removed';
+        $res = ProductComparison::hasProduct($pid) ? ProductComparison::removeProduct($pid) : ProductComparison::addProduct($pid);
+        $res['action'] = ProductComparison::hasProduct($pid) ? 'added' : 'removed';
 
-            return response()->json($result);
-        }
-
-        $result = ProductComparison::addProduct($productId);
-        $result['action'] = 'added';
-
-        return response()->json($result);
+        return response()->json($res);
     }
 }

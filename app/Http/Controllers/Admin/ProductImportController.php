@@ -23,13 +23,10 @@ class ProductImportController extends Controller
             return back()->with('error', 'Uploaded file is not valid.');
         }
 
-        // Ensure imports directory exists on local disk
         Storage::disk('local')->makeDirectory('imports');
 
-        // Store on local disk explicitly
         $path = $request->file('csv_file')->store('imports', 'local');
 
-        // create ImportJob record
         $importJob = \App\Models\ImportJob::create([
             'uuid' => (string) \Illuminate\Support\Str::uuid(),
             'user_id' => auth()->id() ?? null,
@@ -37,7 +34,6 @@ class ProductImportController extends Controller
             'status' => 'pending',
         ]);
 
-        // dispatch job to process file asynchronously and pass importJob id
         \App\Jobs\ImportProductsJob::dispatch($path, $importJob->id)->onQueue('imports');
 
         return back()->with('success', 'Import uploaded and queued for processing.')->with('import_job_id', $importJob->id);

@@ -148,7 +148,6 @@ class ImportJobResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        // Non-admins can only see their own imports
         $user = auth()->user();
         if ($user && ! $user->isAdmin()) {
             $query->where('user_id', $user->id);

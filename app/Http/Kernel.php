@@ -6,11 +6,8 @@ use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
-    /**
-     * Глобальные middleware для всего приложения
-     */
     protected $middleware = [
-        // ...existing global middleware...
+
         \App\Http\Middleware\LogUserActivity::class,
         \App\Http\Middleware\CheckBan::class,
     ];

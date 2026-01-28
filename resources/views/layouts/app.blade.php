@@ -437,73 +437,155 @@
         
         [x-cloak] { display: none !important; }
         
-        /* DEMO BANNER - FIXED UNDER NAVBAR */
-        .demo-banner {
-            position: fixed;
-            top: 64px;
-            left: 0;
-            right: 0;
-            z-index: 999;
+        /* DEMO WARNING ICON IN NAVBAR */
+        .demo-warning-icon {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            width: 100%;
-            margin: 0;
-            padding: 10px 20px;
-            background: linear-gradient(90deg, #1a1a2e 0%, #0f3460 50%, #1a1a2e 100%);
-            border: none;
-            border-bottom: 1px solid rgba(255, 193, 7, 0.3);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            font-size: 14px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.9);
-            box-sizing: border-box;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s ease;
         }
-        .demo-banner .demo-icon {
-            width: 18px;
-            height: 18px;
+        .demo-warning-icon:hover {
+            background: rgba(255, 193, 7, 0.1);
+        }
+        .demo-warning-icon svg {
+            width: 22px;
+            height: 22px;
             color: #ffc107;
-            flex-shrink: 0;
+            filter: drop-shadow(0 0 4px rgba(255, 193, 7, 0.4));
+            animation: pulse-warning 2s ease-in-out infinite;
         }
-        .demo-banner .demo-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
-        .demo-banner .demo-badge {
-            background: linear-gradient(135deg, #ffc107, #ff9800);
-            color: #1a1a2e;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 4px 12px;
+        
+        /* Desktop Tooltip */
+        .demo-tooltip {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+            border: 1px solid rgba(255, 193, 7, 0.3);
             border-radius: 12px;
-            letter-spacing: 0.5px;
-            flex-shrink: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            min-width: 260px;
+            z-index: 1001;
+            pointer-events: none;
         }
-        @media (max-width: 480px) {
-            .demo-banner {
-                padding: 3px 10px;
-                gap: 5px;
-                font-size: 11px;
+        .demo-tooltip strong {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #ffc107;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .demo-tooltip p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        /* Mobile Modal */
+        .demo-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            padding: 20px;
+        }
+        .demo-modal {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 20px;
+            padding: 28px;
+            max-width: 340px;
+            text-align: center;
+            box-shadow: 0 16px 64px rgba(0, 0, 0, 0.6);
+        }
+        .demo-modal-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            background: rgba(255, 193, 7, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .demo-modal-icon svg {
+            width: 28px;
+            height: 28px;
+            color: #ffc107;
+        }
+        .demo-modal h3 {
+            color: #ffc107;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 12px;
+        }
+        .demo-modal p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 0 20px;
+        }
+        .demo-modal button {
+            width: 100%;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: #000;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .demo-modal button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 193, 7, 0.3);
+        }
+        
+        /* Hide tooltip on mobile, show modal only */
+        @media (max-width: 768px) {
+            .demo-tooltip {
+                display: none !important;
             }
-            .demo-banner .demo-icon {
-                width: 13px;
-                height: 13px;
+        }
+        /* Hide modal trigger on desktop (tooltip is enough) */
+        @media (min-width: 769px) {
+            .demo-warning-icon {
+                pointer-events: auto;
             }
-            .demo-banner .demo-text {
-                font-size: 10px;
-            }
-            .demo-banner .demo-badge {
-                font-size: 8px;
-                padding: 1px 6px;
-            }
+        }
+
+        /* Main Content - Flex Grow */
+        .main-content {
+            flex: 1;
         }
 
         /* ===== GLOBAL MOBILE CONTENT PADDING ===== */
         @media (max-width: 900px) {
             .main-content {
-                padding-top: 100px !important;
+                padding-top: 64px !important;
                 margin-top: 0 !important;
             }
         }
@@ -514,6 +596,8 @@
             top: -1px !important;
             left: 0 !important;
             bottom: -1px !important;
+            width: 85vw !important;
+            max-width: 320px !important;
             height: calc(100% + 2px) !important;
             z-index: 9999 !important;
             background: linear-gradient(180deg, #0d0d12 0%, #080810 50%, #050508 100%) !important;
@@ -695,12 +779,15 @@
         html {
             overflow-y: scroll;
             scrollbar-gutter: stable;
+            height: 100%;
         }
 
         body {
             margin: 0;
-            padding-top: 116px;
-            min-height: 100vh;
+            padding-top: 64px;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
             background: radial-gradient(ellipse at top, #111 0%, #000 70%) !important;
             background-attachment: fixed !important;
             color: #e5e7eb;
@@ -754,9 +841,23 @@
             .nav-wrap {
                 grid-template-columns: auto auto 1fr auto;
             }
+            .checkout-btn {
+                display: none !important;
+            }
+            .nav-actions {
+                gap: 4px;
+            }
+            .nav-item-wrap {
+                width: 36px;
+                height: 36px;
+            }
+            .demo-warning-icon {
+                width: 28px !important;
+                height: 28px !important;
+            }
         }
 
-        .logo-img { height: 70px; width: auto; display: block; }
+        .logo-img { height: 56px; width: auto; display: block; }
 
         .search-input {
             width: 100%;
@@ -789,7 +890,8 @@
         .nav-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .nav-item-wrap {
@@ -823,10 +925,14 @@
         }
 
         .nav-avatar {
-            width: 36px;
-            height: 36px;
+            width: 36px !important;
+            height: 36px !important;
+            min-width: 36px !important;
+            min-height: 36px !important;
             border-radius: 999px;
             object-fit: cover;
+            flex-shrink: 0;
+            display: block;
         }
         
         .user-link {
@@ -1445,23 +1551,12 @@
               document.body.classList.remove('mobile-menu-open'); 
           } 
       })">
-    
-    <!-- Demo Banner -->
-    <div class="demo-banner" style="position: fixed !important; top: 64px !important; left: 0 !important; right: 0 !important; z-index: 999 !important; margin: 0 !important; padding: 14px 20px !important;">
-        <svg class="demo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-        <span class="demo-text" style="white-space: normal !important; max-width: none !important; text-align: center;">{{ __('demo.banner_short') }}</span>
-        <span class="demo-badge">DEMO</span>
-    </div>
 
     <!-- Mobile Navigation Overlay -->
     <div class="mobile-nav-overlay" :class="{ 'open': mobileMenuOpen }" @click="mobileMenuOpen = false" style="position: fixed !important; top: -1px !important; left: 0 !important; right: 0 !important; bottom: -1px !important; width: 100vw !important; height: calc(100% + 2px) !important; background: rgba(0,0,0,0.9) !important; backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; z-index: 9998 !important; margin: 0 !important; padding: 0 !important;"></div>
     
     <!-- Mobile Navigation Drawer -->
-    <div class="mobile-nav-drawer" :class="{ 'open': mobileMenuOpen }" @touchmove.stop style="position: fixed !important; top: -1px !important; left: 0 !important; bottom: -1px !important; height: calc(100% + 2px) !important; z-index: 9999 !important; background: linear-gradient(180deg, #0d0d12 0%, #080810 50%, #050508 100%) !important; border-right: 1px solid rgba(245,158,11,0.2) !important; box-shadow: 8px 0 60px rgba(0,0,0,0.9) !important; margin: 0 !important; padding: 0 !important;">
+    <div class="mobile-nav-drawer" :class="{ 'open': mobileMenuOpen }" @touchmove.stop style="position: fixed !important; top: -1px !important; left: 0 !important; bottom: -1px !important; width: 85vw !important; max-width: 320px !important; height: calc(100% + 2px) !important; z-index: 9999 !important; background: linear-gradient(180deg, #0d0d12 0%, #080810 50%, #050508 100%) !important; border-right: 1px solid rgba(245,158,11,0.2) !important; box-shadow: 8px 0 60px rgba(0,0,0,0.9) !important; margin: 0 !important; padding: 0 !important;">
         <div class="mobile-nav-header" style="background: linear-gradient(180deg, rgba(245,158,11,0.1) 0%, transparent 100%) !important; padding: 24px 20px !important; border-bottom: 1px solid rgba(245,158,11,0.25) !important;">
             <a href="{{ url('/products') }}">
                 <img src="{{ asset('storage/logo/logoShopLy.png') }}" class="mobile-nav-logo" alt="e-Shop" style="height: 52px !important; filter: drop-shadow(0 4px 16px rgba(245,158,11,0.7)) !important;">
@@ -1675,6 +1770,35 @@
             </div>
 
             <div class="nav-actions">
+                <!-- Demo Warning Icon -->
+                <div class="demo-warning-icon" x-data="{ showTooltip: false, showModal: false }" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" @click="showModal = true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <!-- Desktop Tooltip -->
+                    <div class="demo-tooltip" x-show="showTooltip" x-cloak x-transition>
+                        <strong>{{ __('demo.tooltip_title') }}</strong>
+                        <p>{{ __('demo.tooltip_text') }}</p>
+                    </div>
+                    <!-- Mobile Modal -->
+                    <div class="demo-modal-overlay" x-show="showModal" x-cloak @click.stop @click.self="showModal = false" x-transition.opacity>
+                        <div class="demo-modal" @click.stop x-transition.scale.origin.top>
+                            <div class="demo-modal-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                    <line x1="12" y1="9" x2="12" y2="13"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                            </div>
+                            <h3>{{ __('demo.modal_title') }}</h3>
+                            <p>{{ __('demo.modal_text') }}</p>
+                            <button @click.stop="showModal = false">{{ __('demo.modal_close') }}</button>
+                        </div>
+                    </div>
+                </div>
+
                 @auth
                     <!-- Notifications -->
                     <div class="relative" x-data="notificationDropdown()" @click.away="open = false">
@@ -1762,13 +1886,13 @@
                         <svg xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 -960 960 960" width="18" fill="currentColor">
                             <path d="m480-560-56-56 63-64H320v-80h167l-64-64 57-56 160 160-160 160ZM280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM40-800v-80h131l170 360h280l156-280h91L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68.5-39t-1.5-79l54-98-144-304H40Z"/>
                         </svg>
-                        {{ __('nav.checkout') }}
+                        <span class="checkout-text">{{ __('nav.checkout') }}</span>
                     </a>
 
                     <!-- Profile Dropdown -->
-                    <div class="relative" x-data="{ profileOpen: false }" @click.away="profileOpen = false">
-                        <button @click="profileOpen = !profileOpen" class="user-link" style="background: none; border: none; cursor: pointer;">
-                            <img src="{{ auth()->user()?->avatar_url ?? asset('storage/logo/no_avatar.png') }}" class="nav-avatar" alt="avatar">
+                    <div class="relative" style="display: flex !important;" x-data="{ profileOpen: false }" @click.away="profileOpen = false">
+                        <button @click="profileOpen = !profileOpen" class="user-link" style="background: none; border: none; cursor: pointer; display: flex !important; align-items: center;">
+                            <img src="{{ auth()->user()?->avatar_url ?? asset('storage/logo/no_avatar.png') }}" class="nav-avatar" alt="avatar" style="width: 36px !important; height: 36px !important; min-width: 36px !important; border-radius: 999px; object-fit: cover; display: block !important;">
                             <span class="user-name">{{ auth()->user()->name }}</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron-icon" :class="{ 'rotate-180': profileOpen }" style="transition: transform 0.2s;">
                                 <path d="M6 9l6 6 6-6"/>

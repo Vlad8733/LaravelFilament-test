@@ -23,25 +23,16 @@ class TicketAttachment extends Model
         'file_size' => 'integer',
     ];
 
-    /**
-     * Сообщение, к которому относится вложение
-     */
     public function ticketMessage(): BelongsTo
     {
         return $this->belongsTo(TicketMessage::class);
     }
 
-    /**
-     * Получить URL файла
-     */
     public function getUrlAttribute(): string
     {
         return Storage::url($this->file_path);
     }
 
-    /**
-     * Получить читаемый размер файла
-     */
     public function getHumanReadableSizeAttribute(): string
     {
         $bytes = $this->file_size;
@@ -54,9 +45,6 @@ class TicketAttachment extends Model
         return round($bytes, 2).' '.$units[$i];
     }
 
-    /**
-     * Проверка, является ли файл изображением
-     */
     public function isImage(): bool
     {
         return in_array($this->file_type, ['image/jpeg', 'image/png', 'image/gif', 'image/webp']);

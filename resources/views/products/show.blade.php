@@ -102,11 +102,18 @@
             <!-- Product Gallery -->
             <div class="product-gallery">
                 @php $primary = ($product->images && $product->images->count() > 0) ? $product->images->first() : null; @endphp
-                <div class="gallery-main">
+                <div class="gallery-main" 
+                     x-data="{ zooming: false, zoomLevel: 2.5 }"
+                     @mouseenter="if(window.innerWidth > 1024) { zooming = true; $nextTick(() => { if($refs.mainImage && $refs.result) { $refs.result.style.backgroundImage = 'url(' + $refs.mainImage.src + ')'; $refs.result.style.backgroundSize = ($refs.mainImage.offsetWidth * zoomLevel) + 'px ' + ($refs.mainImage.offsetHeight * zoomLevel) + 'px'; } }); }"
+                     @mousemove="if(!zooming) return; let img = $refs.mainImage; let lens = $refs.lens; let result = $refs.result; let rect = img.getBoundingClientRect(); let x = $event.clientX - rect.left; let y = $event.clientY - rect.top; let lensW = lens.offsetWidth; let lensH = lens.offsetHeight; let lensX = Math.max(0, Math.min(x - lensW/2, img.offsetWidth - lensW)); let lensY = Math.max(0, Math.min(y - lensH/2, img.offsetHeight - lensH)); lens.style.left = lensX + 'px'; lens.style.top = lensY + 'px'; result.style.backgroundPosition = '-' + (lensX * zoomLevel) + 'px -' + (lensY * zoomLevel) + 'px';"
+                     @mouseleave="zooming = false">
                     @if($primary)
                         <img id="main-product-image"
                              src="{{ asset('storage/' . $primary->image_path) }}"
-                             alt="{{ $primary->alt_text ?? $product->name }}">
+                             alt="{{ $primary->alt_text ?? $product->name }}"
+                             x-ref="mainImage">
+                        <!-- Zoom Lens -->
+                        <div class="zoom-lens" x-show="zooming" x-ref="lens" x-cloak></div>
                     @else
                         <div class="gallery-placeholder">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,6 +121,8 @@
                             </svg>
                         </div>
                     @endif
+                    <!-- Zoom Result (large preview) -->
+                    <div class="zoom-result" x-show="zooming" x-ref="result" x-cloak></div>
                 </div>
 
                 @if($product->images && $product->images->count() > 1)

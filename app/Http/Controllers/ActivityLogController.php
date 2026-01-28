@@ -13,19 +13,16 @@ class ActivityLogController extends Controller
     {
         $query = ActivityLog::with('user')->where('user_id', Auth::id());
 
-        // Поиск по действию
         if ($search = $request->input('search')) {
             $query->where('action', 'like', "%$search%");
         }
 
-        // Фильтрация по типу действия
         if ($type = $request->input('type')) {
             $query->where('action', 'like', "$type:%");
         }
 
         $logs = $query->orderByDesc('created_at')->paginate(20)->withQueryString();
 
-        // Для фильтрации по типам действий (уникальные action до ':')
         $rawTypes = ActivityLog::where('user_id', Auth::id())
             ->selectRaw('LEFT(action, LOCATE(":", action) - 1) as type')
             ->whereRaw('LOCATE(":", action) > 0')
@@ -34,17 +31,17 @@ class ActivityLogController extends Controller
 
         $types = $rawTypes->map(function ($type) {
             $type = trim($type);
-            // Преобразуем тип к ключу перевода
+
             $key = Str::snake(strtolower($type));
             $translationKey = "activity_log.log.$key";
             $label = __($translationKey);
-            // Если перевод не найден, используем оригинальный текст
+
             if ($label === $translationKey) {
                 $label = $type;
             }
 
             return [
-                'key' => $type, // Используем оригинальный тип для фильтрации
+                'key' => $type,
                 'label' => $label,
             ];
         });

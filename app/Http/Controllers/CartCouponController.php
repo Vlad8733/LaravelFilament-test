@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Log;
 
 class CartCouponController extends Controller
 {
-    /**
-     * Apply a coupon to the cart.
-     */
     public function apply(Request $request): JsonResponse
     {
         $userId = auth()->id();
@@ -108,9 +105,6 @@ class CartCouponController extends Controller
         }
     }
 
-    /**
-     * Remove the coupon from the cart.
-     */
     public function remove(): JsonResponse
     {
         session()->forget('coupon');
@@ -131,9 +125,6 @@ class CartCouponController extends Controller
         ]);
     }
 
-    /**
-     * Calculate the total for items the coupon applies to.
-     */
     protected function calculateApplicableTotal($cartItems, Coupon $coupon): array
     {
         $applicableTotal = 0;

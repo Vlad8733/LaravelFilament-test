@@ -48,34 +48,20 @@ class Webhook extends Model
         'last_triggered_at' => 'datetime',
     ];
 
-    /**
-     * Hide sensitive data from serialization
-     */
     protected $hidden = [
         'secret',
     ];
 
-    /**
-     * Get all logs for this webhook.
-     */
     public function logs(): HasMany
     {
         return $this->hasMany(WebhookLog::class);
     }
 
-    /**
-     * Check if webhook listens to a specific event.
-     */
     public function listensTo(string $event): bool
     {
         return $this->is_active && in_array($event, $this->events ?? []);
     }
 
-    /**
-     * Get all active webhooks for a specific event.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Webhook>
-     */
     public static function forEvent(string $event): \Illuminate\Database\Eloquent\Collection
     {
         return static::where('is_active', true)
@@ -83,9 +69,6 @@ class Webhook extends Model
             ->get();
     }
 
-    /**
-     * Generate HMAC signature for payload.
-     */
     public function generateSignature(string $payload): ?string
     {
         if (! $this->secret) {

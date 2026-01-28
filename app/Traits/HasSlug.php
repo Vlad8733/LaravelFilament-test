@@ -4,12 +4,6 @@ namespace App\Traits;
 
 use Illuminate\Support\Str;
 
-/**
- * Trait for models that need unique slug generation
- *
- * Usage: Add `use HasSlug;` to your model
- * Override `slugSourceColumn()` if slug should be generated from a column other than 'name'
- */
 trait HasSlug
 {
     public static function bootHasSlug(): void
@@ -27,17 +21,11 @@ trait HasSlug
         });
     }
 
-    /**
-     * The column to use as source for slug generation
-     */
     protected function slugSourceColumn(): string
     {
         return 'name';
     }
 
-    /**
-     * Generate a unique slug
-     */
     public static function generateUniqueSlug(string $name, ?int $ignoreId = null): string
     {
         $slug = Str::slug($name);
@@ -55,9 +43,6 @@ trait HasSlug
         return $slug;
     }
 
-    /**
-     * Use slug for route model binding
-     */
     public function getRouteKeyName(): string
     {
         return 'slug';

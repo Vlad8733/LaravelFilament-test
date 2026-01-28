@@ -9,25 +9,16 @@ use Illuminate\Support\Facades\Log;
 
 class WebhookService
 {
-    /**
-     * Dispatch webhooks for an event.
-     *
-     * @param  array<string, mixed>  $payload
-     */
     public function dispatch(string $event, array $payload): void
     {
         $webhooks = Webhook::forEvent($event);
 
         foreach ($webhooks as $webhook) {
+            /** @var Webhook $webhook */
             $this->send($webhook, $event, $payload);
         }
     }
 
-    /**
-     * Send a webhook.
-     *
-     * @param  array<string, mixed>  $payload
-     */
     public function send(Webhook $webhook, string $event, array $payload, int $attempt = 1): WebhookLog
     {
         $fullPayload = [
@@ -38,7 +29,6 @@ class WebhookService
 
         $jsonPayload = json_encode($fullPayload);
 
-        // Create log entry
         $log = WebhookLog::create([
             'webhook_id' => $webhook->id,
             'event' => $event,
@@ -54,7 +44,6 @@ class WebhookService
                 'X-Webhook-Timestamp' => (string) now()->timestamp,
             ];
 
-            // Add signature if secret is set
             if ($signature = $webhook->generateSignature($jsonPayload ?: '')) {
                 $headers['X-Webhook-Signature'] = $signature;
             }
@@ -83,17 +72,17 @@ class WebhookService
         return $log;
     }
 
-    /**
-     * Retry a failed webhook log.
-     */
     public function retry(WebhookLog $log): ?WebhookLog
     {
         if (! $log->canRetry()) {
             return null;
         }
 
+        /** @var Webhook $wh */
+        $wh = $log->webhook;
+
         return $this->send(
-            $log->webhook,
+            $wh,
             $log->event,
             $log->payload['data'] ?? [],
             $log->attempt + 1

@@ -36,25 +36,16 @@ class UserAddress extends Model
         'address_line2',
     ];
 
-    /**
-     * Accessor for address_line1 (alias for address_line_1)
-     */
     public function getAddressLine1Attribute(): ?string
     {
         return $this->attributes['address_line_1'] ?? null;
     }
 
-    /**
-     * Accessor for address_line2 (alias for address_line_2)
-     */
     public function getAddressLine2Attribute(): ?string
     {
         return $this->attributes['address_line_2'] ?? null;
     }
 
-    /**
-     * Get formatted full address
-     */
     public function getFullAddressAttribute(): string
     {
         $parts = array_filter([
@@ -69,9 +60,6 @@ class UserAddress extends Model
         return implode(', ', $parts);
     }
 
-    /**
-     * Get label icon
-     */
     public function getLabelIconAttribute(): string
     {
         return match (strtolower($this->label)) {
@@ -82,9 +70,6 @@ class UserAddress extends Model
         };
     }
 
-    /**
-     * Available label options
-     */
     public static function labelOptions(): array
     {
         return [
@@ -95,9 +80,6 @@ class UserAddress extends Model
         ];
     }
 
-    /**
-     * Country options (simplified list)
-     */
     public static function countryOptions(): array
     {
         return [

@@ -1,7 +1,5 @@
 <?php
 
-// filepath: app/Http/Controllers/ReviewController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\Product;
@@ -10,32 +8,20 @@ use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
-    public function store(Request $request, Product $product)
+    public function store(Request $r, Product $product)
     {
-        $request->validate([
-            'reviewer_name' => 'required|string|max:255',
-            'reviewer_email' => 'required|email|max:255',
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|max:1000',
+        $r->validate([
+            'reviewer_name' => 'required|string|max:255', 'reviewer_email' => 'required|email|max:255',
+            'rating' => 'required|integer|min:1|max:5', 'comment' => 'required|string|max:1000',
         ]);
 
-        $review = Review::create([
-            'product_id' => $product->id,
-            'reviewer_name' => $request->reviewer_name,
-            'reviewer_email' => $request->reviewer_email,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'is_approved' => false, // Требует модерации
+        $rev = Review::create([
+            'product_id' => $product->id, 'reviewer_name' => $r->reviewer_name, 'reviewer_email' => $r->reviewer_email,
+            'rating' => $r->rating, 'comment' => $r->comment, 'is_approved' => false,
         ]);
 
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Thank you for your review! It will be published after moderation.',
-                'review' => $review,
-            ]);
-        }
+        $msg = 'Thank you for your review! It will be published after moderation.';
 
-        return redirect()->back()->with('success', 'Thank you for your review! It will be published after moderation.');
+        return $r->ajax() ? response()->json(['success' => true, 'message' => $msg, 'review' => $rev]) : redirect()->back()->with('success', $msg);
     }
 }

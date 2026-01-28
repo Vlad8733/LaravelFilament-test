@@ -8,47 +8,23 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductImage extends Model
 {
-    protected $fillable = [
-        'product_id',
-        'image_path',
-        'alt_text',
-        'is_primary',
-        'sort_order',
-    ];
+    protected $fillable = ['product_id', 'image_path', 'alt_text', 'is_primary', 'sort_order'];
 
-    protected $casts = [
-        'is_primary' => 'boolean',
-        'sort_order' => 'integer',
-    ];
+    protected $casts = ['is_primary' => 'boolean', 'sort_order' => 'integer'];
 
     protected static function boot()
     {
         parent::boot();
-
-        // Когда устанавливается primary изображение, убираем primary у других
-        static::saving(function ($image) {
-            if ($image->is_primary) {
-                static::where('product_id', $image->product_id)
-                    ->where('id', '!=', $image->id)
-                    ->update(['is_primary' => false]);
-            }
-        });
-
-        // Если удаляется primary изображение, делаем первое оставшееся primary
-        static::deleted(function ($image) {
-            if ($image->is_primary) {
-                $firstImage = static::where('product_id', $image->product_id)
-                    ->orderBy('sort_order')
-                    ->first();
-
-                if ($firstImage) {
-                    $firstImage->update(['is_primary' => true]);
+        static::saving(fn ($img) => $img->is_primary ? static::where('product_id', $img->product_id)->where('id', '!=', $img->id)->update(['is_primary' => false]) : null);
+        static::deleted(function ($img) {
+            if ($img->is_primary) {
+                $first = static::where('product_id', $img->product_id)->orderBy('sort_order')->first();
+                if ($first) {
+                    $first->update(['is_primary' => true]);
                 }
             }
-
-            // Удаляем файл изображения
-            if ($image->image_path && Storage::disk('public')->exists($image->image_path)) {
-                Storage::disk('public')->delete($image->image_path);
+            if ($img->image_path && Storage::disk('public')->exists($img->image_path)) {
+                Storage::disk('public')->delete($img->image_path);
             }
         });
     }
@@ -60,11 +36,7 @@ class ProductImage extends Model
 
     public function getImageUrlAttribute(): string
     {
-        if ($this->image_path) {
-            return Storage::disk('public')->url($this->image_path);
-        }
-
-        return asset('images/no-image.png'); // fallback изображение
+        return $this->image_path ? Storage::disk('public')->url($this->image_path) : asset('images/no-image.png');
     }
 
     public function getFullImagePathAttribute(): string

@@ -27,7 +27,7 @@ class ConfigureImport extends Page
 
     protected function getFormSchema(): array
     {
-        // target fields we support mapping to
+
         $targetFields = [
             'name' => 'Product Name',
             'slug' => 'Slug',
@@ -70,20 +70,17 @@ class ConfigureImport extends Page
             }
         }
 
-        // preload mapping if present
         $this->mapping = $this->importJob->mapping ?? [];
 
-        // fill the form state from mapping
         $this->form->fill(['mapping' => $this->mapping]);
     }
 
     public function submit()
     {
         $data = $this->form->getState();
-        // persist mapping
+
         $this->importJob->update(['mapping' => $data]);
 
-        // dispatch job now that mapping is configured
         \App\Jobs\ImportProductsJob::dispatch($this->importJob->file_path, $this->importJob->id)->onQueue('imports');
 
         Notification::make()->success()->title('Import queued with mapping')->send();

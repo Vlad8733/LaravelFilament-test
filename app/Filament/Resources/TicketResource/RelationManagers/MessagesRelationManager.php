@@ -31,7 +31,7 @@ class MessagesRelationManager extends RelationManager
                     ->label('Attachments')
                     ->multiple()
                     ->maxFiles(5)
-                    ->maxSize(10240) // 10MB
+                    ->maxSize(10240)
                     ->acceptedFileTypes(['image/*', 'application/pdf', '.doc', '.docx', '.txt'])
                     ->directory('ticket-attachments')
                     ->columnSpanFull()
@@ -92,12 +92,11 @@ class MessagesRelationManager extends RelationManager
                         return $data;
                     })
                     ->after(function ($record, $data) {
-                        // Обновляем время последнего ответа в заявке
+
                         $record->ticket->update([
                             'last_reply_at' => now(),
                         ]);
 
-                        // Сохраняем вложения
                         if (isset($data['attachments']) && is_array($data['attachments'])) {
                             foreach ($data['attachments'] as $filePath) {
                                 $fileName = basename($filePath);
@@ -113,7 +112,6 @@ class MessagesRelationManager extends RelationManager
                             }
                         }
 
-                        // Отправляем уведомление пользователю
                         $record->ticket->user->notify(new TicketReplied($record->ticket, $record));
                     }),
             ])

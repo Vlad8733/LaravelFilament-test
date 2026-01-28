@@ -36,16 +36,12 @@ class TicketChat extends Page
         $this->record = Ticket::with(['messages.user', 'messages.attachments', 'user'])->findOrFail($record);
         $this->messagesCount = $this->record->messages()->count();
 
-        // Mark all unread messages as read
         $this->record->messages()
             ->where('is_admin_reply', false)
             ->where('is_read', false)
             ->update(['is_read' => true]);
     }
 
-    /**
-     * Polling method - check for new messages every 3 seconds
-     */
     public function checkNewMessages(): void
     {
         $currentCount = $this->record->messages()->count();
@@ -55,7 +51,6 @@ class TicketChat extends Page
             $this->record->refresh();
             $this->record->load(['messages.user', 'messages.attachments']);
 
-            // Mark new messages as read
             $this->record->messages()
                 ->where('is_admin_reply', false)
                 ->where('is_read', false)
@@ -78,7 +73,6 @@ class TicketChat extends Page
             'is_admin_reply' => true,
         ]);
 
-        // Handle attachments
         if (! empty($this->attachments)) {
             foreach ($this->attachments as $file) {
                 $path = $file->store('ticket-attachments', 'public');
@@ -97,7 +91,6 @@ class TicketChat extends Page
             'assigned_to' => $this->record->assigned_to ?? Auth::id(),
         ]);
 
-        // Notify user
         try {
             $this->record->user->notify(new TicketReplied($this->record, $message));
         } catch (\Exception $e) {
@@ -126,7 +119,7 @@ class TicketChat extends Page
 
     public function deleteTicket()
     {
-        // Only super_admin can delete
+
         if (Auth::user()?->role !== 'super_admin') {
             \Filament\Notifications\Notification::make()
                 ->danger()
@@ -137,7 +130,6 @@ class TicketChat extends Page
             return;
         }
 
-        // Delete all attachments
         foreach ($this->record->messages as $message) {
             foreach ($message->attachments as $attachment) {
                 \Storage::disk('public')->delete($attachment->file_path);

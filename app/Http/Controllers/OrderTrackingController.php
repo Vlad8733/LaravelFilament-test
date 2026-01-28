@@ -7,62 +7,27 @@ use Illuminate\Http\Request;
 
 class OrderTrackingController extends Controller
 {
-    public function show(Request $request, $orderNumber)
+    public function show(Request $r, $num)
     {
-        // Ищем заказ по номеру
-        $order = Order::with([
-            'status',
-            'statusHistory.status',
-            'statusHistory.changedBy',
-            'items.product',
-        ])
-            ->where('order_number', $orderNumber)
-            ->firstOrFail();
-
-        // Проверяем доступ: либо свой заказ, либо знаем email
-        $email = $request->query('email');
+        $o = Order::with(['status', 'statusHistory.status', 'statusHistory.changedBy', 'items.product'])->where('order_number', $num)->firstOrFail();
+        $email = $r->query('email');
 
         if (auth()->check()) {
-            if (auth()->user()->email !== $order->customer_email) {
+            if (auth()->user()->email !== $o->customer_email) {
                 abort(403, 'You do not have permission to view this order');
             }
-        } elseif (! $email || $email !== $order->customer_email) {
-            // Если не авторизован - показываем форму ввода email
-            return view('orders.tracking-auth', [
-                'orderNumber' => $orderNumber,
-            ]);
+        } elseif (! $email || $email !== $o->customer_email) {
+            return view('orders.tracking-auth', ['orderNumber' => $num]);
         }
 
-        // Получаем все возможные статусы для timeline
-        $allStatuses = \App\Models\OrderStatus::where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
-
-        return view('orders.tracking', [
-            'order' => $order,
-            'allStatuses' => $allStatuses,
-        ]);
+        return view('orders.tracking', ['order' => $o, 'allStatuses' => \App\Models\OrderStatus::where('is_active', true)->orderBy('sort_order')->get()]);
     }
 
-    public function search(Request $request)
+    public function search(Request $r)
     {
-        $request->validate([
-            'order_number' => 'required|string',
-            'email' => 'required|email',
-        ]);
+        $r->validate(['order_number' => 'required|string', 'email' => 'required|email']);
+        $o = Order::where('order_number', $r->order_number)->where('customer_email', $r->email)->first();
 
-        $order = Order::where('order_number', $request->order_number)
-            ->where('customer_email', $request->email)
-            ->first();
-
-        if (! $order) {
-            return back()->withErrors([
-                'order_number' => 'Order not found with this email address.',
-            ]);
-        }
-
-        return redirect()->route('orders.tracking.show', [
-            'orderNumber' => $order->order_number,
-        ]);
+        return $o ? redirect()->route('orders.tracking.show', ['orderNumber' => $o->order_number]) : back()->withErrors(['order_number' => 'Order not found with this email address.']);
     }
 }

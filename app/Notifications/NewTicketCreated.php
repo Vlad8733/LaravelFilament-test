@@ -12,9 +12,6 @@ class NewTicketCreated extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * Number of times to retry the notification.
-     */
     public int $tries = 3;
 
     public Ticket $ticket;
@@ -26,7 +23,7 @@ class NewTicketCreated extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        // Send email to admins/staff, database to all
+
         return ['database', 'mail'];
     }
 

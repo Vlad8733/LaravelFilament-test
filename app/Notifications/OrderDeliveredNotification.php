@@ -16,10 +16,6 @@ class OrderDeliveredNotification extends Notification implements ShouldQueue
         public Order $order
     ) {}
 
-    /**
-     * @param  mixed  $notifiable
-     * @return array<string>
-     */
     public function via($notifiable): array
     {
         return ['mail', 'database'];
@@ -37,9 +33,6 @@ class OrderDeliveredNotification extends Notification implements ShouldQueue
             ->line(__('notifications.order_delivered_thank_you'));
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function toArray(mixed $notifiable): array
     {
         return [

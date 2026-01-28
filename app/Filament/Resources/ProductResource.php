@@ -45,9 +45,6 @@ class ProductResource extends Resource
         return 'primary';
     }
 
-    /**
-     * Админы не могут создавать товары - только редактировать и модерировать
-     */
     public static function canCreate(): bool
     {
         return false;
@@ -218,7 +215,6 @@ class ProductResource extends Resource
                             return null;
                         }
 
-                        // Возвращаем полный URL
                         return asset('storage/'.$primaryImage->image_path);
                     })
                     ->size(60)
@@ -322,17 +318,14 @@ class ProductResource extends Resource
                             return;
                         }
 
-                        // $data['csv'] will be the stored path when using FileUpload with disk
                         $path = $data['csv'];
 
-                        // Create an ImportJob record so admin can configure mapping before dispatch
                         $import = \App\Models\ImportJob::create([
                             'uuid' => (string) \Illuminate\Support\Str::uuid(),
                             'user_id' => auth()->id() ?? null,
                             'file_path' => $path,
                         ]);
 
-                        // redirect to configure page
                         return redirect(\App\Filament\Resources\ImportJobResource::getUrl('configure', ['record' => $import->id]));
                     }),
                 \Filament\Tables\Actions\Action::make('export')

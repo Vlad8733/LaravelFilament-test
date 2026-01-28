@@ -7,17 +7,11 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAddressRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return auth()->check();
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
         return [
@@ -34,9 +28,6 @@ class StoreAddressRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get custom messages for validator errors.
-     */
     public function messages(): array
     {
         return [
@@ -50,9 +41,6 @@ class StoreAddressRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get available country options.
-     */
     public static function countryOptions(): array
     {
         return UserAddress::countryOptions();

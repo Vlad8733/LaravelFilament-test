@@ -12,256 +12,144 @@ use Illuminate\Support\Facades\Notification;
 
 class TicketController extends Controller
 {
-    /**
-     * Список тикетов пользователя
-     */
     public function index()
     {
-        $tickets = Auth::user()->tickets()
+        $u = Auth::user();
+        $tickets = $u->tickets()
             ->withCount('messages')
-            ->withCount(['messages as unread_messages_for_user_count' => function ($query) {
-                $query->where('is_admin_reply', true)->where('is_read', false);
-            }])
-            ->with(['messages', 'latestMessage'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->withCount(['messages as unread_messages_for_user_count' => fn ($q) => $q->where('is_admin_reply', true)->where('is_read', false)])
+            ->with(['messages', 'latestMessage'])->orderBy('created_at', 'desc')->paginate(10);
 
-        $stats = [
-            'total' => Auth::user()->tickets()->count(),
-            'open' => Auth::user()->tickets()->where('status', 'open')->count(),
-            'in_progress' => Auth::user()->tickets()->where('status', 'in_progress')->count(),
-            'closed' => Auth::user()->tickets()->where('status', 'closed')->count(),
-        ];
-
-        return view('tickets.index', compact('tickets', 'stats'));
+        return view('tickets.index', [
+            'tickets' => $tickets,
+            'stats' => [
+                'total' => $u->tickets()->count(), 'open' => $u->tickets()->where('status', 'open')->count(),
+                'in_progress' => $u->tickets()->where('status', 'in_progress')->count(), 'closed' => $u->tickets()->where('status', 'closed')->count(),
+            ],
+        ]);
     }
 
-    /**
-     * Форма создания нового тикета
-     */
     public function create()
     {
         return view('tickets.create');
     }
 
-    /**
-     * Сохранение нового тикета
-     */
-    public function store(Request $request)
+    public function store(Request $r)
     {
-        $validated = $request->validate([
-            'subject' => 'required|string|max:255',
-            'priority' => 'required|string|in:low,medium,high,urgent',
-            'description' => 'required|string|min:10',
-            'attachments.*' => 'nullable|file|max:10240', // 10MB max
+        $v = $r->validate([
+            'subject' => 'required|string|max:255', 'priority' => 'required|string|in:low,medium,high,urgent',
+            'description' => 'required|string|min:10', 'attachments.*' => 'nullable|file|max:10240',
         ]);
 
         DB::beginTransaction();
         try {
-            // Создаём тикет
-            $ticket = Ticket::create([
-                'user_id' => Auth::id(),
-                'subject' => $validated['subject'],
-                'description' => $validated['description'],
-                'priority' => $validated['priority'],
-                'status' => 'open',
-            ]);
+            $t = Ticket::create(['user_id' => Auth::id(), 'subject' => $v['subject'], 'description' => $v['description'], 'priority' => $v['priority'], 'status' => 'open']);
+            $msg = $t->messages()->create(['user_id' => Auth::id(), 'message' => $v['description'], 'is_admin_reply' => false]);
+            $this->saveAttachments($r, $msg);
 
-            // Создаём первое сообщение
-            $message = $ticket->messages()->create([
-                'user_id' => Auth::id(),
-                'message' => $validated['description'],
-                'is_admin_reply' => false,
-            ]);
-
-            // Обрабатываем вложения
-            if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $path = $file->store('ticket-attachments', 'public');
-                    $message->attachments()->create([
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_path' => $path,
-                        'file_type' => $file->getMimeType(),
-                        'file_size' => $file->getSize(),
-                    ]);
-                }
-            }
-
-            // Уведомляем админов о новом тикете
             $admins = User::where('role', User::ROLE_ADMIN)->get();
-            if ($admins->count() > 0) {
-                Notification::send($admins, new NewTicketCreated($ticket));
+            if ($admins->count()) {
+                Notification::send($admins, new NewTicketCreated($t));
             }
-
             DB::commit();
 
-            return redirect()->route('tickets.show', $ticket)
-                ->with('success', 'Ticket created successfully!');
-
+            return redirect()->route('tickets.show', $t)->with('success', 'Ticket created!');
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->withInput()->with('error', 'Failed to create ticket: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Failed: '.$e->getMessage());
         }
     }
 
-    /**
-     * Показать тикет (чат)
-     */
     public function show(Ticket $ticket)
     {
-        // Проверяем что тикет принадлежит пользователю
         if ($ticket->user_id !== Auth::id()) {
             abort(403);
         }
-
-        // Помечаем сообщения от админа как прочитанные
-        $ticket->messages()
-            ->where('is_admin_reply', true)
-            ->where('is_read', false)
-            ->update(['is_read' => true]);
-
+        $ticket->messages()->where('is_admin_reply', true)->where('is_read', false)->update(['is_read' => true]);
         $ticket->load(['messages.user', 'messages.attachments']);
 
-        return view('tickets.show', compact('ticket'));
+        return view('tickets.show', ['ticket' => $ticket]);
     }
 
-    /**
-     * Ответ на тикет
-     */
-    public function reply(Request $request, Ticket $ticket)
+    public function reply(Request $r, Ticket $ticket)
     {
-        // Проверяем что тикет принадлежит пользователю
         if ($ticket->user_id !== Auth::id()) {
             abort(403);
         }
-
-        $validated = $request->validate([
-            'message' => 'required|string|min:1',
-            'attachments.*' => 'nullable|file|max:10240',
-        ]);
+        $v = $r->validate(['message' => 'required|string|min:1', 'attachments.*' => 'nullable|file|max:10240']);
 
         DB::beginTransaction();
         try {
-            $message = $ticket->messages()->create([
-                'user_id' => Auth::id(),
-                'message' => $validated['message'],
-                'is_admin_reply' => false,
-            ]);
-
-            // Обрабатываем вложения
-            if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $path = $file->store('ticket-attachments', 'public');
-                    $message->attachments()->create([
-                        'file_name' => $file->getClientOriginalName(),
-                        'file_path' => $path,
-                        'file_type' => $file->getMimeType(),
-                        'file_size' => $file->getSize(),
-                    ]);
-                }
-            }
-
-            // Обновляем статус тикета если он был закрыт
+            $msg = $ticket->messages()->create(['user_id' => Auth::id(), 'message' => $v['message'], 'is_admin_reply' => false]);
+            $this->saveAttachments($r, $msg);
             if ($ticket->status === 'closed') {
                 $ticket->update(['status' => 'open']);
             }
-
             $ticket->update(['last_reply_at' => now()]);
-
             DB::commit();
 
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message->load(['user', 'attachments']),
-                ]);
+            if ($r->wantsJson()) {
+                return response()->json(['success' => true, 'message' => $msg->load(['user', 'attachments'])]);
             }
 
             return back()->with('success', 'Reply sent!');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
-            if ($request->wantsJson()) {
-                return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-            }
-
-            return back()->with('error', 'Failed to send reply');
+            return $r->wantsJson() ? response()->json(['success' => false, 'error' => $e->getMessage()], 500) : back()->with('error', 'Failed');
         }
     }
 
-    /**
-     * Закрыть тикет
-     */
-    public function close(Ticket $ticket)
+    public function close(Ticket $t)
     {
-        if ($ticket->user_id !== Auth::id()) {
+        if ($t->user_id !== Auth::id()) {
             abort(403);
         }
-
-        $ticket->update(['status' => 'closed']);
+        $t->update(['status' => 'closed']);
 
         return back()->with('success', 'Ticket closed');
     }
 
-    public function reopen(Ticket $ticket)
+    public function reopen(Ticket $t)
     {
-        if ($ticket->user_id !== Auth::id()) {
+        if ($t->user_id !== Auth::id()) {
             abort(403);
         }
-
-        $ticket->update(['status' => 'open']);
+        $t->update(['status' => 'open']);
 
         return back()->with('success', 'Ticket reopened');
     }
 
-    /**
-     * Check for new messages (for real-time polling)
-     */
-    public function checkNewMessages(Request $request, Ticket $ticket)
+    public function checkNewMessages(Request $r, Ticket $ticket)
     {
         if ($ticket->user_id !== Auth::id()) {
             abort(403);
         }
+        $after = $r->get('after', 0);
 
-        $afterId = $request->get('after', 0);
+        $msgs = $ticket->messages()->where('id', '>', $after)->with(['user', 'attachments'])->orderBy('id')->get()->map(fn ($m) => [
+            'id' => $m->id, 'message' => $m->message, 'is_admin_reply' => $m->is_admin_reply,
+            'user_name' => $m->user->name, 'created_at' => $m->created_at->diffForHumans(),
+            'user_avatar' => $m->user->avatar ? asset('storage/'.$m->user->avatar) : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($m->user->email))).'?s=80&d=identicon',
+            'attachments' => $m->attachments->map(fn ($a) => ['file_name' => $a->file_name, 'file_size' => $a->human_readable_size ?? '', 'url' => asset('storage/'.$a->file_path), 'is_image' => str_starts_with($a->file_type ?? '', 'image/')]),
+        ]);
 
-        $messages = $ticket->messages()
-            ->where('id', '>', $afterId)
-            ->with(['user', 'attachments'])
-            ->orderBy('id', 'asc')
-            ->get()
-            ->map(function ($message) {
-                return [
-                    'id' => $message->id,
-                    'message' => $message->message,
-                    'is_admin_reply' => $message->is_admin_reply,
-                    'user_name' => $message->user->name,
-                    'user_avatar' => $message->user->avatar
-                        ? asset('storage/'.$message->user->avatar)
-                        : 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($message->user->email))).'?s=80&d=identicon',
-                    'created_at' => $message->created_at->diffForHumans(),
-                    'attachments' => $message->attachments->map(function ($att) {
-                        $isImage = str_starts_with($att->file_type ?? '', 'image/');
+        $ticket->messages()->where('id', '>', $after)->where('is_admin_reply', true)->where('is_read', false)->update(['is_read' => true]);
 
-                        return [
-                            'file_name' => $att->file_name,
-                            'file_size' => $att->human_readable_size ?? '',
-                            'url' => asset('storage/'.$att->file_path),
-                            'is_image' => $isImage,
-                        ];
-                    }),
-                ];
-            });
+        return response()->json(['messages' => $msgs]);
+    }
 
-        // Mark admin messages as read
-        $ticket->messages()
-            ->where('id', '>', $afterId)
-            ->where('is_admin_reply', true)
-            ->where('is_read', false)
-            ->update(['is_read' => true]);
-
-        return response()->json(['messages' => $messages]);
+    private function saveAttachments(Request $r, $msg): void
+    {
+        if (! $r->hasFile('attachments')) {
+            return;
+        }
+        foreach ($r->file('attachments') as $f) {
+            $msg->attachments()->create([
+                'file_name' => $f->getClientOriginalName(), 'file_path' => $f->store('ticket-attachments', 'public'),
+                'file_type' => $f->getMimeType(), 'file_size' => $f->getSize(),
+            ]);
+        }
     }
 }

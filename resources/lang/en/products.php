@@ -35,7 +35,7 @@ return [
     'add_to_cart' => 'Add to Cart',
     'added_to_cart' => 'Added to Cart',
     'add_to_wishlist' => 'Add to Wishlist',
-    'added_to_wishlist' => 'Added to Wishlist',
+    'added_to_wishlist' => 'Add to Wishlist',
     'remove_from_wishlist' => 'Remove from Wishlist',
     'out_of_stock' => 'Out of Stock',
     'featured' => 'Featured',

@@ -20,10 +20,9 @@ class AnalyticsController extends Controller
 
     public function index()
     {
-        // Общая статистика
+
         $stats = $this->getGeneralStats();
 
-        // Данные для графиков
         $salesData = $this->getSalesData();
         $categoryData = $this->getCategoryData();
         $topProducts = $this->getTopProducts();
@@ -40,9 +39,6 @@ class AnalyticsController extends Controller
         ));
     }
 
-    /**
-     * API для обновления графиков
-     */
     public function getData(Request $request)
     {
         $period = $request->get('period', '7days');
@@ -55,31 +51,24 @@ class AnalyticsController extends Controller
         ]);
     }
 
-    /**
-     * Общая статистика
-     */
     private function getGeneralStats($period = '30days')
     {
         $days = $period === '7days' ? 7 : ($period === '30days' ? 30 : 365);
         $startDate = Carbon::now()->subDays($days);
         $prevStartDate = Carbon::now()->subDays($days * 2);
 
-        // Текущий период
         $currentRevenue = Order::where('created_at', '>=', $startDate)->sum('total');
         $currentOrders = Order::where('created_at', '>=', $startDate)->count();
         $currentCustomers = User::where('created_at', '>=', $startDate)->where('role', 'user')->count();
 
-        // Предыдущий период для сравнения
         $prevRevenue = Order::whereBetween('created_at', [$prevStartDate, $startDate])->sum('total');
         $prevOrders = Order::whereBetween('created_at', [$prevStartDate, $startDate])->count();
         $prevCustomers = User::whereBetween('created_at', [$prevStartDate, $startDate])->where('role', 'user')->count();
 
-        // Расчет процентного изменения
         $revenueChange = $prevRevenue > 0 ? round((($currentRevenue - $prevRevenue) / $prevRevenue) * 100, 1) : 0;
         $ordersChange = $prevOrders > 0 ? round((($currentOrders - $prevOrders) / $prevOrders) * 100, 1) : 0;
         $customersChange = $prevCustomers > 0 ? round((($currentCustomers - $prevCustomers) / $prevCustomers) * 100, 1) : 0;
 
-        // Средний чек
         $avgOrderValue = $currentOrders > 0 ? round($currentRevenue / $currentOrders, 2) : 0;
         $prevAvgOrderValue = $prevOrders > 0 ? round($prevRevenue / $prevOrders, 2) : 0;
         $avgOrderChange = $prevAvgOrderValue > 0 ? round((($avgOrderValue - $prevAvgOrderValue) / $prevAvgOrderValue) * 100, 1) : 0;
@@ -110,9 +99,6 @@ class AnalyticsController extends Controller
         ];
     }
 
-    /**
-     * Данные о продажах для графика
-     */
     private function getSalesData($period = '7days')
     {
         $days = $period === '7days' ? 7 : ($period === '30days' ? 30 : 365);
@@ -138,9 +124,6 @@ class AnalyticsController extends Controller
         ];
     }
 
-    /**
-     * Данные по категориям для круговой диаграммы
-     */
     private function getCategoryData()
     {
         $categories = Category::withCount(['products' => function ($query) {
@@ -167,9 +150,6 @@ class AnalyticsController extends Controller
         ];
     }
 
-    /**
-     * Топ продуктов по продажам
-     */
     private function getTopProducts($limit = 5)
     {
         return OrderItem::select('product_id', DB::raw('SUM(quantity) as total_sold'), DB::raw('SUM(total) as total_revenue'))
@@ -188,9 +168,6 @@ class AnalyticsController extends Controller
             });
     }
 
-    /**
-     * Последние заказы
-     */
     private function getRecentOrders($limit = 5)
     {
         return Order::with(['user:id,name,email', 'status:id,name,color'])
@@ -210,9 +187,6 @@ class AnalyticsController extends Controller
             });
     }
 
-    /**
-     * Распределение статусов заказов
-     */
     private function getOrderStatusData()
     {
         $statuses = Order::select('order_status_id', DB::raw('COUNT(*) as count'))

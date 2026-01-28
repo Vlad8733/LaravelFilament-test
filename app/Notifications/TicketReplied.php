@@ -14,9 +14,6 @@ class TicketReplied extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * Number of times to retry the notification.
-     */
     public int $tries = 3;
 
     public Ticket $ticket;

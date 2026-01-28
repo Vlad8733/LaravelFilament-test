@@ -8,25 +8,16 @@ use PragmaRX\Google2FA\Google2FA;
 
 trait TwoFactorAuthenticatable
 {
-    /**
-     * Get the Google2FA instance
-     */
     protected function getGoogle2FA(): Google2FA
     {
         return app(Google2FA::class);
     }
 
-    /**
-     * Generate a new 2FA secret key
-     */
     public function generateTwoFactorSecret(): string
     {
         return $this->getGoogle2FA()->generateSecretKey();
     }
 
-    /**
-     * Get the QR code URL for 2FA setup
-     */
     public function getTwoFactorQrCodeUrl(): string
     {
         return $this->getGoogle2FA()->getQRCodeUrl(
@@ -36,17 +27,11 @@ trait TwoFactorAuthenticatable
         );
     }
 
-    /**
-     * Verify a 2FA code
-     */
     public function verifyTwoFactorCode(string $code): bool
     {
         return $this->getGoogle2FA()->verifyKey($this->two_factor_secret, $code);
     }
 
-    /**
-     * Enable 2FA for this user
-     */
     public function enableTwoFactor(string $secret): void
     {
         $this->forceFill([
@@ -57,9 +42,6 @@ trait TwoFactorAuthenticatable
         ])->save();
     }
 
-    /**
-     * Disable 2FA for this user
-     */
     public function disableTwoFactor(): void
     {
         $this->forceFill([
@@ -70,25 +52,16 @@ trait TwoFactorAuthenticatable
         ])->save();
     }
 
-    /**
-     * Check if 2FA is enabled
-     */
     public function hasTwoFactorEnabled(): bool
     {
         return $this->two_factor_enabled && $this->two_factor_confirmed_at !== null;
     }
 
-    /**
-     * Generate recovery codes
-     */
     protected function generateRecoveryCodes(): array
     {
         return Collection::times(8, fn () => Str::random(10).'-'.Str::random(10))->all();
     }
 
-    /**
-     * Get recovery codes
-     */
     public function getRecoveryCodes(): array
     {
         if (! $this->two_factor_recovery_codes) {
@@ -98,9 +71,6 @@ trait TwoFactorAuthenticatable
         return json_decode(decrypt($this->two_factor_recovery_codes), true) ?? [];
     }
 
-    /**
-     * Use a recovery code
-     */
     public function useRecoveryCode(string $code): bool
     {
         $codes = $this->getRecoveryCodes();
@@ -118,9 +88,6 @@ trait TwoFactorAuthenticatable
         return true;
     }
 
-    /**
-     * Regenerate recovery codes
-     */
     public function regenerateRecoveryCodes(): array
     {
         $codes = $this->generateRecoveryCodes();

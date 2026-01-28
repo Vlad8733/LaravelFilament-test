@@ -15,9 +15,6 @@ class PaymentMethodController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Store a new payment method.
-     */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -41,7 +38,6 @@ class PaymentMethodController extends Controller
             $user->paymentMethods()->update(['is_default' => false]);
         }
 
-        // Note: In production, you would get a token from Stripe/PayPal here
         $mockToken = 'tok_'.bin2hex(random_bytes(12));
 
         $paymentMethod = $user->paymentMethods()->create([
@@ -72,9 +68,6 @@ class PaymentMethodController extends Controller
         ]);
     }
 
-    /**
-     * Update an existing payment method.
-     */
     public function update(Request $request, PaymentMethod $paymentMethod): JsonResponse
     {
         $this->authorize('update', $paymentMethod);
@@ -93,7 +86,6 @@ class PaymentMethodController extends Controller
             'expiry_year' => $request->expiry_year,
         ];
 
-        // Update card number if provided (not masked)
         if ($request->last_four && ! str_contains($request->input('card_number', ''), '*')) {
             $updateData['last_four'] = $request->last_four;
             if ($request->brand) {
@@ -109,9 +101,6 @@ class PaymentMethodController extends Controller
         ]);
     }
 
-    /**
-     * Delete a payment method.
-     */
     public function destroy(PaymentMethod $paymentMethod): JsonResponse
     {
         $this->authorize('delete', $paymentMethod);
@@ -132,9 +121,6 @@ class PaymentMethodController extends Controller
         ]);
     }
 
-    /**
-     * Set payment method as default.
-     */
     public function setDefault(PaymentMethod $paymentMethod): JsonResponse
     {
         $this->authorize('update', $paymentMethod);
